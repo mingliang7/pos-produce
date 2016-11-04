@@ -1,0 +1,89 @@
+import { Template } from 'meteor/templating';
+import { TAPi18n } from 'meteor/tap:i18n';
+import 'meteor/tap:i18n-ui';
+
+// Page
+import './sidebar-menu.html';
+
+Tracker.autorun(function () {
+    if (Meteor.userId() || Session.get('currentBranch')) {
+        Meteor.call('currentUserStockAndAccountMappingDoc', { userId: Meteor.userId(), branchId: Session.get('currentBranch') }, function (err, result) {
+            Session.set('currentUserStockAndAccountMappingDoc', result);
+        });
+    }
+});
+
+Template.Cement_sidebarMenu.helpers({
+    // customer
+    groupBalance() {
+        return `/cement/report/groupCustomerBalance?date=${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}`;
+    },
+    termBalance() {
+        return `/cement/report/termCustomerBalance?date=${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}`;
+    },
+    invoiceByCustomer() {
+        return `/cement/report/invoiceByCustomer?date=${moment().startOf('days').format('YYYY-MM-DD HH:mm:ss')},${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}`;
+    },
+    invoiceSummary() {
+        return `/cement/report/invoice?date=${moment().startOf('days').format('YYYY-MM-DD HH:mm:ss')},${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}`;
+    },
+    invoiceByItem() {
+        return `/cement/report/invoiceByItemReport?date=${moment().startOf('days').format('YYYY-MM-DD HH:mm:ss')},${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}`;
+    },
+    groupInvoice() {
+        return `/cement/report/groupReport?date=${moment().startOf('days').format('YYYY-MM-DD HH:mm:ss')},${moment().startOf('days').format('YYYY-MM-DD HH:mm:ss')}&branch=${Session.get('currentBranch')}`;
+    },
+    receivePayment() {
+        return `/cement/report/payment?date=${moment().startOf('days').format('YYYY-MM-DD HH:mm:ss')},${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}`;
+    },
+    saleOrder() {
+        return `/cement/report/saleOrderReport?date=${moment().startOf('days').format('YYYY-MM-DD HH:mm:ss')},${moment().startOf('days').format('YYYY-MM-DD HH:mm:ss')}&branch=${Session.get('currentBranch')}`;
+    },
+    // Vendor
+    bill() {
+        return `/cement/report/billReport?date=${moment().startOf('days').format('YYYY-MM-DD HH:mm:ss')},${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}&branch=${Session.get('currentBranch')}`;
+    },
+    billByItem() {
+        return `/cement/report/billByItemReport?date=${moment().startOf('days').format('YYYY-MM-DD HH:mm:ss')},${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}`;
+    },
+    billByVendor() {
+        return `/cement/report/billByVendorReport?date=${moment().startOf('days').format('YYYY-MM-DD HH:mm:ss')},${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}&branch=${Session.get('currentBranch')}`;
+    },
+    groupBill() {
+        return `/cement/report/groupBillReport?date=${moment().startOf('days').format('YYYY-MM-DD HH:mm:ss')},${moment().startOf('days').format('YYYY-MM-DD HH:mm:ss')}&branch=${Session.get('currentBranch')}`;
+    },
+    payEnterBill() {
+        return '#'
+    },
+    prepaidOrder() {
+        return `/cement/report/prepaidOrderReport?date=${moment().startOf('days').format('YYYY-MM-DD HH:mm:ss')},${moment().endOf('days').format('YYYY-MM-DD 23:59:59')}&branch=${Session.get('currentBranch')}`;
+    },
+    // Data
+    companyExchangeRingPull() {
+        return `/cement/report/companyExchangeRingPullReport?date=${moment().startOf('days').format('YYYY-MM-DD HH:mm:ss')},${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}&branch=${Session.get('currentBranch')}`;
+    },
+    exchangeGratis() {
+        return `/cement/report/exchangeGratisReport?date=${moment().startOf('days').format('YYYY-MM-DD HH:mm:ss')},${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}&branch=${Session.get('currentBranch')}`;
+    },
+    exchangeRingPull() {
+        return `/cement/report/exchangeRingPullReport?date=${moment().startOf('days').format('YYYY-MM-DD HH:mm:ss')},${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}&branch=${Session.get('currentBranch')}`;
+    },
+    exchangeRingPullStockBalance() {
+        return `/cement/report/exchangeRingPullStockBalance?date=${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}&branch=${Session.get('currentBranch')}`;
+    },
+    lendingStock() {
+        return `/cement/report/lendingStockReport?date=${moment().startOf('days').format('YYYY-MM-DD HH:mm:ss')},${moment().endOf('days').format('YYYY-MM-DD hh:mm:ss')}&branch=${Session.get('currentBranch')}`;
+    },
+    locationTransfer() {
+        return `/cement/report/locationTransfer?date=${moment().startOf('days').format('YYYY-MM-DD HH:mm:ss')},${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}&fromBranch=${Session.get('currentBranch')}`;
+    },
+    receiveItemSummary() {
+        return `/cement/report/receiveItemSummary?date=${moment().startOf('days').format('YYYY-MM-DD HH:mm:ss')},${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}&branch=${Session.get('currentBranch')}`;
+    },
+    ringPullTransfer() {
+        return `/cement/report/ringPullTransfer?date=${moment().startOf('days').format('YYYY-MM-DD HH:mm:ss')},${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}&fromBranch=${Session.get('currentBranch')}`;
+    },
+    transferMoney() {
+        return `/cement/report/transferMoneyReport?date=${moment().startOf('days').format('YYYY-MM-DD HH:mm:ss')},${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}&fromBranch=${Session.get('currentBranch')}`;
+    }
+});

@@ -1,0 +1,415 @@
+import {Meteor} from 'meteor/meteor';
+import {Session} from 'meteor/session';
+import {FlowRouter} from 'meteor/kadira:flow-router';
+import {FlowRouterTitle} from 'meteor/ostrio:flow-router-title';
+import 'meteor/arillo:flow-router-helpers';
+import 'meteor/zimme:active-route';
+import 'meteor/theara:flow-router-breadcrumb';
+
+// Lib
+import {__} from '../../core/common/libs/tapi18n-callback-helper.js';
+
+// Layout
+import {Layout} from '../../core/client/libs/render-layout.js';
+import '../../core/imports/ui/layouts/report/index.html';
+
+// Group
+let CementRoutes = FlowRouter.group({
+    prefix: '/cement',
+    title: "Simple POS",
+    titlePrefix: 'Simple POS > ',
+    subscriptions: function (params, queryParams) {
+//     this.register('files', Meteor.subscribe('files'));
+    }
+});
+
+// Customer list
+import '../imports/ui/reports/customer.js';
+CementRoutes.route('/customer-report', {
+    name: 'cement.customerReport',
+    title: __('cement.customerReport.title'),
+    action: function (params, queryParams) {
+        Layout.main('Cement_customerReport');
+    },
+    breadcrumb: {
+        //params: ['id'],
+        //queryParams: ['show', 'color'],
+        title: __('cement.customerReport.title'),
+        icon: 'users',
+        parent: 'cement.home'
+    }
+});
+
+CementRoutes.route('/customer-report-gen', {
+    name: 'cement.customerReportGen',
+    title: __('cement.customerReport.title'),
+    action: function (params, queryParams) {
+        Layout.report('Cement_customerReportGen');
+    }
+});
+
+
+
+
+CementRoutes.route('/order-report-gen', {
+    name: 'cement.orderReportGen',
+    title: __('cement.orderReport.title'),
+    action: function (params, queryParams) {
+        Layout.report('Cement_orderReportGen');
+    }
+});
+//main report
+import '../imports/ui/reports/main';
+CementRoutes.route('/report', {
+    name: 'cement.mainReport',
+    title: 'Main Report',
+    action: function (params, queryParams) {
+        Layout.customReportLayout('Cement_mainReport');
+    },
+    breadcrumb:{
+        // params:['vendorId'],
+        title: 'Main Report',
+        // icon: 'cart-plus',
+        parent: 'cement.home'
+    }
+});
+
+import '../imports/ui/reports/invoice';
+CementRoutes.route('/report/invoice', {
+    name: 'cement.invoiceReport',
+    title: 'Invoice Report',
+    action: function (params, queryParams) {
+        Layout.customReportLayout('Cement_invoiceReport');
+    },
+    breadcrumb:{
+        // params:['vendorId'],
+        title: 'Invoice Report',
+        // icon: 'cart-plus',
+        parent: 'cement.mainReport'
+    }
+});
+
+import '../imports/ui/reports/invoiceByCustomer';
+CementRoutes.route('/report/invoiceByCustomer', {
+    name: 'cement.invoiceByCustomerReport',
+    title: 'Invoice By Customer Report',
+    action: function (params, queryParams) {
+        Layout.customReportLayout('Cement_invoiceByCustomerReport');
+    },
+    breadcrumb:{
+        // params:['vendorId'],
+        title: 'Invoice By Customer Report',
+        // icon: 'cart-plus',
+        parent: 'cement.mainReport'
+    }
+});
+
+import '../imports/ui/reports/invoiceByItem';
+CementRoutes.route('/report/invoiceByItemReport', {
+    name: 'cement.invoiceByItemReport',
+    title: 'Invoice By Item Report',
+    action: function (params, queryParams) {
+        Layout.customReportLayout('Cement_invoiceByItemReport');
+    },
+    breadcrumb:{
+        // params:['vendorId'],
+        title: 'Invoice By Item Report',
+        // icon: 'cart-plus',
+        parent: 'cement.mainReport'
+    }
+});
+import '../imports/ui/reports/billByItem';
+CementRoutes.route('/report/billByItemReport', {
+    name: 'cement.billByItemReport',
+    title: 'Bill By Item Report',
+    action: function (params, queryParams) {
+        Layout.customReportLayout('Cement_billByItemReport');
+    },
+    breadcrumb:{
+        // params:['vendorId'],
+        title: 'Bill By Item Report',
+        // icon: 'cart-plus',
+        parent: 'cement.mainReport'
+    }
+});
+
+import '../imports/ui/reports/payment';
+CementRoutes.route('/report/payment', {
+    name: 'cement.paymentReport',
+    title: 'Receive Payment Report',
+    action: function (params, queryParams) {
+        Layout.customReportLayout('Cement_paymentReport');
+    },
+    breadcrumb:{
+        // params:['vendorId'],
+        title: 'Receive Payment Report',
+        // icon: 'cart-plus',
+        parent: 'cement.mainReport'
+    }
+});
+
+import '../imports/ui/reports/stockBalance';
+CementRoutes.route('/report/stockBalance', {
+    name: 'cement.paymentReport',
+    title: 'Stock Balance Report',
+    action: function (params, queryParams) {
+        Layout.customReportLayout('Cement_stockBalanceReport');
+    },
+    breadcrumb:{
+        // params:['vendorId'],
+        title: 'Stock Balance Report',
+        // icon: 'cart-plus',
+        parent: 'cement.mainReport'
+    }
+});
+
+
+import '../imports/ui/reports/locationTransfer';
+CementRoutes.route('/report/locationTransfer', {
+    name: 'cement.locationTransferReport',
+    title: 'Location Transfer Report',
+    action: function (params, queryParams) {
+        Layout.customReportLayout('Cement_locationTransferReport');
+    },
+    breadcrumb:{
+        // params:['vendorId'],
+        title: 'Location Transfer Report',
+        // icon: 'cart-plus',
+        parent: 'cement.mainReport'
+    }
+});
+
+import '../imports/ui/reports/ringPullTransfer';
+CementRoutes.route('/report/ringPullTransfer', {
+    name: 'cement.ringPullTransferReport',
+    title: 'Ring Pull Transfer Report',
+    action: function (params, queryParams) {
+        Layout.customReportLayout('Cement_ringPullTransferReport');
+    },
+    breadcrumb:{
+        // params:['vendorId'],
+        title: 'Ring Pull Transfer Report',
+        // icon: 'cart-plus',
+        parent: 'cement.mainReport'
+    }
+});
+
+import '../imports/ui/reports/billReport';
+CementRoutes.route('/report/billReport', {
+    name: 'cement.billReport',
+    title: 'Bill Report',
+    action: function (params, queryParams) {
+        Layout.customReportLayout('Cement_billReport');
+    },
+    breadcrumb:{
+        // params:['vendorId'],
+        title: 'Bill Report',
+        // icon: 'cart-plus',
+        parent: 'cement.mainReport'
+    }
+});
+
+import '../imports/ui/reports/billByVendor';
+CementRoutes.route('/report/billByVendorReport', {
+    name: 'cement.billByVendorReport',
+    title: 'Bill By Vendor Report',
+    action: function (params, queryParams) {
+        Layout.customReportLayout('Cement_billByVendorReport');
+    },
+    breadcrumb:{
+        // params:['vendorId'],
+        title: 'Bill By Vendor Report',
+        // icon: 'cart-plus',
+        parent: 'cement.mainReport'
+    }
+});
+
+import '../imports/ui/reports/prepaidOrderReport';
+CementRoutes.route('/report/prepaidOrderReport', {
+    name: 'cement.prepaidOrderReport',
+    title: 'Prepaid Order Report',
+    action: function (params, queryParams) {
+        Layout.customReportLayout('Cement_prepaidOrderReport');
+    },
+    breadcrumb:{
+        // params:['vendorId'],
+        title: 'Prepaid Order Report',
+        // icon: 'cart-plus',
+        parent: 'cement.mainReport'
+    }
+});
+
+import '../imports/ui/reports/exchangeRingPull';
+CementRoutes.route('/report/exchangeRingPullReport', {
+    name: 'cement.exchangeRingPullReport',
+    title: 'Exchange Ring Pull Report',
+    action: function (params, queryParams) {
+        Layout.customReportLayout('Cement_exchangeRingPullReport');
+    },
+    breadcrumb:{
+        // params:['vendorId'],
+        title: 'Exchange Ring Pull Report',
+        // icon: 'cart-plus',
+        parent: 'cement.mainReport'
+    }
+});
+import '../imports/ui/reports/lendingStockReport';
+CementRoutes.route('/report/lendingStockReport', {
+    name: 'cement.lendingStockReport',
+    title: 'Lending Stock Report',
+    action: function (params, queryParams) {
+        Layout.customReportLayout('Cement_lendingStockReport');
+    },
+    breadcrumb:{
+        // params:['vendorId'],
+        title: 'Lending Stock Report',
+        // icon: 'cart-plus',
+        parent: 'cement.mainReport'
+    }
+});
+import '../imports/ui/reports/companyExchangeRingPullReport';
+CementRoutes.route('/report/companyExchangeRingPullReport', {
+    name: 'cement.companyExchangeRingPullReport',
+    title: 'Company Exchange Ring Pull Report',
+    action: function (params, queryParams) {
+        Layout.customReportLayout('Cement_companyExchangeRingPullReport');
+    },
+    breadcrumb:{
+        // params:['vendorId'],
+        title: 'Company Exchange Ring Pull Report',
+        // icon: 'cart-plus',
+        parent: 'cement.mainReport'
+    }
+});
+
+import '../imports/ui/reports/exchangeGratis';
+CementRoutes.route('/report/exchangeGratisReport', {
+    name: 'cement.exchangeGratisReport',
+    title: 'Exchange Gratis Report',
+    action: function (params, queryParams) {
+        Layout.customReportLayout('Cement_exchangeGratisReport');
+    },
+    breadcrumb:{
+        // params:['vendorId'],
+        title: 'Exchange Gratis Report',
+        // icon: 'cart-plus',
+        parent: 'cement.mainReport'
+    }
+});
+
+import '../imports/ui/reports/saleOrderReport';
+CementRoutes.route('/report/saleOrderReport', {
+    name: 'cement.saleOrderReport',
+    title: 'Sale Order Report',
+    action: function (params, queryParams) {
+        Layout.customReportLayout('Cement_saleOrderReport');
+    },
+    breadcrumb:{
+        // params:['vendorId'],
+        title: 'Sale Order Report',
+        // icon: 'cart-plus',
+        parent: 'cement.mainReport'
+    }
+});
+
+import '../imports/ui/reports/groupReport';
+CementRoutes.route('/report/groupReport', {
+    name: 'cement.groupReport',
+    title: 'Group Invoice Report',
+    action: function (params, queryParams) {
+        Layout.customReportLayout('Cement_groupReport');
+    },
+    breadcrumb:{
+        // params:['vendorId'],
+        title: 'Group Invoice Report',
+        // icon: 'cart-plus',
+        parent: 'cement.mainReport'
+    }
+});
+
+import '../imports/ui/reports/groupBillReport';
+CementRoutes.route('/report/groupBillReport', {
+    name: 'cement.groupBillReport',
+    title: 'Group Bill Report',
+    action: function (params, queryParams) {
+        Layout.customReportLayout('Cement_groupBillReport');
+    },
+    breadcrumb:{
+        // params:['vendorId'],
+        title: 'Group Bill Report',
+        // icon: 'cart-plus',
+        parent: 'cement.mainReport'
+    }
+});
+
+import '../imports/ui/reports/termCustomerBalance';
+CementRoutes.route('/report/termCustomerBalance', {
+    name: 'cement.termCustomerBalance',
+    title: 'Term Customer Balance Report',
+    action: function (params, queryParams) {
+        Layout.customReportLayout('Cement_termCustomerBalance');
+    },
+    breadcrumb:{
+        // params:['vendorId'],
+        title: 'Term Customer Balance Report',
+        // icon: 'cart-plus',
+        parent: 'cement.mainReport'
+    }
+});
+import '../imports/ui/reports/groupCustomerBalance';
+CementRoutes.route('/report/groupCustomerBalance', {
+    name: 'cement.groupCustomerBalance',
+    title: 'Group Customer Balance Report',
+    action: function (params, queryParams) {
+        Layout.customReportLayout('Cement_groupCustomerBalance');
+    },
+    breadcrumb:{
+        // params:['vendorId'],
+        title: 'Group Customer Balance Report',
+        // icon: 'cart-plus',
+        parent: 'cement.mainReport'
+    }
+});
+import '../imports/ui/reports/receiveItemSummary';
+CementRoutes.route('/report/receiveItemSummary', {
+    name: 'cement.receiveItemSummary',
+    title: 'Receive Item Summary',
+    action: function (params, queryParams) {
+        Layout.customReportLayout('Cement_receiveItemSummary');
+    },
+    breadcrumb:{
+        // params:['vendorId'],
+        title: 'Receive Item Summary Report',
+        // icon: 'cart-plus',
+        parent: 'cement.mainReport'
+    }
+});
+import '../imports/ui/reports/exchangeRingPullStockBalance';
+CementRoutes.route('/report/exchangeRingPullStockBalance', {
+    name: 'cement.exchangeRingPullStockBalanceReport',
+    title: 'Exchange Ring Pull Stock Balance',
+    action: function (params, queryParams) {
+        Layout.customReportLayout('Cement_exchangeRingPullStockBalance');
+    },
+    breadcrumb:{
+        // params:['vendorId'],
+        title: 'Exchange Ring Pull Stock Balance',
+        // icon: 'cart-plus',
+        parent: 'cement.mainReport'
+    }
+});
+
+import '../imports/ui/reports/transferMoneyReport';
+CementRoutes.route('/report/transferMoneyReport', {
+    name: 'cement.transferMoneyReport',
+    title: 'Transfer Money Report',
+    action: function (params, queryParams) {
+        Layout.customReportLayout('Cement_transferMoneyReport');
+    },
+    breadcrumb:{
+        // params:['vendorId'],
+        title: 'Transfer Money Report',
+        // icon: 'cart-plus',
+        parent: 'cement.mainReport'
+    }
+});
