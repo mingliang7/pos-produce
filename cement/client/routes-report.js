@@ -16,8 +16,8 @@ import '../../core/imports/ui/layouts/report/index.html';
 // Group
 let CementRoutes = FlowRouter.group({
     prefix: '/cement',
-    title: "Simple POS",
-    titlePrefix: 'Simple POS > ',
+    title: "Simple CEMENT",
+    titlePrefix: 'Simple CEMENT > ',
     subscriptions: function (params, queryParams) {
 //     this.register('files', Meteor.subscribe('files'));
     }

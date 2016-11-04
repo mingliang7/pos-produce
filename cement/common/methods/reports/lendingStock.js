@@ -77,7 +77,7 @@ export const lendingStockReport = new ValidatedMethod({
                 },
                 {
                     $lookup: {
-                        from: 'cement_vendors',
+                        from: 'Cement_vendors',
                         localField: 'vendorId',
                         foreignField: '_id',
                         as: 'vendorDoc'
@@ -89,7 +89,7 @@ export const lendingStockReport = new ValidatedMethod({
 
                 }, {
                     $lookup: {
-                        from: "cement_item",
+                        from: "Cement_item",
                         localField: "items.itemId",
                         foreignField: "_id",
                         as: "itemDoc"

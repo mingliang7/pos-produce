@@ -1,9 +1,9 @@
 Module = typeof Module === 'undefined' ? {} : Module;
 
 Module.Cement = {
-    name: 'POS System',
+    name: 'CEMENT System',
     version: '2.0.0',
-    summary: 'Simple POS Management System is ...',
+    summary: 'Simple CEMENT Management System is ...',
     roles: [
         'setting',
         'data-insert',
@@ -13,11 +13,11 @@ Module.Cement = {
     ],
     dump: {
         setting: [
-            'cement_location'
+            'Cement_location'
         ],
         data: [
-            'cement_customer',
-            'cement_order'
+            'Cement_customer',
+            'Cement_order'
         ]
     }
 };

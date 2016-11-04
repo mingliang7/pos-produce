@@ -11,7 +11,7 @@ Meteor.methods({
             }
         }, {
             $lookup: {
-                from: 'cement_item',
+                from: 'Cement_item',
                 localField: 'scheme.itemId',
                 foreignField: '_id',
                 as: 'itemDoc'
@@ -46,7 +46,7 @@ Meteor.methods({
             }
         }, {
             $lookup: {
-                from: 'cement_item',
+                from: 'Cement_item',
                 localField: 'scheme.itemId',
                 foreignField: '_id',
                 as: 'itemDoc'

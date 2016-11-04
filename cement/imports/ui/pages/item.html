@@ -22,7 +22,7 @@
 <!--Insert-->
 <template name="Cement_itemNew">
     <div class="box-body">
-        {{#autoForm collection=collection id="Cement_itemNew" type="insert"}}
+        {{#autoForm collection=collection id="Cement_itemNew" type="insert" }}
             <div class="row">
                 <div class="col-md-6">
                     {{> afQuickField name='name'}}
@@ -46,41 +46,17 @@
                 </div>
                 <div class="col-md-3">{{> afQuickField name='itemType' label="Item Type"}}</div>
                 <div class="col-md-3">{{> afQuickField name='barcode' label="Barcode"}}</div>
-                <div class="col-md-3">{{> afQuickField name='accountId' label="Account"}}</div>
-            </div>
-            <div class="row">
-                <div class="col-md-3 checkbox"><label for=""><input type="checkbox" class="toggle-scheme"><span
-                        class="label label-primary"> Add Scheme </span></label></div>
-            </div>
-            <div class="row">
-                <div class="col-md-12 scheme hidden">
-                    {{>schemeItem}}
-                </div>
             </div>
             <div class="row">
                 <div class="col-md-3">{{> afQuickField name='price'}}
                 </div>
                 <div class="col-md-3">{{> afQuickField name='purchasePrice'}}
                 </div>
-
-            </div>
-            <div class="row">
-                <div class="col-md-6">{{> afQuickField name='photo'}}</div>
-            </div>
-            <div class="row">
-                <div class="col-md-3">
-                    <div class="input-group">
-                        <h4 class="text-blue"><i class="fa fa-circle-o"></i> Quantity Range Mapping</h4>
-                    </div>
-                    <hr>
+                <div class="col-md-3">{{> afQuickField name='transportFee'}}
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-3"><h4 class="text-blue"><u>Enable</u></h4></div>
-                <hr>
-            </div>
-            <div class="row">
-                <div class="col-md-3">{{> afQuickField name='mappingEnable'}}</div>
+                <div class="col-md-6">{{> afQuickField name='photo'}}</div>
             </div>
             {{> formFooterWithButton}}
         {{/autoForm}}
@@ -90,7 +66,7 @@
 <!--Update-->
 <template name="Cement_itemEdit">
     <div class="box-body">
-        {{#autoForm collection=collection id="Cement_itemEdit" doc=this type="update"}}
+        {{#autoForm collection=collection id="Cement_itemEdit" doc=this type="update" }}
             <div class="row">
                 <div class="col-md-6">
                     {{> afQuickField name='name'}}
@@ -120,22 +96,6 @@
                 <div class="col-md-3">{{> afQuickField name='categoryId' label="Category" options=categoryList}}</div>
                 <div class="col-md-3">{{> afQuickField name='itemType' label="Item Type"}}</div>
                 <div class="col-md-3">{{> afQuickField name='barcode' label="Barcode"}}</div>
-                <div class="col-md-3">{{> afQuickField name='accountId' label="Account"}}</div>
-            </div>
-            <div class="row">
-                {{#if checkScheme}}
-                    <div class="col-md-3 checkbox"><label for=""><input type="checkbox" class="toggle-scheme"
-                                                                        checked><span
-                            class="label label-primary"> Add Scheme </span></label></div>
-                {{else}}
-                    <div class="col-md-3 checkbox"><label for=""><input type="checkbox" class="toggle-scheme"><span
-                            class="label label-primary"> Add Scheme </span></label></div>
-                {{/if}}
-            </div>
-            <div class="row">
-                <div class="col-md-12 scheme {{toggleScheme}}">
-                    {{> schemeItem}}
-                </div>
             </div>
             <div class="row">
                 <div class="col-md-3">
@@ -144,25 +104,13 @@
                 <div class="col-md-3">
                     {{> afQuickField name='purchasePrice'}}
                 </div>
+                <div class="col-md-3">
+                    {{> afQuickField name='transportFee'}}
+                </div>
 
             </div>
             <div class="row">
                 <div class="col-md-6">{{> afQuickField name='photo'}}</div>
-            </div>
-            <div class="row">
-                <div class="col-md-3">
-                    <div class="input-group">
-                        <h4 class="text-blue"><i class="fa fa-circle-o"></i> Quantity Range Mapping</h4>
-                    </div>
-                    <hr>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-3"><h4 class="text-blue"><u>Enable</u></h4></div>
-                <hr>
-            </div>
-            <div class="row">
-                <div class="col-md-3">{{> afQuickField name='mappingEnable'}}</div>
             </div>
             {{> formFooterWithButton}}
 
@@ -227,10 +175,8 @@
                         <div class="col-sm-11"></div>
                         <!--Add more-->
                         <div class="col-sm-1">
-                            <button type="button" class="btn btn-primary autoform-add-item btn-sm btnAdd"
-                                    data-autoform-field="{{this.atts.name}}"
-                                    data-autoform-minCount="{{this.atts.minCount}}"
-                                    data-autoform-maxCount="{{this.atts.maxCount}}">
+                            <button type="button" class="btn btn-primary autoform-add-item btn-sm btnAdd" data-autoform-field="{{this.atts.name}}" data-autoform-minCount="{{this.atts.minCount}}"
+                                data-autoform-maxCount="{{this.atts.maxCount}}">
                                 <span class="glyphicon glyphicon-plus"></span>
                             </button>
                         </div>
@@ -269,7 +215,7 @@
 </template>
 
 <template name="schemeItem">
-    {{#autoForm schema=schema id="schemeItem"}}
+    {{#autoForm schema=schema id="schemeItem" }}
         <div class="row">
             <div class="col-sm-4">
                 {{> afQuickField name="itemId" label=false}}
@@ -302,8 +248,7 @@
     <div class="input-group-btn" style="z-index: 999">
         <div class="btn-group" role="group">
             <div class="dropdown dropdown-lg">
-                <a class="btn btn-default add-new-chart-account"
-                   aria-expanded="false"><span class="text-blue">+</span></a>
+                <a class="btn btn-default add-new-chart-account" aria-expanded="false"><span class="text-blue">+</span></a>
             </div>
         </div>
     </div>

@@ -76,7 +76,7 @@ export const exchangeRingPullReport = new ValidatedMethod({
                 },
                 {
                     $lookup: {
-                        from: 'cement_customers',
+                        from: 'Cement_customers',
                         localField: 'customerId',
                         foreignField: '_id',
                         as: 'customerDoc'
@@ -88,7 +88,7 @@ export const exchangeRingPullReport = new ValidatedMethod({
 
                 }, {
                     $lookup: {
-                        from: "cement_item",
+                        from: "Cement_item",
                         localField: "items.itemId",
                         foreignField: "_id",
                         as: "itemDoc"

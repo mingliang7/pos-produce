@@ -2,14 +2,7 @@
 <template name="Cement_orderItems">
     <div class="container-fluid items-header">
         <div class="row ">
-            <div class="col-md-2" align="center">
-                <label for="">Filter:</label>
-                <select name="item-filter" id="" style="background: white; color: #000000;">
-                    <option value="all">All</option>
-                    <option value="none-scheme">None Scheme</option>
-                    <option value="scheme">Scheme</option>
-                </select></div>
-            <div class="col-md-2" align="left">PRODUCT</div>
+            <div class="col-md-4" align="left">PRODUCT</div>
             <div class="col-md-2" align="center">QTY</div>
             <div class="col-md-2" align="center">PRICE</div>
             <div class="col-md-2" align="center">AMOUNT</div>
@@ -21,9 +14,9 @@
                 </div>
                 <div class="col-sm-2">
                     <div class="input-group">
-                        {{> afFieldInput name="qty" label=false }}
+                        {{> afFieldInput name="qty" value=defaultQty label=false }}
                         <br>
-                        {{>unitConvert}}
+                        {{>unitConvert baseUnit=baseUnit}}
                     </div>
                 </div>
                 <div class="col-sm-2">
@@ -89,7 +82,7 @@
                     <form role="form" action="javascript:;" method="cementt" id="login-form" autocomplete="off">
                         <div class="form-group">
                             <label for="email" class="sr-only">Selling Unit</label>
-                            {{>afFieldInput name="baseUnit" class="form-control"}}
+                            {{>afFieldInput name="baseUnit" options=baseUnit class="form-control"}}
                             <br>
                             <!--<input type="email" name="email" id="email" class="form-control" placeholder="somebody@example.com">-->
                         </div>

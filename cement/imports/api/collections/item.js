@@ -1,21 +1,21 @@
-import {Mongo} from 'meteor/mongo';
-import {SimpleSchema} from 'meteor/aldeed:simple-schema';
-import {AutoForm} from 'meteor/aldeed:autoform';
-import {Units} from './units.js';
-import {Meteor} from 'meteor/meteor';
+import {Mongo} from 'meteor/mongo'
+import {SimpleSchema} from 'meteor/aldeed:simple-schema'
+import {AutoForm} from 'meteor/aldeed:autoform'
+import {Units} from './units.js'
+import {Meteor} from 'meteor/meteor'
 // Lib
-import {__} from '../../../../core/common/libs/tapi18n-callback-helper.js';
-import {SelectOpts} from '../../../../acc/imports/ui/libs/select-opts';
-export const Item = new Mongo.Collection("cement_item");
+import {__} from '../../../../core/common/libs/tapi18n-callback-helper.js'
+import {SelectOpts} from '../../../../acc/imports/ui/libs/select-opts'
+export const Item = new Mongo.Collection('cement_item')
 let accountMapping = new SimpleSchema({
     inventoryAsset: {
         type: String,
         optional: true,
         autoform: {
-            type: "select2",
-            placeholder: "Chart Of Account",
+            type: 'select2',
+            placeholder: 'Chart Of Account',
             options: function () {
-                return SelectOpts.chartAccountAsset();
+                return SelectOpts.chartAccountAsset()
             }
         }
     },
@@ -23,10 +23,10 @@ let accountMapping = new SimpleSchema({
         type: String,
         optional: true,
         autoform: {
-            type: "select2",
-            placeholder: "Chart Of Account",
+            type: 'select2',
+            placeholder: 'Chart Of Account',
             options: function () {
-                return SelectOpts.chartAccountIncome();
+                return SelectOpts.chartAccountIncome()
             }
         }
     },
@@ -34,10 +34,10 @@ let accountMapping = new SimpleSchema({
         type: String,
         optional: true,
         autoform: {
-            type: "select2",
-            placeholder: "Chart Of Account",
+            type: 'select2',
+            placeholder: 'Chart Of Account',
             options: function () {
-                return SelectOpts.chartAccountExpense();
+                return SelectOpts.chartAccountExpense()
             }
         }
     },
@@ -45,10 +45,10 @@ let accountMapping = new SimpleSchema({
         type: String,
         optional: true,
         autoform: {
-            type: "select2",
-            placeholder: "Chart Of Account",
+            type: 'select2',
+            placeholder: 'Chart Of Account',
             options: function () {
-                return SelectOpts.chartAccountAsset();
+                return SelectOpts.chartAccountAsset()
             }
         }
     },
@@ -56,10 +56,10 @@ let accountMapping = new SimpleSchema({
         type: String,
         optional: true,
         autoform: {
-            type: "select2",
-            placeholder: "Chart Of Account",
+            type: 'select2',
+            placeholder: 'Chart Of Account',
             options: function () {
-                return SelectOpts.chartAccountLiability();
+                return SelectOpts.chartAccountLiability()
             }
         }
     },
@@ -67,10 +67,10 @@ let accountMapping = new SimpleSchema({
         type: String,
         optional: true,
         autoform: {
-            type: "select2",
-            placeholder: "Chart Of Account",
+            type: 'select2',
+            placeholder: 'Chart Of Account',
             options: function () {
-                return SelectOpts.chartAccountIncome();
+                return SelectOpts.chartAccountIncome()
             }
         }
     },
@@ -78,14 +78,14 @@ let accountMapping = new SimpleSchema({
         type: String,
         optional: true,
         autoform: {
-            type: "select2",
-            placeholder: "Chart Of Account",
+            type: 'select2',
+            placeholder: 'Chart Of Account',
             options: function () {
-                return SelectOpts.chartAccountExpense();
+                return SelectOpts.chartAccountExpense()
             }
         }
     }
-});
+})
 Item.schema = new SimpleSchema({
     name: {
         type: String,
@@ -99,7 +99,7 @@ Item.schema = new SimpleSchema({
         autoform: {
             type: 'inputmask',
             inputmaskOptions: function () {
-                return inputmaskOptions.currency();
+                return inputmaskOptions.currency()
             }
         }
     },
@@ -110,7 +110,7 @@ Item.schema = new SimpleSchema({
         autoform: {
             type: 'inputmask',
             inputmaskOptions: function () {
-                return inputmaskOptions.currency();
+                return inputmaskOptions.currency()
             }
         }
     },
@@ -137,22 +137,21 @@ Item.schema = new SimpleSchema({
                 label: {
                     class: 'label label-success'
                 },
-                uniPlaceholder: 'Select One',
+                uniPlaceholder: 'Select One'
             },
-            options(){
-                let list = [];
+            options() {
+                let list = []
                 try {
-                    Meteor.subscribe('cement.unit', {}, {sort: {_id: 1}});
+                    Meteor.subscribe('cement.unit', {}, {sort: {_id: 1}})
                 } catch (e) {
-
                 }
                 let units = Units.find() || 0;
                 if (units.count() > 0) {
                     units.forEach((unit)=> {
-                        list.push({label: `${unit._id}: ${unit.name}`, value: unit._id})
+                        list.push({label: `${unit._id}: ${unit.name}`, value: unit._id});
                     })
                 }
-                return list;
+                return list
             }
         }
     },
@@ -165,17 +164,17 @@ Item.schema = new SimpleSchema({
         autoform: {
             type: 'universe-select',
             afFieldInput: {
-                uniPlaceholder: 'Select One',
+                uniPlaceholder: 'Select One'
             },
-            options(){
-                let list = [];
-                let units = Units.find() || 0;
+            options() {
+                let list = []
+                let units = Units.find() || 0
                 if (units.count() > 0) {
-                    units.forEach((unit)=> {
+                    units.forEach((unit) => {
                         list.push({label: `${unit._id}: ${unit.name}`, value: unit._id})
-                    })
+                })
                 }
-                return list;
+                return list
             }
         }
     },
@@ -211,7 +210,7 @@ Item.schema = new SimpleSchema({
         autoform: {
             type: 'select2',
             /*options(){
-             return SelectOpts.category('Select Parent | No Parent');
+             return SelectOpts.category('Select Parent | No Parent')
              }*/
         }
     },
@@ -219,7 +218,7 @@ Item.schema = new SimpleSchema({
         type: String,
         autoform: {
             type: 'universe-select',
-            options(){
+            options() {
                 return [{
                     label: '(Select One)',
                     value: ''
@@ -241,13 +240,18 @@ Item.schema = new SimpleSchema({
         type: accountMapping,
         optional: true
     },
-    mappingEnable:{
+    mappingEnable: {
         type: Boolean,
         optional: true
+    },
+    transportFee: {
+        type: Number,
+        min: 0,
+        decimal: true
     }
-});
+})
 
 Meteor.startup(function () {
-    Item.schema.i18n("cement.item.schema");
-    Item.attachSchema(Item.schema);
-});
+    Item.schema.i18n('cement.item.schema')
+    Item.attachSchema(Item.schema)
+})

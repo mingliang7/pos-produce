@@ -129,7 +129,7 @@ function aggregateBill({selector, coefficient}) {
         {$unwind: {path: '$data.items', preserveNullAndEmptyArrays: true}},
         {
             $lookup: {
-                from: "cement_item",
+                from: "Cement_item",
                 localField: "data.items.itemId",
                 foreignField: "_id",
                 as: "data.itemDoc"
@@ -175,7 +175,7 @@ function aggregateBill({selector, coefficient}) {
         },
         {
             $lookup: {
-                from: "cement_vendors",
+                from: "Cement_vendors",
                 localField: "_id",
                 foreignField: "_id",
                 as: "vendorDoc"
@@ -207,7 +207,7 @@ function aggregateBill({selector, coefficient}) {
         },
         {
             $lookup: {
-                from: "cement_item",
+                from: "Cement_item",
                 localField: "items.itemId",
                 foreignField: "_id",
                 as: "itemDoc"
@@ -263,7 +263,7 @@ function aggregateGroupBill({selector, coefficient}) {
         {$unwind: {path: '$invoices.items'}},
         {
             $lookup: {
-                from: "cement_item",
+                from: "Cement_item",
                 localField: "invoices.items.itemId",
                 foreignField: "_id",
                 as: "itemDoc"
@@ -313,7 +313,7 @@ function aggregateGroupBill({selector, coefficient}) {
         },
         {
             $lookup: {
-                from: "cement_vendors",
+                from: "Cement_vendors",
                 localField: "_id",
                 foreignField: "_id",
                 as: "vendorDoc"
@@ -345,7 +345,7 @@ function aggregateGroupBill({selector, coefficient}) {
         {$unwind: {path: '$invoices.items', preserveNullAndEmptyArrays: true}},
         {
             $lookup: {
-                from: "cement_item",
+                from: "Cement_item",
                 localField: "invoices.items.itemId",
                 foreignField: "_id",
                 as: "itemDoc"

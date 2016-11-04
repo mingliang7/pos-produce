@@ -45,7 +45,7 @@ function getPaymentGroupInfo(collection, id) {
         $match: {_id: id}
     }, {
         $lookup: {
-            from: "cement_paymentGroups",
+            from: "Cement_paymentGroups",
             localField: "paymentGroupId",
             foreignField: "_id",
             as: "paymentGroup"

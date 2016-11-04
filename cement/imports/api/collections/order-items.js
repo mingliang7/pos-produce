@@ -76,25 +76,26 @@ export const ItemsSchema = new SimpleSchema({
             afFieldInput: {
                 style: 'width: 100%'
             },
-            options() {
-                let id = AutoForm.getFieldValue('itemId');
-                let arr = [];
-                let customerId = Session.get('getCustomerId') || Session.get('saleOrderCustomerId');
-                if (id) {
-                    itemInfo.callPromise({
-                        _id: id, customerId: customerId
-                    }).then(function (result) {
-                        if (data.sellingUnit) {
-                            defaultBaseUnit.set(data.sellingUnit);
-                        } else {
-                            defaultBaseUnit.set(arr);
-                        }
-                    }).catch(function (err) {
-                        console.log(err.message);
-                    });
-                }
-                return defaultBaseUnit.get();
-            }
+            // options() {
+            //     let id = AutoForm.getFieldValue('itemId');
+            //     let arr = [];
+            //     let customerId = Session.get('getCustomerId') || Session.get('saleOrderCustomerId');
+            //     if (id) {
+            //         itemInfo.callPromise({
+            //             _id: id, customerId: customerId
+            //         }).then(function (result) {
+            //             if (result.sellingUnit) {
+            //                 defaultBaseUnit.set(result.sellingUnit);
+            //             } else {
+            //                 defaultBaseUnit.set(arr);
+            //             }
+            //         }).catch(function (err) {
+            //             console.log(err.message);
+            //         });
+            //     }
+            //     console.log(defaultBaseUnit.get());
+            //     return defaultBaseUnit.get();
+            // }
         }
     },
     qtyConvert: {

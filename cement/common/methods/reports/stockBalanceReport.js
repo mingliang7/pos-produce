@@ -89,7 +89,7 @@ export const stockBalanceReport = new ValidatedMethod({
                 {$sort: {_id: 1, createdAt: 1}},
                 {
                     $lookup: {
-                        from: "cement_item",
+                        from: "Cement_item",
                         localField: "itemId",
                         foreignField: "_id",
                         as: "itemDoc"
@@ -98,7 +98,7 @@ export const stockBalanceReport = new ValidatedMethod({
                 {$unwind: {path: '$itemDoc', preserveNullAndEmptyArrays: true}},
                 {
                     $lookup: {
-                        from: 'cement_categories',
+                        from: 'Cement_categories',
                         localField: 'itemDoc.categoryId',
                         foreignField: '_id',
                         as: 'itemDoc.categoryDoc'
@@ -107,7 +107,7 @@ export const stockBalanceReport = new ValidatedMethod({
                 {$unwind: {path: '$itemDoc.categoryDoc', preserveNullAndEmptyArrays: true}},
                 {
                     $lookup: {
-                        from: "cement_stockLocations",
+                        from: "Cement_stockLocations",
                         localField: "stockLocationId",
                         foreignField: "_id",
                         as: "locationDoc"

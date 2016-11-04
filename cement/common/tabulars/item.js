@@ -31,6 +31,13 @@ tabularOpts.columns = [
         }
     },
     {
+        data: "transportFee",
+        title: "Transport Fee",
+        render: function (val, type, doc) {
+            return numeral(val).format('$ 0,0.00');
+        }
+    },
+    {
         data: "photo",
         title: "Photo",
         render: function (val, type, doc) {

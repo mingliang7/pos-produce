@@ -87,7 +87,7 @@ export const billByVendorReport = new ValidatedMethod({
                 },
                 {
                     $lookup: {
-                        from: 'cement_reps',
+                        from: 'Cement_reps',
                         localField: 'repId',
                         foreignField: '_id',
                         as: 'repId'
@@ -120,7 +120,7 @@ export const billByVendorReport = new ValidatedMethod({
                 },
                 {
                     $lookup: {
-                        from: 'cement_vendors',
+                        from: 'Cement_vendors',
                         localField: 'vendorId',
                         foreignField: '_id',
                         as: '_vendor'

@@ -87,7 +87,7 @@ export const invoiceByCustomerReport = new ValidatedMethod({
                 },
                 {
                     $lookup: {
-                        from: 'cement_reps',
+                        from: 'Cement_reps',
                         localField: 'repId',
                         foreignField: '_id',
                         as: 'repId'
@@ -120,7 +120,7 @@ export const invoiceByCustomerReport = new ValidatedMethod({
                 },
                 {
                     $lookup: {
-                        from: 'cement_customers',
+                        from: 'Cement_customers',
                         localField: 'customerId',
                         foreignField: '_id',
                         as: '_customer'

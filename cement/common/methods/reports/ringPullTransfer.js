@@ -122,7 +122,7 @@ export const ringPullTransferMethods = new ValidatedMethod({
                 },
                 {
                     $lookup: {
-                        from: "cement_item",
+                        from: "Cement_item",
                         localField: "items.itemId",
                         foreignField: "_id",
                         as: "itemDoc"
@@ -162,7 +162,7 @@ export const ringPullTransferMethods = new ValidatedMethod({
                 },
                 {
                     $lookup: {
-                        from: "cement_stockLocations",
+                        from: "Cement_stockLocations",
                         localField: "stockLocationId",
                         foreignField: "_id",
                         as: "stockDoc"

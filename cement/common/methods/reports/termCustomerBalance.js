@@ -82,7 +82,7 @@ export const termCustomerBalanceReport = new ValidatedMethod({
                 {$match: selector},
                 {
                     $lookup: {
-                        from: "cement_receivePayment",
+                        from: "Cement_receivePayment",
                         localField: "_id",
                         foreignField: "invoiceId",
                         as: "paymentDoc"
@@ -155,7 +155,7 @@ export const termCustomerBalanceReport = new ValidatedMethod({
                 },
                 {
                     $lookup: {
-                        from: "cement_customers",
+                        from: "Cement_customers",
                         localField: "_id",
                         foreignField: "_id",
                         as: "customerDoc"

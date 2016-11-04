@@ -23,7 +23,7 @@ export const ReceiveItemInfo = new ValidatedMethod({
                 $unwind: '$items'
             }, {
                 $lookup: {
-                    from: "cement_item",
+                    from: "Cement_item",
                     localField: "items.itemId",
                     foreignField: "_id",
                     as: "fItems"

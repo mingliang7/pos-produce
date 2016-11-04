@@ -55,6 +55,7 @@ export const itemInfo = new ValidatedMethod({
                 });
                 data.sellingUnit = arr;
             }
+            console.log(data);
             return data;
         }
     }

@@ -94,7 +94,7 @@ export const receivePaymentReport = new ValidatedMethod({
                 {$limit: limit},
                 {
                     $lookup: {
-                        from: 'cement_customers',
+                        from: 'Cement_customers',
                         localField: 'customerId',
                         foreignField: '_id',
                         as: '_customer'

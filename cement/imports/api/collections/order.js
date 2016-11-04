@@ -19,6 +19,11 @@ Order.itemsSchema = new SimpleSchema({
         type: Number,
         min: 1
     },
+    transportFee: {
+        type: Number,
+        decimal: true,
+        min: 0
+    },
     price: {
         type: Number,
         decimal: true,
@@ -150,7 +155,7 @@ Order.schema = new SimpleSchema({
                 }
             }
         }
-    },
+    }
 });
 
 Meteor.startup(function () {
