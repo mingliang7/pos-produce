@@ -79,7 +79,7 @@ export const saleOrderReport = new ValidatedMethod({
 
                 }, {
                     $lookup: {
-                        from: "Cement_item",
+                        from: "cement_item",
                         localField: "items.itemId",
                         foreignField: "_id",
                         as: "itemDoc"

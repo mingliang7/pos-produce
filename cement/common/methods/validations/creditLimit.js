@@ -39,7 +39,7 @@ export const checkCreditLimit = new ValidatedMethod({
                     },
                     {
                         $lookup: {
-                            from: "Cement_receivePayment",
+                            from: "cement_receivePayment",
                             localField: "_id",
                             foreignField: "invoiceId",
                             as: "paymentDoc"
@@ -118,7 +118,7 @@ export const checkCreditLimit = new ValidatedMethod({
                     },
                     {
                         $lookup: {
-                            from: "Cement_receivePayment",
+                            from: "cement_receivePayment",
                             localField: "_id",
                             foreignField: "invoiceId",
                             as: "paymentDoc"

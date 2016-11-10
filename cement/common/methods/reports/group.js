@@ -78,7 +78,7 @@ export const groupReport = new ValidatedMethod({
 
                 {
                     $lookup: {
-                        from: "Cement_customers",
+                        from: "cement_customers",
                         localField: "vendorOrCustomerId",
                         foreignField: "_id",
                         as: "customerDoc"

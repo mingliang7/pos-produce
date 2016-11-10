@@ -98,7 +98,7 @@ export const invoiceByItemReport = new ValidatedMethod({
                 {$unwind: {path: '$data.items', preserveNullAndEmptyArrays: true}},
                 {
                     $lookup: {
-                        from: "Cement_item",
+                        from: "cement_item",
                         localField: "data.items.itemId",
                         foreignField: "_id",
                         as: "data.itemDoc"
@@ -144,7 +144,7 @@ export const invoiceByItemReport = new ValidatedMethod({
                 },
                 {
                     $lookup: {
-                        from: "Cement_customers",
+                        from: "cement_customers",
                         localField: "_id",
                         foreignField: "_id",
                         as: "customerDoc"
@@ -176,7 +176,7 @@ export const invoiceByItemReport = new ValidatedMethod({
                 },
                 {
                     $lookup: {
-                        from: "Cement_item",
+                        from: "cement_item",
                         localField: "items.itemId",
                         foreignField: "_id",
                         as: "itemDoc"

@@ -12,7 +12,7 @@ Meteor.methods({
             },
             {
                 $lookup: {
-                    from: "Cement_stockLocations",
+                    from: "cement_stockLocations",
                     localField: "stockLocations",
                     foreignField: "_id",
                     as: "stockLocationsDoc"

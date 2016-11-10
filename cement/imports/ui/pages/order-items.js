@@ -38,7 +38,8 @@ var itemsTmpl = Template.Cement_orderItems,
 editItemsTmpl = Template.Cement_orderItemsEdit
 
 // Local collection
-var itemsCollection
+var itemsCollection;
+var deletedItem;
 
 itemsTmpl.onCreated(function () {
     // Create new  alertify
@@ -285,7 +286,7 @@ itemsTmpl.events({
         event.preventDefault()
         let itemDoc = this
         if (AutoForm.getFormId() == 'Cement_invoiceUpdate') { // check if update form
-            let isCurrenctItemExistInTmpCollection = instance.data.currentItemsCollection.findOne({itemId: this.itemId}) // check if current item collection has wanted remove item
+            let isCurrentItemExistInTmpCollection = instance.data.currentItemsCollection.findOne({itemId: this.itemId}) // check if current item collection has wanted remove item
             swal({
                 title: 'Are you sure?',
                 text: 'លុបទំនិញមួយនេះ?',
@@ -298,8 +299,8 @@ itemsTmpl.events({
                     if (!deletedItem.findOne({itemId: itemDoc.itemId})) {
                         deletedItem.insert(itemDoc)
                     }
-                    if (isCurrenctItemExistInTmpCollection) {
-                        currentItemsInupdateForm.insert(itemDoc)
+                    if (isCurrentItemExistInTmpCollection) {
+                        currentItemsInUpdateForm.insert(itemDoc)
                     }
                     itemsCollection.remove({itemId: itemDoc.itemId})
                     swal.close()
@@ -322,12 +323,12 @@ itemsTmpl.events({
         let selector = {}
         if (currentQty != '') {
             selector.$set = {
-                amount: currentQty * currentItem.price,
+                amount: (currentQty * currentItem.price) + (currentQty * currentItem.transportFee),
                 qty: currentQty
             }
         } else {
             selector.$set = {
-                amount: 1 * currentItem.price,
+                amount: (1 * currentItem.price) + (1 * currentItem.transportFee),
                 qty: 1
             }
         }

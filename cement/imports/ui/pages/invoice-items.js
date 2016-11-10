@@ -1,24 +1,24 @@
-import { ReactiveDict } from 'meteor/reactive-dict';
-import { Template } from 'meteor/templating';
-import { AutoForm } from 'meteor/aldeed:autoform';
-import { Roles } from 'meteor/alanning:roles';
-import { alertify } from 'meteor/ovcharik:alertifyjs';
-import { sAlert } from 'meteor/juliancwirko:s-alert';
-import { fa } from 'meteor/theara:fa-helpers';
-import { lightbox } from 'meteor/theara:lightbox-helpers';
-import { _ } from 'meteor/erasaur:meteor-lodash';
-import { $ } from 'meteor/jquery';
-import { TAPi18n } from 'meteor/tap:i18n';
-import { ReactiveTable } from 'meteor/aslagle:reactive-table';
+import {ReactiveDict} from 'meteor/reactive-dict';
+import {Template} from 'meteor/templating';
+import {AutoForm} from 'meteor/aldeed:autoform';
+import {Roles} from 'meteor/alanning:roles';
+import {alertify} from 'meteor/ovcharik:alertifyjs';
+import {sAlert} from 'meteor/juliancwirko:s-alert';
+import {fa} from 'meteor/theara:fa-helpers';
+import {lightbox} from 'meteor/theara:lightbox-helpers';
+import {_} from 'meteor/erasaur:meteor-lodash';
+import {$} from 'meteor/jquery';
+import {TAPi18n} from 'meteor/tap:i18n';
+import {ReactiveTable} from 'meteor/aslagle:reactive-table';
 import 'meteor/theara:template-states';
 
 // Lib
-import { createNewAlertify } from '../../../../core/client/libs/create-new-alertify.js';
-import { renderTemplate } from '../../../../core/client/libs/render-template.js';
-import { destroyAction } from '../../../../core/client/libs/destroy-action.js';
-import { displaySuccess, displayError } from '../../../../core/client/libs/display-alert.js';
-import { reactiveTableSettings } from '../../../../core/client/libs/reactive-table-settings.js';
-import { __ } from '../../../../core/common/libs/tapi18n-callback-helper.js';
+import {createNewAlertify} from '../../../../core/client/libs/create-new-alertify.js';
+import {renderTemplate} from '../../../../core/client/libs/render-template.js';
+import {destroyAction} from '../../../../core/client/libs/destroy-action.js';
+import {displaySuccess, displayError} from '../../../../core/client/libs/display-alert.js';
+import {reactiveTableSettings} from '../../../../core/client/libs/reactive-table-settings.js';
+import {__} from '../../../../core/common/libs/tapi18n-callback-helper.js';
 
 // Component
 import '../../../../core/client/components/loading.js';
@@ -26,26 +26,25 @@ import '../../../../core/client/components/column-action.js';
 import '../../../../core/client/components/form-footer.js';
 
 //methods
-import { itemInfo } from '../../../common/methods/item-info';
+import {itemInfo} from '../../../common/methods/item-info';
 
 // Collection
-import { ItemsSchema } from '../../api/collections/order-items.js';
-import { Invoices } from '../../api/collections/invoice.js';
-import { Order } from '../../api/collections/order';
+import {ItemsSchema} from '../../api/collections/order-items.js';
+import {Invoices} from '../../api/collections/invoice.js';
+import {Order} from '../../api/collections/order';
 // Declare template
 var itemsTmpl = Template.Cement_invoiceItems,
     actionItemsTmpl = Template.Cement_invoiceItemsAction;
 editItemsTmpl = Template.Cement_invoiceItemsEdit;
 //methods
-import { removeItemInSaleOrder } from '../../../common/methods/sale-order';
-let currentItemsInupdateForm = new Mongo.Collection(null);
+import {removeItemInSaleOrder} from '../../../common/methods/sale-order';
+let currentItemsInUpdateForm = new Mongo.Collection(null);
 let tmpDeletedItem = new Mongo.Collection(null); // use to check with credit limit 
 // Local collection
 var itemsCollection;
 export const deletedItem = new Mongo.Collection(null); //export collection deletedItem to invoice js
 // Page
 import './invoice-items.html';
-
 
 
 itemsTmpl.onCreated(function () {
@@ -59,7 +58,10 @@ itemsTmpl.onCreated(function () {
     // State
     this.state('amount', 0);
     this.defaultPrice = new ReactiveVar(0);
-    this.defaultItem = new ReactiveVar()
+    this.transportFee = new ReactiveVar(0);
+    this.defaultBaseUnit = new ReactiveVar([]);
+    this.defaultPrice = new ReactiveVar(0);
+    this.defaultItem = new ReactiveVar();
     this.defaultQty = new ReactiveVar(0);
     this.autorun(() => {
         if (FlowRouter.query.get('customerId')) {
@@ -81,12 +83,28 @@ itemsTmpl.onCreated(function () {
         }
         if (this.defaultItem.get() && (this.defaultItem.get() || this.defaultQty.get())) {
             itemInfo.callPromise({
-                _id: this.defaultItem.get(), customerId: Session.get('getCustomerId'), qty: this.defaultQty.get(), routeName: FlowRouter.getRouteName()
+                _id: this.defaultItem.get(),
+                customerId: Session.get('getCustomerId'),
+                qty: this.defaultQty.get(),
+                routeName: FlowRouter.getRouteName()
             }).then((result) => {
                 this.defaultPrice.set(result.price);
             }).catch((err) => {
                 console.log(err.message);
             });
+        }
+        if (this.defaultItem.get()) {
+            itemInfo.callPromise({
+                _id: this.defaultItem.get()
+            }).then((result) => {
+                this.transportFee.set(result.transportFee);
+                this.defaultPrice.set(result.price);
+                if (result.sellingUnit) {
+                    this.defaultBaseUnit.set(result.sellingUnit)
+                }
+            }).catch((err) => {
+                console.log(err.message)
+            })
         }
     });
 });
@@ -120,6 +138,12 @@ itemsTmpl.helpers({
             label: __(`${i18nPrefix}.qty.label`),
             fn(value, obj, key) {
                 return FlowRouter.query.get('customerId') ? value : Spacebars.SafeString(`<input type="text" value=${value} class="item-qty">`);
+            }
+        }, {
+            key: 'transportFee',
+            label: __(`Transport Fee`),
+            fn(value, obj, key) {
+                return Spacebars.SafeString(`<input type="text" value=${value} class="item-transport-fee">`)
             }
         }, {
             key: 'price',
@@ -172,9 +196,9 @@ itemsTmpl.helpers({
             if (Session.get('getCustomerId')) {
                 let deletedItemsTotal = 0;
                 if (AutoForm.getFormId() == "Cement_invoiceUpdate") {
-                    console.log(currentItemsInupdateForm.find().fetch());
-                    if (currentItemsInupdateForm.find().count() > 0) {
-                        currentItemsInupdateForm.find().forEach(function (item) {
+                    console.log(currentItemsInUpdateForm.find().fetch());
+                    if (currentItemsInUpdateForm.find().count() > 0) {
+                        currentItemsInUpdateForm.find().forEach(function (item) {
                             deletedItemsTotal += item.amount;
                         });
                     }
@@ -187,11 +211,10 @@ itemsTmpl.helpers({
         }
     },
     totalAmount() {
-        let instance = Template.instance();
         try {
-            return instance.defaultPrice.get() * instance.defaultQty.get();
+            let instance = Template.instance()
+            return instance.defaultPrice.get() * instance.defaultQty.get()
         } catch (error) {
-            console.log(error.message)
         }
     },
     price() {
@@ -202,6 +225,14 @@ itemsTmpl.helpers({
 
         }
     },
+    baseUnit() {
+        let instance = Template.instance();
+        return instance.defaultBaseUnit.get()
+    },
+    defaultQty() {
+        let instance = Template.instance();
+        return instance.defaultQty.get()
+    }
 });
 
 itemsTmpl.events({
@@ -210,10 +241,10 @@ itemsTmpl.events({
         let currentValue = event.currentTarget.value;
         switch (currentValue) {
             case 'none-scheme':
-                Session.set('itemFilterState', { scheme: { $exists: false } });
+                Session.set('itemFilterState', {scheme: {$exists: false}});
                 break;
             case 'scheme':
-                Session.set('itemFilterState', { scheme: { $exists: true } });
+                Session.set('itemFilterState', {scheme: {$exists: true}});
                 break;
             case 'all':
                 Session.set('itemFilterState', {});
@@ -242,7 +273,7 @@ itemsTmpl.events({
         let price = math.round(parseFloat(instance.$('[name="price"]').val()), 2);
         let amount = math.round(qty * price, 2);
         // Check exist
-        Meteor.call('addScheme', { itemId }, function (err, result) {
+        Meteor.call('addScheme', {itemId}, function (err, result) {
             if (!_.isEmpty(result[0])) {
                 result.forEach(function (item) {
                     // let schemeItem = itemsCollection.findOne({itemId: item.itemId});
@@ -254,7 +285,8 @@ itemsTmpl.events({
                         itemId: item.itemId,
                         qty: item.quantity * qty,
                         price: item.price,
-                        amount: (item.price * item.quantity) * qty,
+                        transportFee: instance.transportFee.get(),
+                        amount: (item.price * item.quantity) * qty + instance.transportFee.get(),
                         name: item.itemName
                     });
                     // }
@@ -265,23 +297,24 @@ itemsTmpl.events({
                 });
                 if (exist) {
                     qty += parseInt(exist.qty);
-                    amount = math.round(qty * price, 2);
+                    amount = math.round(qty * price, 2) + (qty * exist.transportFee);
 
                     itemsCollection.update({
                         _id: exist._id
                     }, {
-                            $set: {
-                                qty: qty,
-                                price: price,
-                                amount: amount
-                            }
-                        });
+                        $set: {
+                            qty: qty,
+                            price: price,
+                            amount: amount
+                        }
+                    });
                 } else {
                     itemsCollection.insert({
                         itemId: itemId,
                         qty: qty,
                         price: price,
-                        amount: amount,
+                        transportFee: instance.transportFee.get(),
+                        amount: amount + (instance.transportFee.get() * qty),
                         name: instance.name
                     });
                 }
@@ -296,7 +329,7 @@ itemsTmpl.events({
         event.preventDefault();
         let itemDoc = this;
         if (AutoForm.getFormId() == "Cement_invoiceUpdate") { //check if update form
-            let isCurrenctItemExistInTmpCollection = instance.data.currentItemsCollection.findOne({ itemId: this.itemId }); // check if current item collection has wanted remove item 
+            let isCurrenctItemExistInTmpCollection = instance.data.currentItemsCollection.findOne({itemId: this.itemId}); // check if current item collection has wanted remove item
             swal({
                 title: "Are you sure?",
                 text: "លុបទំនិញមួយនេះ?",
@@ -306,13 +339,13 @@ itemsTmpl.events({
                 closeOnConfirm: false
             }).then(
                 function () {
-                    if (!deletedItem.findOne({ itemId: itemDoc.itemId })) {
+                    if (!deletedItem.findOne({itemId: itemDoc.itemId})) {
                         deletedItem.insert(itemDoc);
                     }
                     if (isCurrenctItemExistInTmpCollection) {
-                        currentItemsInupdateForm.insert(itemDoc);
+                        currentItemsInUpdateForm.insert(itemDoc);
                     }
-                    itemsCollection.remove({ itemId: itemDoc.itemId });
+                    itemsCollection.remove({itemId: itemDoc.itemId});
                     swal.close();
                 });
         } else {
@@ -323,24 +356,62 @@ itemsTmpl.events({
     'change .item-qty'(event, instance) {
         let currentQty = event.currentTarget.value;
         let itemId = $(event.currentTarget).parents('tr').find('.itemId').text();
-        let currentItem = itemsCollection.findOne({ itemId: itemId });
+        let currentItem = itemsCollection.findOne({itemId: itemId});
         let selector = {};
         if (currentQty != '') {
             selector.$set = {
-                amount: currentQty * currentItem.price,
+                amount: (currentQty * currentItem.price) + (currentQty * currentItem.transportFee),
                 qty: currentQty
             }
         } else {
             selector.$set = {
-                amount: 1 * currentItem.price,
+                amount: (1 * currentItem.price) + (1 * currentItem.transportFee),
                 qty: 1
             }
         }
-        itemsCollection.update({ itemId: itemId }, selector);
+        itemsCollection.update({itemId: itemId}, selector);
     },
     "keypress .item-qty"(evt) {
         var charCode = (evt.which) ? evt.which : evt.keyCode;
         return !(charCode > 31 && (charCode < 48 || charCode > 57));
+    },
+    'change [name="qtyConvert"]'(event, instance) {
+        let baseUnit = instance.defaultBaseUnit.get()
+        if (baseUnit.length > 0) {
+            let baseUnitIndex = $('[name="baseUnit"]').val()
+            let baseUnitDoc = baseUnit[parseInt(baseUnitIndex) - 1]
+            let currentValue = event.currentTarget.value
+            if (currentValue !== 'string' && currentValue !== null) {
+                instance.defaultQty.set(parseFloat(event.currentTarget.value) * baseUnitDoc.convertAmount)
+            } else {
+                instance.defaultQty.set(0)
+            }
+        }
+    },
+    'change [name="baseUnit"]'(event, instance) {
+        let qtyConvert = $('[name="qtyConvert"]').val()
+        let currentValue = $('option:selected', event.currentTarget).attr('convertAmount')
+        if (qtyConvert != '') {
+            instance.defaultQty.set(parseFloat(qtyConvert) * parseFloat(currentValue))
+        }
+    },
+    'change .item-transport-fee'(event, instance){
+        let currentTransportFee = event.currentTarget.value
+        let itemId = $(event.currentTarget).parents('tr').find('.itemId').text()
+        let currentItem = itemsCollection.findOne({itemId: itemId})
+        let selector = {}
+        if (currentTransportFee != '') {
+            selector.$set = {
+                amount: (currentTransportFee * currentItem.qty) + (currentItem.qty * currentItem.price),
+                transportFee: currentTransportFee
+            }
+        } else {
+            selector.$set = {
+                amount: currentItem.amount,
+                transportFee: currentItem.transportFee
+            }
+        }
+        itemsCollection.update({itemId: itemId}, selector)
     }
 });
 itemsTmpl.onDestroyed(function () {
@@ -354,8 +425,8 @@ let hooksObject = {
         // Check old item
         if (insertDoc.itemId == currentDoc.itemId) {
             itemsCollection.update({
-                _id: currentDoc._id
-            },
+                    _id: currentDoc._id
+                },
                 updateDoc
             );
         } else {
@@ -371,12 +442,12 @@ let hooksObject = {
                 itemsCollection.update({
                     _id: insertDoc._id
                 }, {
-                        $set: {
-                            qty: newQty,
-                            price: newPrice,
-                            amount: newAmount
-                        }
-                    });
+                    $set: {
+                        qty: newQty,
+                        price: newPrice,
+                        amount: newAmount
+                    }
+                });
             } else {
                 itemsCollection.remove({
                     _id: currentDoc._id

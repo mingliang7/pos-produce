@@ -57,7 +57,7 @@ export const exchangeRingPullStockBalanceReport = new ValidatedMethod({
                 {$match: selector},
                 {
                     $lookup: {
-                        from: "Cement_item",
+                        from: "cement_item",
                         localField: "itemId",
                         foreignField: "_id",
                         as: "itemDoc"

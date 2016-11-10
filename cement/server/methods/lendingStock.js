@@ -6,7 +6,7 @@ Meteor.methods({
             {$unwind: {path: '$items', preserveNullAndEmptyArrays: true}},
             {
                 $lookup: {
-                    from: "Cement_item",
+                    from: "cement_item",
                     localField: "items.itemId",
                     foreignField: "_id",
                     as: "itemDoc"

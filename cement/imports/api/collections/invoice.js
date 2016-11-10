@@ -18,6 +18,16 @@ Invoices.itemsSchema = new SimpleSchema({
         type: Number,
         min: 1
     },
+    baseUnit: {
+        type: Number,
+        decimal: true,
+        optional: true
+    },
+    transportFee: {
+        type: Number,
+        decimal: true,
+        optional: true
+    },
     price: {
         type: Number,
         decimal: true,
@@ -122,7 +132,7 @@ Invoices.schema = new SimpleSchema({
     staffId: {
         type: String,
         autoValue(){
-            if(this.isInsert) {
+            if (this.isInsert) {
                 return Meteor.user()._id;
             }
         }
@@ -171,8 +181,8 @@ Invoices.schema = new SimpleSchema({
                     if (Meteor.isClient) {
                         let currentUserStockAndAccountMappingDoc = Session.get('currentUserStockAndAccountMappingDoc');
                         let stockLocations = [];
-                        if(currentUserStockAndAccountMappingDoc && currentUserStockAndAccountMappingDoc.stockLocations) {
-                            stockLocations = currentUserStockAndAccountMappingDoc.stockLocations ;
+                        if (currentUserStockAndAccountMappingDoc && currentUserStockAndAccountMappingDoc.stockLocations) {
+                            stockLocations = currentUserStockAndAccountMappingDoc.stockLocations;
                         }
                         let currentBranch = Session.get('currentBranch');
                         return {

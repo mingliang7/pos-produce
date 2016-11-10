@@ -19,16 +19,13 @@
 			<div class="col-sm-4">
 				{{> afQuickField name="itemId" label=false}}
 			</div>
-			<div class="col-sm-2">
-				{{> afFieldInput name="qty" label=false }}
-			</div>
-			<!--<div class="col-sm-2">-->
-			<!--<div class="input-group" style="z-index: 99">-->
-			<!--{{> afFieldInput name="qty" label=false }}-->
-			<!--<br>-->
-			<!--{{>unitConvert}}-->
-			<!--</div>-->
-			<!--</div>-->
+            <div class="col-sm-2">
+                <div class="input-group">
+                    {{> afFieldInput name="qty" value=defaultQty label=false }}
+                    <br>
+                    {{>invoiceUnitConvert baseUnit=baseUnit}}
+                </div>
+            </div>
 			<div class="col-sm-2">
 				{{> afQuickField name="price" value=price label=false}}
 			</div>
@@ -63,4 +60,34 @@
 		{{/if}}
 		<li><a href="#" class="js-destroy-item"><i class="fa fa-remove"></i></a></li>
 	</ul>
+</template>
+
+<template name="invoiceUnitConvert">
+    <div class="input-group-btn">
+        <div class="btn-group" role="group">
+            <div class="dropdown dropdown-lg">
+                <a class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                   aria-expanded="false"><span class="text-blue"><i class="fa fa-exchange"></i></span></a>
+                <div class="dropdown-menu dropdown-menu-right dropdown-form-shadow" role="menu">
+                    <h4 class="text-blue"><i class="fa fa-exchange"></i> Unit Convert</h4>
+                    <hr>
+                    <form role="form" action="javascript:;" method="cementt" id="login-form" autocomplete="off">
+                        <div class="form-group">
+                            <label for="email" class="sr-only">Selling Unit</label>
+                            {{>afFieldInput name="baseUnit" options=baseUnit class="form-control"}}
+                            <br>
+                            <!--<input type="email" name="email" id="email" class="form-control" placeholder="somebody@example.com">-->
+                        </div>
+                        <div class="form-group">
+                            <br>
+                            <label for="key" class="sr-only">Convert Qty</label>
+                            {{>afFieldInput name="qtyConvert" placeholder="Convert Amount" class="form-control"}}
+                            <!--<input type="password" name="key" id="key" class="form-control" placeholder="Password">-->
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </template>

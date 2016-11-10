@@ -25,7 +25,7 @@ export const PrepaidOrderInfo = new ValidatedMethod({
                 $unwind: '$items'
             }, {
                 $lookup: {
-                    from: "Cement_item",
+                    from: "cement_item",
                     localField: "items.itemId",
                     foreignField: "_id",
                     as: "fItems"
