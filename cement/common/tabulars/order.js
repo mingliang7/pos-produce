@@ -32,7 +32,29 @@ tabularOpts.columns = [
     {data: "total", title: "Total"},
     {data: "sumRemainQty", title: "Remain QTY"},
     {data: "isPurchased", title: "Purchased"},
-    {data: "des", title: "Description"}
+    {data: "des", title: "Description"},
+    {
+        data: 'status',
+        title: "Status",
+        render: function (val) {
+            if(val == 'active'){
+                return `<label class="label label-primary">A</label>`;
+            }
+            return `<label class="label label-success">C</label>`;
+        }
+    },
+    {
+        data: 'paymentStatus',
+        title: "Payment Status",
+        render: function (val) {
+            if(val == 'active'){
+                return `<label class="label label-primary">A</label>`;
+            }else if(val == 'partial'){
+                return `<label class="label label-warning">P</label>`;
+            }
+            return `<label class="label label-success">C</label>`;
+        }
+    }
     //{
     //    data: "_customer",
     //    title: "Customer Info",

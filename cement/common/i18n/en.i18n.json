@@ -742,6 +742,9 @@
     },
     "accountMapping": {
       "title": "Account Mapping"
+    },
+    "saleOrderReceivePayment":{
+      "title": "SO receive payment"
     }
   }
 }

@@ -1,4 +1,5 @@
 export const RemovedPayment = new Mongo.Collection('removed_payment');
+export const RemovedSoPayment = new Mongo.Collection('removed_sOPayment');
 export const RemovedInvoice = new Mongo.Collection('removed_invoice');
 export const RemoveEnterBill = new Mongo.Collection('removed_enterBill');
 export const RemovedPayBill = new Mongo.Collection('removed_payBill');

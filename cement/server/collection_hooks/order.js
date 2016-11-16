@@ -9,6 +9,7 @@ import {Item} from '../../imports/api/collections/item.js'
 import {Vendors} from '../../imports/api/collections/vendor.js'
 import {AverageInventories} from '../../imports/api/collections/inventory.js'
 import {AccountMapping} from '../../imports/api/collections/accountMapping.js'
+import {SaleOrderReceivePayment} from '../../imports/api/collections/saleOrderReceivePayment';
 Order.before.insert(function (userId, doc) {
     let prefix = doc.customerId;
     doc._id = idGenerator.genWithPrefix(Order, prefix, 6);
@@ -87,7 +88,7 @@ Order.after.insert(function (userId, doc) {
         let setting = AccountIntegrationSetting.findOne();
         if (setting && setting.integrate) {
             let transaction = [];
-            let totalSaleOrder=doc.total;
+            let totalSaleOrder = doc.total;
             let data = doc;
             data.type = "SaleOrder";
             data.total = totalSaleOrder + totalCOGS;
@@ -128,6 +129,7 @@ Order.after.insert(function (userId, doc) {
 });
 
 Order.after.update(function (userId, doc) {
+    let preDoc = this.previous;
     Meteor.defer(function () {
         Meteor._sleepForMs(200);
         let sumRemainQty = 0;
@@ -157,7 +159,7 @@ Order.after.update(function (userId, doc) {
         let setting = AccountIntegrationSetting.findOne();
         if (setting && setting.integrate) {
             let transaction = [];
-            let totalSaleOrder=doc.total;
+            let totalSaleOrder = doc.total;
             let data = doc;
             data.total = totalSaleOrder + totalCOGS;
             data.type = "SaleOrder";

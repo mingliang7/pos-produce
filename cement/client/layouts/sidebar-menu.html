@@ -29,16 +29,22 @@
 					<i class="fa fa-file-text"></i> <span>{{_ "cement.sidebarMenu.invoice"}}</span>
 				</a>
 			</li>
-			<li class="{{isActiveRoute name='cement.groupInvoiceList'}}">
-				<a href="{{pathFor 'cement.groupInvoiceList'}}">
-					<i class="fa fa-list-alt"></i> <span>Group Invoice List</span>
-				</a>
-			</li>
 			<li class="{{isActiveRoute name='cement.receivePayment'}}">
 				<a href="{{pathFor 'cement.receivePayment'}}">
 					<i class="fa fa-money"></i> <span>Receive Payment</span>
 				</a>
 			</li>
+
+            <li class="{{isActiveRoute name='cement.saleOrderReceivePayment'}}">
+				<a href="{{pathFor 'cement.saleOrderReceivePayment'}}">
+					<i class="fa fa-money"></i> <span>SO Receive Payment</span>
+				</a>
+			</li>
+            <li class="{{isActiveRoute name='cement.soPaymentTransaction'}}">
+                <a href="{{pathFor 'cement.soPaymentTransaction'}}">
+                    <i class="fa fa-money"></i> <span>SO Receive Payment List</span>
+                </a>
+            </li>
 			<li class="{{isActiveRoute name='cement.paymentTransactionList'}}">
 				<a href="{{pathFor 'cement.paymentTransactionList'}}">
 					<i class="fa fa-exchange"></i> <span>Payment Transaction</span>

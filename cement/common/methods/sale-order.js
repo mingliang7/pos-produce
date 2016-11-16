@@ -7,6 +7,7 @@ import {CallPromiseMixin} from 'meteor/didericis:callpromise-mixin';
 // Collection
 import {Order} from '../../imports/api/collections/order.js';
 import {Invoices} from '../../imports/api/collections/invoice';
+import {SaleOrderReceivePayment} from '../../imports/api/collections/saleOrderReceivePayment';
 // Check user password
 export const saleOrderInfo = new ValidatedMethod({
     name: 'cement.saleOrderInfo',
@@ -108,10 +109,20 @@ export const isInvoiceExist = new ValidatedMethod({
         _id: {type: String}
     }).validator(),
     run({_id}){
-        if(!this.isSimulation) {
+        if (!this.isSimulation) {
             let invoice = Invoices.findOne({saleId: _id});
-            return {exist: invoice, invoiceId: invoice && invoice._id ? invoice._id : ''};
+            let saleOrderReceivePayment = SaleOrderReceivePayment.findOne({invoiceId: _id});
+            let invoiceId;
+            if(invoice){
+                invoiceId = invoice._id;
+            }else{
+                invoiceId = saleOrderReceivePayment._id;
+            }
+            return {
+                collection: invoice ? 'Invoice' : 'SO payment',
+                exist: invoice ? invoice : saleOrderReceivePayment,
+                invoiceId: invoiceId
+            };
         }
     }
-
 });

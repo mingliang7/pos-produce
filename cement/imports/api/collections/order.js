@@ -125,6 +125,14 @@ Order.schema = new SimpleSchema({
         }
       }
     },
+    paymentStatus: {
+        type: String,
+        autoValue: function(){
+            if(this.isInsert){
+                return 'active';
+            }
+        }
+    },
     sumRemainQty:{
         type: Number,
         decimal: true,

@@ -379,14 +379,14 @@
         "total": {
           "label": "សរុប"
         },
-        "subTotal":{
-          "label":"សរុបរង"
+        "subTotal": {
+          "label": "សរុបរង"
         },
-        "discount":{
-          "label":"បញ្ចុះតម្លៃ"
+        "discount": {
+          "label": "បញ្ចុះតម្លៃ"
         },
-        "status":{
-          "label":"ស្ថានភាព"
+        "status": {
+          "label": "ស្ថានភាព"
         },
         "branchId": {
           "label": "សាខា"
@@ -430,29 +430,32 @@
         "total": {
           "label": "សរុប"
         },
-        "subTotal":{
-          "label":"សរុបរង"
+        "subTotal": {
+          "label": "សរុបរង"
         },
-        "discount":{
-          "label":"បញ្ចុះតម្លៃ"
+        "discount": {
+          "label": "បញ្ចុះតម្លៃ"
         },
-        "status":{
-          "label":"ស្ថានភាព"
+        "status": {
+          "label": "ស្ថានភាព"
         },
         "branchId": {
           "label": "សាខា"
         }
       }
     },
-    "custom":{
-      "saveAndPrint":"រក្សាទុក & ​​​បោះពុម្ភ",
-      "pay":"បង់ប្រាក់"
+    "custom": {
+      "saveAndPrint": "រក្សាទុក & ​​​បោះពុម្ភ",
+      "pay": "បង់ប្រាក់"
     },
     "itemPriceForCustomer": {
       "title": "តម្លៃពិសេសសម្រាប់អតិថិជន"
     },
     "accountMapping": {
       "title": "ផ្គូរផ្គងគណនេយ្យ"
+    },
+    "saleOrderReceivePayment": {
+      "title": "SO receive payment"
     }
   }
 }

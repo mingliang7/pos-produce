@@ -92,7 +92,7 @@ indexTmpl.events({
         let data = this;
         Meteor.call("cement.isInvoiceExist", {_id: this._id}, (err, result)=> {
             if (result.exist) {
-                swal('បញ្ជាក់!', `សូមធ្វើការលុប Invoice លេខ​ ${result.invoiceId} ជាមុនសិន!​​​​`, 'error');
+                swal('បញ្ជាក់!', `សូមធ្វើការលុប ${result.collection} លេខ​ ${result.invoiceId} ជាមុនសិន!​​​​`, 'error');
             } else {
                 destroyAction(
                     Order,
