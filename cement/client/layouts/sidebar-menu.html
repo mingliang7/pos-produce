@@ -63,7 +63,12 @@
                         <i class="fa fa-male" aria-hidden="true"></i> <span>Vendor</span>
                     </a>
                 </li>
-
+                <li class="{{isActiveRoute name='cement.purchaseOrder'}}">
+                    <a href="{{pathFor 'cement.purchaseOrder'}}">
+                        <i class="fa fa-file-text" aria-hidden="true"></i>
+                        <span>{{_ "cement.sidebarMenu.purchaseOrder"}}</span>
+                    </a>
+                </li>
 
                 <li class="{{isActiveRoute name='cement.enterBill'}}">
                     <a href="{{pathFor 'cement.enterBill'}}">
@@ -89,6 +94,16 @@
                 <li class="{{isActiveRoute name='cement.payBillTransactionList'}}">
                     <a href="{{pathFor 'cement.payBillTransactionList'}}">
                         <i class="fa fa-exchange"></i> <span>PayBill Transaction</span>
+                    </a>
+                </li>
+                <li class="{{isActiveRoute name='cement.purchaseOrderPayment'}}">
+                    <a href="{{pathFor 'cement.purchaseOrderPayment'}}">
+                        <i class="fa fa-money"></i> <span>PO Payment</span>
+                    </a>
+                </li>
+                <li class="{{isActiveRoute name='cement.purchaseOrderPaymentTransaction'}}">
+                    <a href="{{pathFor 'cement.purchaseOrderPaymentTransaction'}}">
+                        <i class="fa fa-exchange"></i> <span>PO Payment Transaction</span>
                     </a>
                 </li>
                 <li class="{{isActiveRoute name='cement.lendingStock'}}">

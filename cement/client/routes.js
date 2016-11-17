@@ -687,3 +687,30 @@ CementRoutes.route('/soPaymentTransaction', {
     }
 
 });
+import '../imports/ui/pages/purchaseOrderPayment'
+CementRoutes.route('/purchaseOrderPayment', {
+    name: 'cement.purchaseOrderPayment',
+    title: 'PO Payment',
+    action: function (params, queryParams) {
+        Layout.main('Cement_purchaseOrderPayment');
+    },
+    breadcrumb: {
+        title: 'PO Payment',
+        icon: '',
+        parent: 'cement.home'
+    }
+
+});
+import '../imports/ui/pages/purchaseOrderPaymentTransaction'
+CementRoutes.route('/purchaseOrderPaymentTransaction', {
+    name: 'cement.purchaseOrderPaymentTransaction',
+    title: 'PO Payment Transaction',
+    action: function (params, queryParams) {
+        Layout.main('Cement_purchaseOrderPaymentTransaction');
+    },
+    breadcrumb: {
+        title: 'PO Payment Transaction',
+        icon: '',
+        parent: 'cement.home'
+    }
+});

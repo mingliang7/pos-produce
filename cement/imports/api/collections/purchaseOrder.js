@@ -112,6 +112,14 @@ PurchaseOrder.schema = new SimpleSchema({
     saleOrderId: {
         type: String,
         optional: true
+    },
+    status: {
+        type: String,
+        autoValue(){
+            if(this.isInsert) {
+                return 'active';
+            }
+        }
     }
 });
 
