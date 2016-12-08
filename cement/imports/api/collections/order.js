@@ -47,6 +47,11 @@ Order.itemsSchema = new SimpleSchema({
     remainQty: {
         type: Number,
         decimal: true
+    },
+    transportFeeAmount: {
+        type: Number,
+        decimal: true,
+        optional: true
     }
 });
 
@@ -118,22 +123,22 @@ Order.schema = new SimpleSchema({
         type: String
     },
     status: {
-      type: String,
-      autoValue: function(){
-        if(this.isInsert){
-          return 'active';
-        }
-      }
-    },
-    paymentStatus: {
         type: String,
-        autoValue: function(){
-            if(this.isInsert){
+        autoValue: function () {
+            if (this.isInsert) {
                 return 'active';
             }
         }
     },
-    sumRemainQty:{
+    paymentStatus: {
+        type: String,
+        autoValue: function () {
+            if (this.isInsert) {
+                return 'active';
+            }
+        }
+    },
+    sumRemainQty: {
         type: Number,
         decimal: true,
         optional: true
@@ -143,7 +148,7 @@ Order.schema = new SimpleSchema({
         label: 'Voucher ID',
         optional: true
     },
-    isPurchased:{
+    isPurchased: {
         type: Boolean,
         optional: true
     },
@@ -163,6 +168,11 @@ Order.schema = new SimpleSchema({
                 }
             }
         }
+    },
+    totalTransportFee: {
+        type: Number,
+        decimal: true,
+        optional: true
     }
 });
 

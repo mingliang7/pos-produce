@@ -103,7 +103,19 @@ Meteor.startup(function () {
                 "name": "COGS",
                 isUsed: true,
                 //"account" : "666666 | COGS"
-            }];
+            },
+            /* 17 */
+            {
+                "_id":"017",
+                "name":"Transport Revenue",
+                isUsed:true
+            },
+            {
+                "_id":"018",
+                "name":"Transport Expense",
+                isUsed:true
+            }
+        ];
         chartAccount.forEach(function (obj) {
             AccountMapping.insert(obj);
         });
