@@ -80,25 +80,34 @@ indexTmpl.events({
         alertify.order(fa('plus', TAPi18n.__('cement.order.title')), renderTemplate(newTmpl)).maximize();
     },
     'click .js-update' (event, instance) {
-        Meteor.call("cement.isInvoiceExist", {_id: this._id}, (err, result)=> {
-            if (result.exist) {
-                swal('បញ្ជាក់!', `សូមធ្វើការលុប Invoice លេខ​ ${result.invoiceId} ជាមុនសិន!​​​​`, 'error');
+        let data = this;
+        Meteor.call('isSaleOrderHasRelation', data._id, function (error, result) {
+            if (error) {
+                alertify.error(error.message);
             } else {
-                alertify.order(fa('pencil', TAPi18n.__('cement.order.title')), renderTemplate(editTmpl, this));
+                if (result) {
+                    alertify.warning("Data has been used. Can't update.");
+                } else {
+                    alertify.order(fa('pencil', TAPi18n.__('cement.order.title')), renderTemplate(editTmpl, data));
+                }
             }
         });
     },
     'click .js-destroy' (event, instance) {
         let data = this;
-        Meteor.call("cement.isInvoiceExist", {_id: this._id}, (err, result)=> {
-            if (result.exist) {
-                swal('បញ្ជាក់!', `សូមធ្វើការលុប ${result.collection} លេខ​ ${result.invoiceId} ជាមុនសិន!​​​​`, 'error');
+        Meteor.call('isSaleOrderHasRelation', data._id, function (error, result) {
+            if (error) {
+                alertify.error(error.message);
             } else {
-                destroyAction(
-                    Order,
-                    {_id: data._id},
-                    {title: TAPi18n.__('cement.order.title'), itemTitle: data._id}
-                );
+                if (result) {
+                    alertify.warning("Data has been used. Can't remove.");
+                } else {
+                    destroyAction(
+                        Order,
+                        {_id: data._id},
+                        {title: TAPi18n.__('cement.order.title'), itemTitle: data._id}
+                    );
+                }
             }
         });
     },

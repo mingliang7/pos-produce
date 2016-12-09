@@ -27,6 +27,7 @@ import '../../../../../core/client/components/form-footer.js';
 import {ReceiveItems} from '../../../api/collections/receiveItem.js';
 import {PrepaidOrders} from '../../../api/collections/prepaidOrder.js';
 import {ExchangeGratis} from '../../../api/collections/exchangeGratis.js';
+import {PurchaseOrder} from '../../../api/collections/purchaseOrder.js';
 import {ReceiveDeletedItem} from './receiveItem-items.js';
 import {Item} from '../../../api/collections/item';
 import {vendorBillCollection} from '../../../api/collections/tmpCollection';
@@ -39,6 +40,7 @@ import './receiveItem-items.js';
 import '../info-tab.html';
 import './lendingStock.js';
 import './exchangeGratis.js';
+import './purchaseOrder.js';
 import './companyExchangeRingPull.js';
 //methods
 import {ReceiveItemInfo} from '../../../../common/methods/receiveItem.js'
@@ -57,6 +59,7 @@ Tracker.autorun(function () {
         || Session.get('lendingStockItems')
         || Session.get('companyExchangeRingPullItems')
         || Session.get('exchangeGratisItems')
+        || Session.get('purchaseOrderItems')
     ) {
         let query = FlowRouter.query;
         var data;
@@ -68,6 +71,8 @@ Tracker.autorun(function () {
             data = Session.get('companyExchangeRingPullItems');
         } else if (query.get('type') == 'activeExchangeGratis') {
             data = Session.get('exchangeGratisItems');
+        }else if(query.get('type') == 'activePurchaseOrder'){
+            data=Session.get('purchaseOrderItems')
         }
         Meteor.subscribe('cement.item', {_id: {$in: data}});
     }
@@ -83,6 +88,7 @@ let indexTmpl = Template.Cement_receiveItem,
     listCompanyExchangeRingPull = Template.listCompanyExchangeRingPull,
     listExchangeGratis = Template.listExchangeGratis,
     listLendingStock = Template.listLendingStock;
+    listPurchaseOrder = Template.listPurchaseOrder;
 // Local collection
 import {itemsCollection} from '../../../api/collections/tmpCollection';
 
@@ -96,6 +102,7 @@ indexTmpl.onCreated(function () {
     createNewAlertify('listLendingStock', {size: 'lg'});
     createNewAlertify('listCompanyExchangeRingPull', {size: 'lg'});
     createNewAlertify('listExchangeGratis', {size: 'lg'});
+    createNewAlertify('listPurchaseOrder', {size: 'lg'});
     createNewAlertify('vendor');
 });
 
@@ -519,6 +526,8 @@ let hooksObject = {
                     doc.exchangeGratisId = obj.exchangeGratisId;
                 } else if (obj.companyExchangeRingPullId) {
                     doc.companyExchangeRingPullId = obj.companyExchangeRingPullId;
+                }else if(obj.purchaseOrderId){
+                    doc.purchaseOrderId=obj.purchaseOrderId;
                 }
                 items.push(obj);
             });
@@ -744,6 +753,12 @@ function receiveTypeFn({receiveType, vendor}) {
         label = "Gratis";
         FlowRouter.query.set({vendorId: vendor, type: 'activeExchangeGratis'});
         alertify.listExchangeGratis(fa('', 'Exchange Gratis'), renderTemplate(listExchangeGratis));
+
+    }
+    else if (receiveType == 'PurchaseOrder') {
+        label = "PurchaseOrder";
+        FlowRouter.query.set({vendorId: vendor, type: 'activePurchaseOrder'});
+        alertify.listPurchaseOrder(fa('', 'Purchase Order'), renderTemplate(listPurchaseOrder));
 
     }
     $('.receive-type-label').text(label);

@@ -3,6 +3,7 @@ import {idGenerator} from 'meteor/theara:id-generator';
 
 // Collection
 import {ReceiveItems} from '../../imports/api/collections/receiveItem.js';
+import {PurchaseOrder} from '../../imports/api/collections/purchaseOrder';
 import {AverageInventories} from '../../imports/api/collections/inventory.js';
 import {Item} from '../../imports/api/collections/item.js';
 import {PrepaidOrders} from '../../imports/api/collections/prepaidOrder';
@@ -110,13 +111,26 @@ ReceiveItems.after.insert(function (userId, doc) {
                 });
             }
             reduceCompanyExchangeRingPull(doc);
+        }else if (doc.type == 'PurchaseOrder') {
+            //Account Integration
+            if (setting && setting.integrate) {
+                type = 'PurchaseOrder-RI';
+                let InventoryOwingChartAccount = AccountMapping.findOne({name: 'Inventory Supplier Owing'});
+                transaction.push({
+                    account: InventoryOwingChartAccount.account,
+                    dr: 0,
+                    cr: doc.total,
+                    drcr: -doc.total
+                });
+            }
+            reducePurchaseOrder(doc);
         }
         else {
             throw Meteor.Error('Require Receive Item type');
         }
-        doc.items.forEach(function (item) {
+       /* doc.items.forEach(function (item) {
             averageInventoryInsert(doc.branchId, item, doc.stockLocationId, 'receiveItem', doc._id);
-        });
+        });*/
 
 
         //Account Integration
@@ -421,6 +435,27 @@ function reduceExchangeGratis(doc) {
         ExchangeGratis.direct.update(exchangeGratis._id, {$set: {status: 'closed'}});
     } else {
         ExchangeGratis.direct.update(exchangeGratis._id, {$set: {status: 'active'}});
+    }
+}
+function reducePurchaseOrder(doc) {
+    doc.items.forEach(function (item) {
+        PurchaseOrder.direct.update(
+            {
+                _id: doc.purchaseOrderId,
+                "items.itemId": item.itemId
+            },
+            {
+                $inc: {
+                    sumRemainQty: -item.qty,
+                    "items.$.remainQty": -item.qty
+                }
+            });
+    });
+    let purchaseOrder = ExchangeGratis.findOne(doc.purchaseOrderId);
+    if (purchaseOrder.sumRemainQty == 0) {
+        PurchaseOrder.direct.update(purchaseOrder._id, {$set: {status: 'closed'}});
+    } else {
+        PurchaseOrder.direct.update(purchaseOrder._id, {$set: {status: 'active'}});
     }
 }
 

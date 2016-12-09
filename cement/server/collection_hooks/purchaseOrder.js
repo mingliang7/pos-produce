@@ -17,23 +17,63 @@ PurchaseOrder.after.insert(function (userId, doc) {
     if (setting && setting.integrate) {
         let transaction = [];
         let data = doc;
-        data.type = "SaleOrder";
-        let oweInventoryChartAccount = AccountMapping.findOne({name: 'Owe Inventory Customer'});
-        let cashChartAccount = AccountMapping.findOne({name: 'Cash on Hand'});
+        data.type = "PurchaseOrder";
+        let oweInventoryChartAccount = AccountMapping.findOne({name: 'Inventory Supplier Owing'});
+        let cashChartAccount = AccountMapping.findOne({name: 'A/P'});
         transaction.push({
-            account: cashChartAccount.account,
-            dr: doc.total,
-            cr: 0,
-            drcr: doc.total
-        }, {
-            account: oweInventoryChartAccount.account,
-            dr: 0,
-            cr: doc.total,
-            drcr: -doc.total
-        });
+                account: oweInventoryChartAccount.account,
+                dr: doc.total,
+                cr: 0,
+                drcr: doc.total
+            },
+            {
+                account: cashChartAccount.account,
+                dr: 0,
+                cr: doc.total,
+                drcr: -doc.total
+            });
         data.transaction = transaction;
         Meteor.call('updateAccountJournal', data);
     }
     //End Account Integration
 });
 
+
+PurchaseOrder.after.update(function (userId, doc) {
+    //Account Integration
+    let setting = AccountIntegrationSetting.findOne();
+    if (setting && setting.integrate) {
+        let transaction = [];
+        let data = doc;
+        data.type = "PurchaseOrder";
+        let oweInventoryChartAccount = AccountMapping.findOne({name: 'Inventory Supplier Owing'});
+        let cashChartAccount = AccountMapping.findOne({name: 'A/P'});
+        transaction.push({
+                account: oweInventoryChartAccount.account,
+                dr: doc.total,
+                cr: 0,
+                drcr: doc.total
+            },
+            {
+                account: cashChartAccount.account,
+                dr: 0,
+                cr: doc.total,
+                drcr: -doc.total
+            });
+        data.transaction = transaction;
+        Meteor.call('updateAccountJournal', data);
+    }
+    //End Account Integration
+});
+
+PurchaseOrder.after.remove(function (userId, doc) {
+    Meteor.defer(function () {
+        //Account Integration
+        let setting = AccountIntegrationSetting.findOne();
+        if (setting && setting.integrate) {
+            let data = {_id: doc._id, type: 'PurchaseOrder'};
+            Meteor.call('removeAccountJournal', data)
+        }
+    })
+
+});
