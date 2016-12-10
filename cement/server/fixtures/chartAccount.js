@@ -114,7 +114,17 @@ Meteor.startup(function () {
                 "_id":"018",
                 "name":"Transport Expense",
                 isUsed:true
-            }
+            },
+            {
+                "_id":"019",
+                "name":"SO Discount",
+                isUsed:true
+            },
+            {
+                "_id":"020",
+                "name":"PO Discount",
+                isUsed:true
+            },
         ];
         chartAccount.forEach(function (obj) {
             AccountMapping.insert(obj);
