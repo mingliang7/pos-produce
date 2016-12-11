@@ -134,8 +134,13 @@ indexTmpl.events({
 });
 
 // New
+
 newTmpl.onCreated(function () {
+    Session.set('isPurchased', false);
     Meteor.subscribe('cement.requirePassword', {branchId: {$in: [Session.get('currentBranch')]}});//subscribe require password validation
+});
+editTmpl.onCreated(function () {
+    Session.set('isPurchased', false);
 });
 newTmpl.events({
     'change [name=customerId]'(event, instance){
@@ -150,7 +155,7 @@ newTmpl.events({
             instance.$('.warning-msg').text('*សូមជ្រើសរើសយក Vendor');
             return false;
         } else {
-            FlowRouter.query.set({p: 'true'});
+            Session.set('isPurchased', true);
         }
     },
     'change [name="vendorId"]'(event, instance){
@@ -234,7 +239,7 @@ editTmpl.helpers({
 });
 editTmpl.events({
     'click .saveNPurchase'(event, instance){
-        FlowRouter.query.set({p: 'true'});
+        Session.set('isPurchased', true);
     }
 });
 editTmpl.onDestroyed(function () {
@@ -271,8 +276,8 @@ showTmpl.events({
 let hooksObject = {
     before: {
         insert: function (doc) {
-            let isPurchased = FlowRouter.query.get('p');
-            doc.isPurchased = isPurchased ? true : false;
+            let isPurchased = Session.get('isPurchased');
+            doc.isPurchased = isPurchased;
             let items = [];
             itemsCollection.find().forEach((obj)=> {
                 delete obj._id;
@@ -284,11 +289,11 @@ let hooksObject = {
         },
         update: function (doc) {
             let items = [];
-            let isPurchased = FlowRouter.query.get('p');
-            doc.$set.isPurchased = isPurchased ? true : false;
+            let isPurchased = Session.get('isPurchased');
+            doc.isPurchased = isPurchased;
             itemsCollection.find().forEach((obj)=> {
                 delete obj._id;
-                obj.remainQty = obj.qty
+                obj.remainQty = obj.qty;
                 items.push(obj);
             });
             doc.$set.items = items;

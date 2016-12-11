@@ -42,20 +42,23 @@ Order.after.insert(function (userId, doc) {
             //let vendor = Vendors.findOne(doc.voucherId);
             let purchaseObj = {
                 //repId: vendor.repId,
-                vendorId: doc.voucherId,
+                vendorId: doc.vendorId,
                 purchaseOrderDate: moment().toDate(),
                 des: 'From Sale Order: "' + doc._id + '"',
                 branchId: doc.branchId,
                 total: doc.total - doc.totalTransportFee,
                 items: [],
-                saleOrderId: doc._id
+                saleOrderId: doc._id,
+                sumRemainQty: 0
             };
             doc.items.forEach(function (item) {
+                purchaseObj.sumRemainQty += item.qty;
                 purchaseObj.items.push({
                     itemId: item.itemId,
                     price: item.price,
                     qty: item.qty,
-                    amount: doc.qty * doc.price,
+                    remainQty: item.qty,
+                    amount: item.qty * item.price,
                 });
             });
             PurchaseOrder.insert(purchaseObj);
@@ -133,39 +136,46 @@ Order.after.update(function (userId, doc) {
             if (purchaseOrder) {
                 let purchaseObj = {
                     //repId: vendor.repId,
-                    vendorId: doc.voucherId,
+                    vendorId: doc.vendorId,
                     purchaseOrderDate: moment().toDate(),
                     des: 'From Sale Order: "' + doc._id + '"',
                     branchId: doc.branchId,
                     total: doc.total - doc.totalTransportFee,
                     items: [],
-                    saleOrderId: doc._id
+                    saleOrderId: doc._id,
+                    sumRemainQty: 0
                 };
                 doc.items.forEach(function (item) {
+                    purchaseObj.sumRemainQty += item.qty;
                     purchaseObj.items.push({
                         itemId: item.itemId,
                         price: item.price,
                         qty: item.qty,
-                        amount: doc.qty * doc.price,
+                        remainQty: item.qty,
+                        amount: item.qty * item.price,
+
                     });
                 });
                 PurchaseOrder.update(purchaseOrder._id, {$set: purchaseObj});
             } else {
                 let purchaseObj = {
-                    vendorId: doc.voucherId,
+                    vendorId: doc.vendorId,
                     purchaseOrderDate: moment().toDate(),
                     des: 'From Sale Order: "' + doc._id + '"',
                     branchId: doc.branchId,
                     total: doc.total - doc.totalTransportFee,
                     items: [],
-                    saleOrderId: doc._id
+                    saleOrderId: doc._id,
+                    sumRemainQty: 0
                 };
                 doc.items.forEach(function (item) {
+                    purchaseObj.sumRemainQty += item;
                     purchaseObj.items.push({
                         itemId: item.itemId,
                         price: item.price,
                         qty: item.qty,
-                        amount: doc.qty * doc.price,
+                        remainQty: item.qty,
+                        amount: item.qty * item.price,
                     });
                 });
                 PurchaseOrder.insert(purchaseObj);
