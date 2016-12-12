@@ -749,6 +749,7 @@ let hooksObject = {
                 delete obj._id;
                 if (obj.saleId) {
                     doc.saleId = obj.saleId;
+                    doc.total=0;
                 }
                 items.push(obj);
             });

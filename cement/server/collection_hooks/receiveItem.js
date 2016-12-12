@@ -451,7 +451,7 @@ function reducePurchaseOrder(doc) {
                 }
             });
     });
-    let purchaseOrder = ExchangeGratis.findOne(doc.purchaseOrderId);
+    let purchaseOrder = PurchaseOrder.findOne(doc.purchaseOrderId);
     if (purchaseOrder.sumRemainQty == 0) {
         PurchaseOrder.direct.update(purchaseOrder._id, {$set: {status: 'closed'}});
     } else {

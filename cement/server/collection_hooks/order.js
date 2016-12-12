@@ -241,7 +241,7 @@ Order.after.update(function (userId, doc) {
             );
             data.transaction = transaction;
             data.total = total;
-            Meteor.call('insertAccountJournal', data);
+            Meteor.call('updateAccountJournal', data);
         }
         //End Account Integration
     });

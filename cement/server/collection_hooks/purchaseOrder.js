@@ -33,7 +33,7 @@ PurchaseOrder.after.insert(function (userId, doc) {
                 drcr: -doc.total
             });
         data.transaction = transaction;
-        Meteor.call('updateAccountJournal', data);
+        Meteor.call('insertAccountJournal', data);
     }
     //End Account Integration
 });
