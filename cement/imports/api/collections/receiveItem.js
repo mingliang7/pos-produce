@@ -217,6 +217,10 @@ ReceiveItems.schema = new SimpleSchema({
     lendingStockId: {
         type: String,
         optional: true
+    },
+    purchaseOrderId: {
+        type: String,
+        optional: true
     }
 });
 

@@ -80,25 +80,34 @@ indexTmpl.events({
         alertify.order(fa('plus', TAPi18n.__('cement.order.title')), renderTemplate(newTmpl)).maximize();
     },
     'click .js-update' (event, instance) {
-        Meteor.call("cement.isInvoiceExist", {_id: this._id}, (err, result)=> {
-            if (result.exist) {
-                swal('បញ្ជាក់!', `សូមធ្វើការលុប Invoice លេខ​ ${result.invoiceId} ជាមុនសិន!​​​​`, 'error');
+        let data = this;
+        Meteor.call('isSaleOrderHasRelation', data._id, function (error, result) {
+            if (error) {
+                alertify.error(error.message);
             } else {
-                alertify.order(fa('pencil', TAPi18n.__('cement.order.title')), renderTemplate(editTmpl, this));
+                if (result) {
+                    alertify.warning("Data has been used. Can't update.");
+                } else {
+                    alertify.order(fa('pencil', TAPi18n.__('cement.order.title')), renderTemplate(editTmpl, data));
+                }
             }
         });
     },
     'click .js-destroy' (event, instance) {
         let data = this;
-        Meteor.call("cement.isInvoiceExist", {_id: this._id}, (err, result)=> {
-            if (result.exist) {
-                swal('បញ្ជាក់!', `សូមធ្វើការលុប ${result.collection} លេខ​ ${result.invoiceId} ជាមុនសិន!​​​​`, 'error');
+        Meteor.call('isSaleOrderHasRelation', data._id, function (error, result) {
+            if (error) {
+                alertify.error(error.message);
             } else {
-                destroyAction(
-                    Order,
-                    {_id: data._id},
-                    {title: TAPi18n.__('cement.order.title'), itemTitle: data._id}
-                );
+                if (result) {
+                    alertify.warning("Data has been used. Can't remove.");
+                } else {
+                    destroyAction(
+                        Order,
+                        {_id: data._id},
+                        {title: TAPi18n.__('cement.order.title'), itemTitle: data._id}
+                    );
+                }
             }
         });
     },
@@ -125,8 +134,13 @@ indexTmpl.events({
 });
 
 // New
+
 newTmpl.onCreated(function () {
+    Session.set('isPurchased', false);
     Meteor.subscribe('cement.requirePassword', {branchId: {$in: [Session.get('currentBranch')]}});//subscribe require password validation
+});
+editTmpl.onCreated(function () {
+    Session.set('isPurchased', false);
 });
 newTmpl.events({
     'change [name=customerId]'(event, instance){
@@ -141,7 +155,7 @@ newTmpl.events({
             instance.$('.warning-msg').text('*សូមជ្រើសរើសយក Vendor');
             return false;
         } else {
-            FlowRouter.query.set({p: 'true'});
+            Session.set('isPurchased', true);
         }
     },
     'change [name="vendorId"]'(event, instance){
@@ -225,7 +239,7 @@ editTmpl.helpers({
 });
 editTmpl.events({
     'click .saveNPurchase'(event, instance){
-        FlowRouter.query.set({p: 'true'});
+        Session.set('isPurchased', true);
     }
 });
 editTmpl.onDestroyed(function () {
@@ -262,8 +276,8 @@ showTmpl.events({
 let hooksObject = {
     before: {
         insert: function (doc) {
-            let isPurchased = FlowRouter.query.get('p');
-            doc.isPurchased = isPurchased ? true : false;
+            let isPurchased = Session.get('isPurchased');
+            doc.isPurchased = isPurchased;
             let items = [];
             itemsCollection.find().forEach((obj)=> {
                 delete obj._id;
@@ -275,11 +289,11 @@ let hooksObject = {
         },
         update: function (doc) {
             let items = [];
-            let isPurchased = FlowRouter.query.get('p');
-            doc.$set.isPurchased = isPurchased ? true : false;
+            let isPurchased = Session.get('isPurchased');
+            doc.isPurchased = isPurchased;
             itemsCollection.find().forEach((obj)=> {
                 delete obj._id;
-                obj.remainQty = obj.qty
+                obj.remainQty = obj.qty;
                 items.push(obj);
             });
             doc.$set.items = items;

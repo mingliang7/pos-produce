@@ -38,6 +38,10 @@ PurchaseOrder.itemsSchema = new SimpleSchema({
                 return inputmaskOptions.currency();
             }
         }
+    },
+    remainQty: {
+        type: Number,
+        decimal: true
     }
 });
 
@@ -65,7 +69,6 @@ PurchaseOrder.schema = new SimpleSchema({
                 optionsMethod: 'cement.selectOptMethods.vendor',
                 optionsMethodParams: function () {
                     if (Meteor.isClient) {
-                        debugger
                         let currentBranch = Session.get('currentBranch');
                         return {branchId: currentBranch};
                     }
@@ -120,6 +123,10 @@ PurchaseOrder.schema = new SimpleSchema({
                 return 'active';
             }
         }
+    },
+    sumRemainQty: {
+        type: Number,
+        decimal: true
     }
 });
 
