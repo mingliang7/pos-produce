@@ -7,5 +7,4 @@ import {StockLocations} from '../../imports/api/collections/stockLocation.js';
 
 EnterBills.cacheTimestamp();
 EnterBills.cacheDoc('vendor', Vendors, ['name']);
-EnterBills.cacheDoc('staff', Meteor.users, ['username']);
 EnterBills.cacheDoc('stockLocation',StockLocations,['name']);

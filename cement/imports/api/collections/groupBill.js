@@ -11,7 +11,7 @@ GroupBill_schema = new SimpleSchema({
     },
     invoices: {
         type: [Object],
-        blackbox: true,
+        blackbox: true
     },
     total: {
         type: Number,

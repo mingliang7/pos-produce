@@ -10,8 +10,8 @@ module.exports = {
   },
 
   meteor: {
-    name: 'Pos',
-    path: '../pos',
+    name: 'Cement',
+    path: '../cement',
     servers: {
       one: {}
     },
@@ -19,13 +19,13 @@ module.exports = {
       serverOnly: true,
     },
     env: {
-      ROOT_URL: 'http://52.43.19.193',
-      MONGO_URL: 'mongodb://localhost/pos'
+      PORT: 8080,
+      ROOT_URL: 'http://52.43.19.193:8080',
+      MONGO_URL: 'mongodb://localhost/cement'
     },
     dockerImage: 'abernix/meteord:base',
     deployCheckWaitTime: 60
   },
-
   mongo: {
     oplog: true,
     port: 27017,

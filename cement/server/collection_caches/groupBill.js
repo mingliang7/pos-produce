@@ -6,5 +6,3 @@ import {Vendors} from '../../imports/api/collections/vendor.js';
 
 GroupBill.cacheTimestamp();
 GroupBill.cacheDoc('vendor', Vendors, ['name'], 'vendorOrCustomerId');
-GroupBill.cacheDoc('staff', Meteor.users, ['username']);
-
