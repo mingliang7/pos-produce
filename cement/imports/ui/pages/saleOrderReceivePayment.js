@@ -18,47 +18,7 @@ let countLateInvoice = new ReactiveVar(0);
 let currentPaymentDate = new ReactiveVar(moment().toDate());
 let isPenalty = new ReactiveVar(true);
 let indexTmpl = Template.Cement_saleOrderReceivePayment;
-Tracker.autorun(function () {
-    if (Session.get('customerId')) {
-        swal({
-            title: "Pleas Wait",
-            text: "Getting Order....", showConfirmButton: false
-        });
-        Meteor.subscribe('cement.customer', {
-            _id: Session.get('customerId')
-        });
-        let customer = getCustomerInfo(Session.get('customerId'));
-        let invoiceSub;
-        invoiceSub = Meteor.subscribe('cement.activeOrders', {
-            customerId: Session.get('customerId'),
-            paymentStatus: {$in: ['active', 'partial']},
-        });
-        if (invoiceSub.ready()) {
-            let invoices = customer.termId ? Order.find({}).fetch() : Order.find({}).fetch();
-            Meteor.call('calculateLateInvoice', {invoices}, function (err, result) {
-                countLateInvoice.set(result);
-            });
-            setTimeout(function () {
-                swal.close()
-            }, 500);
-        }
-    }
-    if (Session.get('createPenalty')) {
-        let customer = getCustomerInfo(Session.get('customerId'));
-        let invoices = customer.termId ? Order.find({}).fetch() : Order.find({}).fetch();
-        Meteor.call('calculateLateInvoice', {invoices}, function (err, result) {
-            countLateInvoice.set(result);
-        });
-    }
-    if (Session.get('invoices')) {
-        Meteor.subscribe('cement.saleOrderReceivePayment', {
-            invoiceId: {
-                $in: Session.get('invoices')
-            },
-            status: {$in: ['active', 'partial']}
-        });
-    }
-});
+
 
 indexTmpl.onRendered(function () {
     paymentDate($('[name="paymentDate"]'));
@@ -79,6 +39,40 @@ indexTmpl.onCreated(function () {
         count: 0
     });
     Session.set('balance', 0)
+    this.autorun(() => {
+        if (Session.get('customerId')) {
+            Meteor.subscribe('cement.customer', {
+                _id: Session.get('customerId')
+            });
+            let customer = getCustomerInfo(Session.get('customerId'));
+            let invoiceSub;
+            invoiceSub = Meteor.subscribe('cement.activeOrders', {
+                customerId: Session.get('customerId'),
+                paymentStatus: {$in: ['active', 'partial']},
+            });
+            if (invoiceSub.ready()) {
+                let invoices = customer.termId ? Order.find({}).fetch() : Order.find({}).fetch();
+                Meteor.call('calculateLateInvoice', {invoices}, function (err, result) {
+                    countLateInvoice.set(result);
+                });
+            }
+        }
+        if (Session.get('createPenalty')) {
+            let customer = getCustomerInfo(Session.get('customerId'));
+            let invoices = customer.termId ? Order.find({}).fetch() : Order.find({}).fetch();
+            Meteor.call('calculateLateInvoice', {invoices}, function (err, result) {
+                countLateInvoice.set(result);
+            });
+        }
+        if (Session.get('invoices')) {
+            Meteor.subscribe('cement.saleOrderReceivePayment', {
+                invoiceId: {
+                    $in: Session.get('invoices')
+                },
+                status: {$in: ['active', 'partial']}
+            });
+        }
+    });
 });
 indexTmpl.onDestroyed(function () {
     Session.set('customerId', undefined);
@@ -176,7 +170,7 @@ indexTmpl.helpers({
     },
     lastPaymentDate(){
         var lastPaymentDate = getLastPaymentDate(this._id);
-        if(lastPaymentDate) {
+        if (lastPaymentDate) {
             return `<br><span class="label label-success"><i class="fa fa-money"></i> Last Paid: ${moment(lastPaymentDate).format('YYYY-MM-DD HH:mm:ss')}</span>`;
         }
         return '';
@@ -249,7 +243,12 @@ indexTmpl.helpers({
         let invoices = (customer && customer.termId) ? Order.find({}) : Order.find({});
         if (invoices.count() > 0) {
             invoices.forEach(function (invoice) {
-                let saleOrderReceivePayments = SaleOrderReceivePayment.find({invoiceId: invoice._id}, {sort: {_id: 1, paymentDate: 1}});
+                let saleOrderReceivePayments = SaleOrderReceivePayment.find({invoiceId: invoice._id}, {
+                    sort: {
+                        _id: 1,
+                        paymentDate: 1
+                    }
+                });
                 if (saleOrderReceivePayments.count() > 0) {
                     let lastPayment = _.last(saleOrderReceivePayments.fetch());
                     totalAmountDue += lastPayment.balanceAmount;
@@ -268,7 +267,12 @@ indexTmpl.helpers({
         if (invoices.count() > 0) {
             invoices.forEach(function (invoice) {
                 var discount = invoice.paymentStatus == 'active' ? checkTerm(invoice) : 0;
-                let saleOrderReceivePayments = SaleOrderReceivePayment.find({invoiceId: invoice._id}, {sort: {_id: 1, paymentDate: 1}});
+                let saleOrderReceivePayments = SaleOrderReceivePayment.find({invoiceId: invoice._id}, {
+                    sort: {
+                        _id: 1,
+                        paymentDate: 1
+                    }
+                });
                 if (saleOrderReceivePayments.count() > 0) {
                     let lastPayment = _.last(saleOrderReceivePayments.fetch());
                     totalAmountDue += lastPayment.balanceAmount;
@@ -521,7 +525,12 @@ function clearChecbox() {
     })
 }
 function getLastPayment(invoiceId) {
-    let saleOrderReceivePayments = SaleOrderReceivePayment.find({invoiceId: invoiceId}, {sort: {_id: 1, paymentDate: 1}});
+    let saleOrderReceivePayments = SaleOrderReceivePayment.find({invoiceId: invoiceId}, {
+        sort: {
+            _id: 1,
+            paymentDate: 1
+        }
+    });
     if (saleOrderReceivePayments.count() > 0) {
         let lastPayment = _.last(saleOrderReceivePayments.fetch());
         return lastPayment.balanceAmount;
@@ -529,7 +538,12 @@ function getLastPayment(invoiceId) {
     return 0;
 }
 function getLastPaymentDate(invoiceId) {
-    let saleOrderReceivePayments = SaleOrderReceivePayment.find({invoiceId: invoiceId}, {sort: {_id: 1, paymentDate: 1}});
+    let saleOrderReceivePayments = SaleOrderReceivePayment.find({invoiceId: invoiceId}, {
+        sort: {
+            _id: 1,
+            paymentDate: 1
+        }
+    });
     if (saleOrderReceivePayments.count() > 0) {
         let lastPayment = _.last(saleOrderReceivePayments.fetch());
         return lastPayment.paymentDate;
@@ -592,7 +606,7 @@ let hooksObject = {
             });
         } else {
             let paymentDate = this.insertDoc.paymentDate || new Date();
-            let voucherId = this.insertDoc.voucherId || '' ;
+            let voucherId = this.insertDoc.voucherId || '';
             swal({
                 title: "Processing Payment..",
                 text: "Click OK to continue!",
@@ -632,7 +646,7 @@ let hooksObject = {
 };
 
 function paymentDate(element) {
-    element.on("dp.change", (e)=> {
+    element.on("dp.change", (e) => {
         clearChecbox();
         currentPaymentDate.set(e.date.toDate());
     });

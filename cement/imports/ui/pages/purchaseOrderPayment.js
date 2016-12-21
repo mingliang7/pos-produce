@@ -16,36 +16,28 @@ import './purchaseOrderPayment.html';
 
 let indexTmpl = Template.Cement_purchaseOrderPayment;
 let currentPaymentDate = new ReactiveVar(moment().toDate());
-Tracker.autorun(function () {
-    if (Session.get('vendorIdState')) {
-        swal({
-            title: "Pleas Wait",
-            text: "Getting Bills....", showConfirmButton: false
-        });
-        Meteor.subscribe('cement.vendor', {
-            _id: Session.get('vendorIdState')
-        }, {});
-        let vendor = getVendorInfo(Session.get('vendorIdState'));
-        billSub = Meteor.subscribe('cement.activePurchaseOrder', {
-            vendorId: Session.get('vendorIdState'),
-            status: {$in: ['active', 'partial']}
-        });
-        if (billSub.ready()) {
-            setTimeout(function () {
-                swal.close()
-            }, 500);
-        }
-    }
-    if (Session.get('invoices')) {
-        Meteor.subscribe('cement.purchaseOrderPayment', {
-            billId: {
-                $in: Session.get('invoices')
-            },
-            status: {$in: ['active', 'partial']}
-        });
-    }
-});
+
 indexTmpl.onCreated(function () {
+    this.autorun(() => {
+        if (Session.get('vendorIdState')) {
+            Meteor.subscribe('cement.vendor', {
+                _id: Session.get('vendorIdState')
+            }, {});
+            let vendor = getVendorInfo(Session.get('vendorIdState'));
+            billSub = Meteor.subscribe('cement.activePurchaseOrder', {
+                vendorId: Session.get('vendorIdState'),
+                status: {$in: ['active', 'partial']}
+            });
+        }
+        if (Session.get('invoices')) {
+            Meteor.subscribe('cement.purchaseOrderPayment', {
+                billId: {
+                    $in: Session.get('invoices')
+                },
+                status: {$in: ['active', 'partial']}
+            });
+        }
+    });
     Session.set('amountDue', 0);
     Session.set('discount', {discountIfPaidWithin: 0, discountPerecentages: 0, billId: ''});
     Session.set('disableTerm', false);
@@ -118,7 +110,7 @@ indexTmpl.helpers({
     invoices() {
         let invoices;
         let vendor = getVendorInfo(Session.get('vendorIdState'));
-        if (vendor && vendor.termId) {
+        if (vendor) {
             invoices = PurchaseOrder.find({}, {
                 sort: {
                     _id: 1
@@ -503,15 +495,16 @@ function checkTerm(self) {
 }
 function getVendorTerm(vendorId) {
     let vendor = getVendorInfo(vendorId);
-    if (vendor && vendor.termId) {
-        Meteor.call('getTerm', vendor.termId, function (err, result) {
-            Session.set('discount', {
-                termName: result.name,
-                discountIfPaidWithin: result.discountIfPaidWithin,
-                discountPercentages: result.discountPercentages
-            });
-        });
-        return `Term: ${vendor._term.name}`;
+    if (vendor) {
+        // Meteor.call('getTerm', vendor.termId, function (err, result) {
+        //     Session.set('discount', {
+        //         termName: result.name,
+        //         discountIfPaidWithin: result.discountIfPaidWithin,
+        //         discountPercentages: result.discountPercentages
+        //     });
+        // });
+        // return `Term: ${vendor._term.name}`;
+        return ''
     } else {
         Session.set('discount', {discountIfPaidWithin: 0, discountPerecentages: 0, billId: ''});
         return 0;
@@ -579,7 +572,7 @@ let hooksObject = {
     },
 };
 function paymentDate(element) {
-    element.on("dp.change", (e)=> {
+    element.on("dp.change", (e) => {
         clearChecbox();
         currentPaymentDate.set(e.date.toDate());
     });

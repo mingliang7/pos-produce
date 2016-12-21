@@ -17,44 +17,7 @@ import './payBill.html';
 
 let indexTmpl = Template.Cement_payBill;
 let currentPaymentDate = new ReactiveVar(moment().toDate());
-Tracker.autorun(function () {
-    if (Session.get('vendorIdState')) {
-        swal({
-            title: "Pleas Wait",
-            text: "Getting Bills....", showConfirmButton: false
-        });
-        Meteor.subscribe('cement.vendor', {
-            _id: Session.get('vendorIdState')
-        }, {});
-        let vendor = getVendorInfo(Session.get('vendorIdState'));
-        let billSub;
-        if (vendor && vendor.termId) {
-            billSub = Meteor.subscribe('cement.activeEnterBills', {
-                vendorId: Session.get('vendorIdState'),
-                status: {$in: ['active', 'partial']},
-                billType: 'term'
-            });
-        } else {
-            billSub = Meteor.subscribe('cement.activeGroupBills', {
-                vendorOrCustomerId: Session.get('vendorIdState'),
-                status: {$in: ['active', 'partial']}
-            });
-        }
-        if (billSub.ready()) {
-            setTimeout(function () {
-                swal.close()
-            }, 500);
-        }
-    }
-    if (Session.get('invoices')) {
-        Meteor.subscribe('cement.payBills', {
-            billId: {
-                $in: Session.get('invoices')
-            },
-            status: {$in: ['active', 'partial']}
-        });
-    }
-});
+
 indexTmpl.onCreated(function () {
     Session.set('amountDue', 0);
     Session.set('discount', {discountIfPaidWithin: 0, discountPerecentages: 0, billId: ''});
@@ -68,7 +31,36 @@ indexTmpl.onCreated(function () {
     Session.set('enterBillsObj', {
         count: 0
     });
-    Session.set('balance', 0)
+    Session.set('balance', 0);
+    this.autorun(function () {
+        if (Session.get('vendorIdState')) {
+            Meteor.subscribe('cement.vendor', {
+                _id: Session.get('vendorIdState')
+            }, {});
+            let vendor = getVendorInfo(Session.get('vendorIdState'));
+            let billSub;
+            if (vendor && vendor.termId) {
+                billSub = Meteor.subscribe('cement.activeEnterBills', {
+                    vendorId: Session.get('vendorIdState'),
+                    status: {$in: ['active', 'partial']},
+                    billType: 'term'
+                });
+            } else {
+                billSub = Meteor.subscribe('cement.activeGroupBills', {
+                    vendorOrCustomerId: Session.get('vendorIdState'),
+                    status: {$in: ['active', 'partial']}
+                });
+            }
+        }
+        if (Session.get('invoices')) {
+            Meteor.subscribe('cement.payBills', {
+                billId: {
+                    $in: Session.get('invoices')
+                },
+                status: {$in: ['active', 'partial']}
+            });
+        }
+    });
 });
 indexTmpl.onRendered(function () {
     paymentDate($('[name="paymentDate"]'));

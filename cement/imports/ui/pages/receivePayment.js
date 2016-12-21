@@ -19,55 +19,7 @@ let countLateInvoice = new ReactiveVar(0);
 let currentPaymentDate = new ReactiveVar(moment().toDate());
 let isPenalty = new ReactiveVar(true);
 let indexTmpl = Template.Cement_receivePayment;
-Tracker.autorun(function () {
-    if (Session.get('customerId')) {
-        swal({
-            title: "Pleas Wait",
-            text: "Getting Invoices....", showConfirmButton: false
-        });
-        Meteor.subscribe('cement.customer', {
-            _id: Session.get('customerId')
-        });
-        let customer = getCustomerInfo(Session.get('customerId'));
-        let invoiceSub;
-        if (customer && customer.termId) {
-            invoiceSub = Meteor.subscribe('cement.activeInvoices', {
-                customerId: Session.get('customerId'),
-                status: {$in: ['active', 'partial']},
-                invoiceType: 'term'
-            });
-        } else {
-            invoiceSub = Meteor.subscribe('cement.activeGroupInvoices', {
-                vendorOrCustomerId: Session.get('customerId'),
-                status: {$in: ['active', 'partial']}
-            });
-        }
-        if (invoiceSub.ready()) {
-            let invoices = customer.termId ? Invoices.find({}).fetch() : GroupInvoice.find({}).fetch();
-            Meteor.call('calculateLateInvoice', {invoices}, function (err, result) {
-                countLateInvoice.set(result);
-            });
-            setTimeout(function () {
-                swal.close()
-            }, 500);
-        }
-    }
-    if (Session.get('createPenalty')) {
-        let customer = getCustomerInfo(Session.get('customerId'));
-        let invoices = customer.termId ? Invoices.find({}).fetch() : GroupInvoice.find({}).fetch();
-        Meteor.call('calculateLateInvoice', {invoices}, function (err, result) {
-            countLateInvoice.set(result);
-        });
-    }
-    if (Session.get('invoices')) {
-        Meteor.subscribe('cement.receivePayment', {
-            invoiceId: {
-                $in: Session.get('invoices')
-            },
-            status: {$in: ['active', 'partial']}
-        });
-    }
-});
+
 
 indexTmpl.onRendered(function () {
     paymentDate($('[name="paymentDate"]'));
@@ -87,7 +39,49 @@ indexTmpl.onCreated(function () {
     Session.set('invoicesObj', {
         count: 0
     });
-    Session.set('balance', 0)
+    Session.set('balance', 0);
+    this.autorun(function () {
+        if (Session.get('customerId')) {
+            Meteor.subscribe('cement.customer', {
+                _id: Session.get('customerId')
+            });
+            let customer = getCustomerInfo(Session.get('customerId'));
+            let invoiceSub;
+            if (customer && customer.termId) {
+                invoiceSub = Meteor.subscribe('cement.activeInvoices', {
+                    customerId: Session.get('customerId'),
+                    status: {$in: ['active', 'partial']},
+                    invoiceType: 'term'
+                });
+            } else {
+                invoiceSub = Meteor.subscribe('cement.activeGroupInvoices', {
+                    vendorOrCustomerId: Session.get('customerId'),
+                    status: {$in: ['active', 'partial']}
+                });
+            }
+            if (invoiceSub.ready()) {
+                let invoices = customer.termId ? Invoices.find({}).fetch() : GroupInvoice.find({}).fetch();
+                Meteor.call('calculateLateInvoice', {invoices}, function (err, result) {
+                    countLateInvoice.set(result);
+                });
+            }
+        }
+        if (Session.get('createPenalty')) {
+            let customer = getCustomerInfo(Session.get('customerId'));
+            let invoices = customer.termId ? Invoices.find({}).fetch() : GroupInvoice.find({}).fetch();
+            Meteor.call('calculateLateInvoice', {invoices}, function (err, result) {
+                countLateInvoice.set(result);
+            });
+        }
+        if (Session.get('invoices')) {
+            Meteor.subscribe('cement.receivePayment', {
+                invoiceId: {
+                    $in: Session.get('invoices')
+                },
+                status: {$in: ['active', 'partial']}
+            });
+        }
+    });
 });
 indexTmpl.onDestroyed(function () {
     Session.set('customerId', undefined);
