@@ -359,7 +359,7 @@ indexTmpl.events({
             let currentSelectDate = currentPaymentDate.get();
             let vendor = getVendorInfo(Session.get('vendorIdState'));
             let enterBillsObj;
-            if (vendor.termId) {
+            if (vendor) {
                 enterBillsObj = PurchaseOrder.find({}, {
                     sort: {
                         _id: 1
