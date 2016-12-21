@@ -88,7 +88,7 @@ itemsTmpl.helpers({
             key: 'price',
             label: __(`${i18nPrefix}.price.label`),
             fn(value, object, key) {
-                return numeral(value).format('0,0.00');
+                return Spacebars.SafeString(`<input type="text" value=${value} class="item-price">`)
             }
         }, {
             key: 'amount',
@@ -192,6 +192,7 @@ itemsTmpl.events({
             itemsCollection.insert({
                 itemId: itemId,
                 qty: qty,
+                originalPrice: price,
                 price: price,
                 amount: amount,
                 name: instance.name
@@ -258,9 +259,33 @@ itemsTmpl.events({
         }
         itemsCollection.update({itemId: itemId}, selector);
     },
-    "keypress .item-qty" (evt) {
+    'change .item-price'(event, instance){
+        let currentPrice= event.currentTarget.value;
+        let itemId = $(event.currentTarget).parents('tr').find('.itemId').text();
+        let currentItem = itemsCollection.findOne({itemId: itemId});
+        let selector = {};
+        console.log(currentItem);
+        if (currentPrice != '') {
+            selector.$set = {
+                amount: currentPrice * currentItem.qty,
+                price: currentPrice
+            }
+        } else {
+            selector.$set = {
+                amount: currentItem.qty * currentItem.originalPrice,
+                price: currentItem.price
+            }
+        }
+        itemsCollection.update({itemId: itemId}, selector);
+    },
+    "keypress .item-qty .price" (evt) {
         var charCode = (evt.which) ? evt.which : evt.keyCode;
-        return !(charCode > 31 && (charCode < 48 || charCode > 57));
+        if ($(evt.currentTarget).val().indexOf('.') != -1) {
+            if (charCode == 46) {
+                return false;
+            }
+        }
+        return !(charCode != 46 && charCode > 31 && (charCode < 48 || charCode > 57));
     }
 });
 

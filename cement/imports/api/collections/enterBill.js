@@ -27,6 +27,11 @@ EnterBills.itemsSchema = new SimpleSchema({
             }
         }
     },
+    originalPrice: {
+        type: Number,
+        decimal: true,
+
+    },
     amount: {
         type: Number,
         decimal: true,

@@ -492,6 +492,7 @@ invoiceBillTmpl.events({
         Meteor.call('groupInvoiceItemByPrice', {selector: {_id: {$in: invoiceIds}}}, function (err, result) {
            if(result.items.length > 0) {
                result.items.forEach(function (item) {
+                   item.originalPrice = item.price;
                    itemsCollection.insert(item);
                });
            }
