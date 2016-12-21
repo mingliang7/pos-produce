@@ -2,6 +2,7 @@ import 'meteor/matb33:collection-hooks';
 import {idGenerator} from 'meteor/theara:id-generator';
 //lib
 import StockFunction from '../../imports/api/libs/stock';
+import EnterBillMutation from '../../imports/api/libs/enterBill';
 // Collection
 import {EnterBills} from '../../imports/api/collections/enterBill.js';
 import {AverageInventories} from '../../imports/api/collections/inventory.js';
@@ -32,6 +33,9 @@ EnterBills.before.insert(function (userId, doc) {
 EnterBills.after.insert(function (userId, doc) {
     Meteor.defer(function () {
         Meteor._sleepForMs(200);
+        //update invoice with refBillId
+        EnterBillMutation.updateInvoiceRefBillId({doc});
+        //end update invoice with refBilliId
         let inventoryIdList = [];
         if (doc.billType == 'group') {
             Meteor.call('cement.generateInvoiceGroup', {doc});

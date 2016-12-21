@@ -11,6 +11,10 @@ import {SelectOpts} from '../../ui/libs/select-opts.js';
 export const Invoices = new Mongo.Collection("cement_invoices");
 // Items sub schema
 Invoices.itemsSchema = new SimpleSchema({
+    refBillId: {
+        type: String,
+        optional: true
+    },
     itemId: {
         type: String
     },

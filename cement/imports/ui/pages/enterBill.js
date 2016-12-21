@@ -53,23 +53,17 @@ let indexTmpl = Template.Cement_enterBill,
     actionTmpl = Template.Cement_enterBillAction,
     newTmpl = Template.Cement_enterBillNew,
     editTmpl = Template.Cement_enterBillEdit,
-    showTmpl = Template.Cement_enterBillShow;
+    showTmpl = Template.Cement_enterBillShow,
+    invoiceBillTmpl = Template.Cement_invoiceBill,
+    previewInvoiceItemTmpl = Template.Cement_previewInvoiceItem;
 // Local collection
 let itemsCollection = new Mongo.Collection(null);
 
 // Index
-Tracker.autorun(function () {
-    if (Session.get('vendorId')) {
-        vendorInfo.callPromise({_id: Session.get('vendorId')})
-            .then(function (result) {
-                Session.set('vendorInfo', result);
-            })
-    }
-});
-
 indexTmpl.onCreated(function () {
     // Create new  alertify
     createNewAlertify('enterBill', {size: 'lg'});
+    createNewAlertify('previewInvoiceItem', {size: 'lg'});
     createNewAlertify('enterBillShow', {size: 'lg'});
     createNewAlertify('vendor');
 });
@@ -318,7 +312,7 @@ editTmpl.helpers({
     data () {
         let data = this;
         // Add items to local collection
-        _.forEach(data.items, (value)=> {
+        _.forEach(data.items, (value) => {
             Meteor.call('getItem', value.itemId, function (err, result) {
                 value.name = result.name;
                 itemsCollection.insert(value);
@@ -458,22 +452,75 @@ showTmpl.events({
         $('#to-print').printThis();
     }
 });
+
+invoiceBillTmpl.onCreated(function () {
+    this.selectInvoiceBillOptions = new ReactiveVar([]);
+    this.autorun(() => {
+        Meteor.call('noRefBillIdInvoice',
+            {
+                selector: {
+                    refBillId: {$exists: false},
+                    status: {$ne: 'closed'}
+                }
+            }, (err, result) => {
+                if (result.length > 0) {
+                    let list = [];
+                    result.forEach((invoice) => {
+                        list.push({
+                            label: `INV: ${invoice.voucherId || invoice._id} | ${invoice._customer.name} | $${numeral(invoice.total).format('0,0.00')}`,
+                            value: invoice._id
+                        });
+                    });
+                    this.selectInvoiceBillOptions.set(list);
+                }
+            });
+    });
+});
+invoiceBillTmpl.helpers({
+    schema(){
+        return InvoiceBillSchema;
+    },
+    options(){
+        let instance = Template.instance();
+        return instance.selectInvoiceBillOptions.get();
+    }
+});
+invoiceBillTmpl.events({
+    'click .addInvoiceId'(event, instance){
+        let invoiceIds = $("[name='invoiceId']").val();
+        itemsCollection.remove({});
+        Meteor.call('groupInvoiceItemByPrice', {selector: {_id: {$in: invoiceIds}}}, function (err, result) {
+           if(result.items.length > 0) {
+               result.items.forEach(function (item) {
+                   itemsCollection.insert(item);
+               });
+           }
+        });
+    },
+    'click .previewInvoiceItem'(event, insance){
+        let invoiceIds = $("[name='invoiceId']").val();
+            Meteor.call('groupInvoiceItemByPrice', {selector: {_id: {$in: invoiceIds}}}, function (err, result) {
+                alertify.previewInvoiceItem(fa('', `Preview Item INV: ${invoiceIds && invoiceIds.join(', ')}`), renderTemplate(previewInvoiceItemTmpl, result));
+            });
+
+    }
+});
 // Hook
 let hooksObject = {
     before: {
         insert: function (doc) {
             let items = [];
-            itemsCollection.find().forEach((obj)=> {
+            itemsCollection.find().forEach((obj) => {
                 delete obj._id;
                 items.push(obj);
             });
-            doc.status='active';
+            doc.status = 'active';
             doc.items = items;
             return doc;
         },
         update: function (doc) {
             let items = [];
-            itemsCollection.find().forEach((obj)=> {
+            itemsCollection.find().forEach((obj) => {
                 delete obj._id;
                 items.push(obj);
             });

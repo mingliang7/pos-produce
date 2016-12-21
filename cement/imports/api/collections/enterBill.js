@@ -3,13 +3,11 @@ import {Mongo} from 'meteor/mongo';
 import {SimpleSchema} from 'meteor/aldeed:simple-schema';
 import {AutoForm} from 'meteor/aldeed:autoform';
 import {moment} from 'meteor/momentjs:moment';
-
 // Lib
 import {__} from '../../../../core/common/libs/tapi18n-callback-helper.js';
 import {SelectOpts} from '../../ui/libs/select-opts.js';
 
 export const EnterBills = new Mongo.Collection("cement_enterBills");
-
 // Items sub schema
 EnterBills.itemsSchema = new SimpleSchema({
     itemId: {
@@ -43,6 +41,15 @@ EnterBills.itemsSchema = new SimpleSchema({
 
 // EnterBills schema
 EnterBills.schema = new SimpleSchema({
+    invoiceId: {
+        type: [String],
+        optional: true,
+        autoform: {
+            type: 'universe-select',
+            uniPlaceholder: 'All',
+            multiple: true
+        }
+    },
     voucherId: {
         type: String,
         optional: true
@@ -59,7 +66,7 @@ EnterBills.schema = new SimpleSchema({
                 },
                 value(){
                     let vendorId = AutoForm.getFieldValue('vendorId');
-                    if(vendorId) {
+                    if (vendorId) {
                         return moment().toDate();
                     }
                 }
@@ -137,7 +144,7 @@ EnterBills.schema = new SimpleSchema({
                 optionsMethodParams: function () {
                     if (Meteor.isClient) {
                         let currentUserStockAndAccountMappingDoc = Session.get('currentUserStockAndAccountMappingDoc');
-                        let stockLocations = currentUserStockAndAccountMappingDoc == undefined ? ' ' : currentUserStockAndAccountMappingDoc.stockLocations ;
+                        let stockLocations = currentUserStockAndAccountMappingDoc == undefined ? ' ' : currentUserStockAndAccountMappingDoc.stockLocations;
                         let currentBranch = Session.get('currentBranch');
                         return {
                             branchId: currentBranch,
