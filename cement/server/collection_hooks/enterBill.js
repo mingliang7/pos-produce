@@ -33,17 +33,17 @@ EnterBills.before.insert(function (userId, doc) {
 EnterBills.after.insert(function (userId, doc) {
     Meteor.defer(function () {
         Meteor._sleepForMs(200);
-        //update invoice with refBillId
-        EnterBillMutation.updateInvoiceRefBillId({doc});
-        //end update invoice with refBilliId
         let inventoryIdList = [];
         if (doc.billType == 'group') {
             Meteor.call('cement.generateInvoiceGroup', {doc});
         }
-        doc.items.forEach(function (item) {
+        /*doc.items.forEach(function (item) {
             let id = StockFunction.averageInventoryInsert(doc.branchId, item, doc.stockLocationId, 'insert-bill', doc._id);
             inventoryIdList.push(id);
-        });
+        });*/
+        //update invoice with refBillId
+        EnterBillMutation.updateInvoiceRefBillId({doc});
+        //end update invoice with refBilliId
         //Account Integration
         let setting = AccountIntegrationSetting.findOne();
         if (setting && setting.integrate) {
@@ -75,6 +75,8 @@ EnterBills.after.insert(function (userId, doc) {
             Meteor.call('insertAccountJournal', data);
         }
         //End Account Integration
+
+
     });
 })
 ;

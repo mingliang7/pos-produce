@@ -70,13 +70,13 @@ Order.after.insert(function (userId, doc) {
             let data = doc;
             let total = doc.total + doc.total;
             data.type = "SaleOrder";
-            let ARChartAccount = AccountMapping.findOne({name: 'A/R'});
+            let ARChartAccount = AccountMapping.findOne({name: 'A/R SO'});
             let saleIncomeChartAccount = AccountMapping.findOne({name: 'Sale Income'});
-            let oweInventoryChartAccount = AccountMapping.findOne({name: 'Owe Inventory Customer'});
-            let COGSChartAccount = AccountMapping.findOne({name: 'COGS'});
             let transportRevChartAccount = AccountMapping.findOne({name: 'Transport Revenue'});
+            let oweInventoryChartAccount = AccountMapping.findOne({name: 'Owe Inventory Customer SO'});
+            let COGSChartAccount = AccountMapping.findOne({name: 'COGS'});
             let transportExpChartAccount = AccountMapping.findOne({name: 'Transport Expense'});
-            let APChartAccount = AccountMapping.findOne({name: 'A/P'});
+            let APChartAccount = AccountMapping.findOne({name: 'Transport Payable'});
             transaction.push(
                 {
                     account: ARChartAccount.account,
@@ -91,10 +91,10 @@ Order.after.insert(function (userId, doc) {
                     drcr: -(data.total - data.totalTransportFee)
                 },
                 {
-                    account: COGSChartAccount.account,
-                    dr: data.total - data.totalTransportFee,
-                    cr: 0,
-                    drcr: data.total - data.totalTransportFee
+                    account: transportRevChartAccount.account,
+                    dr: 0,
+                    cr: data.totalTransportFee,
+                    drcr: -data.totalTransportFee,
                 },
                 {
                     account: oweInventoryChartAccount.account,
@@ -103,16 +103,16 @@ Order.after.insert(function (userId, doc) {
                     drcr: -(data.total - data.totalTransportFee)
                 },
                 {
+                    account: COGSChartAccount.account,
+                    dr: data.total - data.totalTransportFee,
+                    cr: 0,
+                    drcr: data.total - data.totalTransportFee
+                },
+                {
                     account: transportExpChartAccount.account,
                     dr: data.totalTransportFee,
                     cr: 0,
                     drcr: data.totalTransportFee,
-                },
-                {
-                    account: transportRevChartAccount.account,
-                    dr: 0,
-                    cr: data.totalTransportFee,
-                    drcr: -data.totalTransportFee,
                 },
                 {
                     account: APChartAccount.account,
@@ -188,13 +188,13 @@ Order.after.update(function (userId, doc) {
             let data = doc;
             let total = doc.total + doc.total;
             data.type = "SaleOrder";
-            let ARChartAccount = AccountMapping.findOne({name: 'A/R'});
+            let ARChartAccount = AccountMapping.findOne({name: 'A/R SO'});
             let saleIncomeChartAccount = AccountMapping.findOne({name: 'Sale Income'});
-            let oweInventoryChartAccount = AccountMapping.findOne({name: 'Owe Inventory Customer'});
+            let oweInventoryChartAccount = AccountMapping.findOne({name: 'Owe Inventory Customer SO'});
             let COGSChartAccount = AccountMapping.findOne({name: 'COGS'});
             let transportRevChartAccount = AccountMapping.findOne({name: 'Transport Revenue'});
             let transportExpChartAccount = AccountMapping.findOne({name: 'Transport Expense'});
-            let APChartAccount = AccountMapping.findOne({name: 'A/P'});
+            let APChartAccount = AccountMapping.findOne({name: 'Transport Payable'});
             transaction.push(
                 {
                     account: ARChartAccount.account,
@@ -209,10 +209,10 @@ Order.after.update(function (userId, doc) {
                     drcr: -(data.total - data.totalTransportFee)
                 },
                 {
-                    account: COGSChartAccount.account,
-                    dr: data.total - data.totalTransportFee,
-                    cr: 0,
-                    drcr: data.total - data.totalTransportFee
+                    account: transportRevChartAccount.account,
+                    dr: 0,
+                    cr: data.totalTransportFee,
+                    drcr: -data.totalTransportFee,
                 },
                 {
                     account: oweInventoryChartAccount.account,
@@ -221,17 +221,19 @@ Order.after.update(function (userId, doc) {
                     drcr: -(data.total - data.totalTransportFee)
                 },
                 {
+                    account: COGSChartAccount.account,
+                    dr: data.total - data.totalTransportFee,
+                    cr: 0,
+                    drcr: data.total - data.totalTransportFee
+                },
+
+                {
                     account: transportExpChartAccount.account,
                     dr: data.totalTransportFee,
                     cr: 0,
                     drcr: data.totalTransportFee,
                 },
-                {
-                    account: transportRevChartAccount.account,
-                    dr: 0,
-                    cr: data.totalTransportFee,
-                    drcr: -data.totalTransportFee,
-                },
+
                 {
                     account: APChartAccount.account,
                     dr: 0,
