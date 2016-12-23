@@ -16,6 +16,11 @@ import {invoiceState} from '../../common/globalState/invoice';
 //import methods
 import {updateItemInSaleOrder} from '../../common/methods/sale-order';
 Invoices.before.insert(function (userId, doc) {
+    doc.totalTransportFee = 0;
+    doc.items.forEach(function (item) {
+        item.transportFeeAmount = item.qty * item.transportFee;
+        doc.totalTransportFee += item.transportFeeAmount;
+    });
     if (doc.total == 0) {
         doc.status = 'closed';
         doc.invoiceType = 'saleOrder'
@@ -32,8 +37,17 @@ Invoices.before.insert(function (userId, doc) {
     doc._id = idGenerator.genWithPrefix(Invoices, prefix, 4);
     invoiceState.set(tmpInvoiceId, {customerId: doc.customerId, invoiceId: doc._id, total: doc.total});
 });
+Invoices.before.update(function (userId, doc, fieldNames, modifier, options) {
+    modifier.$set.totalTransportFee = 0;
+    modifier.$set.items.forEach(function (item) {
+        item.transportFeeAmount = item.qty * item.transportFee;
+        modifier.$set.totalTransportFee += item.transportFeeAmount;
+    });
+});
 
 Invoices.after.insert(function (userId, doc) {
+    console.log('--------------- Invoice after insert -----------------');
+    console.log(doc);
     Meteor.defer(function () {
         Meteor._sleepForMs(200);
         let setting = AccountIntegrationSetting.findOne();
@@ -437,7 +451,7 @@ Invoices.after.update(function (userId, doc) {
              let totalInventory = totalCOGS + totalGratis;*/
 
             //Account Integration
-            let totalCost = doc.totalCost == null ? doc.total : doc.totalCost;
+            let totalCost = doc.totalCost == null ? (doc.total - doc.totalTransportFee) : doc.totalCost;
             if (setting && setting.integrate) {
                 let ARChartAccount = AccountMapping.findOne({name: 'A/R'});
                 let saleIncomeChartAccount = AccountMapping.findOne({name: 'Sale Income'});
@@ -502,7 +516,7 @@ Invoices.after.update(function (userId, doc) {
                  }*/
 
             }
-            doc.total = doc.total + doc.total;
+            doc.total = doc.total + totalCost + doc.totalTransportFee;
             //End Account Integration
         }
         else {
@@ -559,7 +573,7 @@ Invoices.after.update(function (userId, doc) {
              });
              let totalInventory = totalCOGS + totalGratis;
              */
-            let totalCost = doc.totalCost == null ? doc.total : doc.totalCost;
+            let totalCost = doc.totalCost == null ? (doc.total - doc.totalTransportFee) : doc.totalCost;
             //Account Integration
             if (setting && setting.integrate) {
                 let ARChartAccount = AccountMapping.findOne({name: 'A/R'});
@@ -625,10 +639,8 @@ Invoices.after.update(function (userId, doc) {
                  }*/
 
             }
-            doc.total = doc.total + doc.total;
+            doc.total = doc.total + totalCost + doc.totalTransportFee;
             //End Account Integration
-
-
         }
         //Account Integration
         if (setting && setting.integrate) {

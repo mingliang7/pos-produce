@@ -43,13 +43,15 @@ Order.after.insert(function (userId, doc) {
             let purchaseObj = {
                 //repId: vendor.repId,
                 vendorId: doc.vendorId,
+                customerId:doc.customerId,
                 purchaseOrderDate: moment().toDate(),
                 des: 'From Sale Order: "' + doc._id + '"',
                 branchId: doc.branchId,
                 total: doc.total - doc.totalTransportFee,
                 items: [],
                 saleOrderId: doc._id,
-                sumRemainQty: 0
+                sumRemainQty: 0,
+                status:'active'
             };
             doc.items.forEach(function (item) {
                 purchaseObj.sumRemainQty += item.qty;
@@ -137,13 +139,15 @@ Order.after.update(function (userId, doc) {
                 let purchaseObj = {
                     //repId: vendor.repId,
                     vendorId: doc.vendorId,
+                    customerId:doc.customerId,
                     purchaseOrderDate: moment().toDate(),
                     des: 'From Sale Order: "' + doc._id + '"',
                     branchId: doc.branchId,
                     total: doc.total - doc.totalTransportFee,
                     items: [],
                     saleOrderId: doc._id,
-                    sumRemainQty: 0
+                    sumRemainQty: 0,
+                    status:'active'
                 };
                 doc.items.forEach(function (item) {
                     purchaseObj.sumRemainQty += item.qty;

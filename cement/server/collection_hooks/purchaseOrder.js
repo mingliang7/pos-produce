@@ -18,8 +18,8 @@ PurchaseOrder.after.insert(function (userId, doc) {
         let transaction = [];
         let data = doc;
         data.type = "PurchaseOrder";
-        let oweInventoryChartAccount = AccountMapping.findOne({name: 'Inventory Supplier Owing'});
-        let cashChartAccount = AccountMapping.findOne({name: 'A/P'});
+        let oweInventoryChartAccount = AccountMapping.findOne({name: 'Inventory Supplier Owing PO'});
+        let cashChartAccount = AccountMapping.findOne({name: 'A/P PO'});
         transaction.push({
                 account: oweInventoryChartAccount.account,
                 dr: doc.total,
@@ -46,8 +46,8 @@ PurchaseOrder.after.update(function (userId, doc) {
         let transaction = [];
         let data = doc;
         data.type = "PurchaseOrder";
-        let oweInventoryChartAccount = AccountMapping.findOne({name: 'Inventory Supplier Owing'});
-        let cashChartAccount = AccountMapping.findOne({name: 'A/P'});
+        let oweInventoryChartAccount = AccountMapping.findOne({name: 'Inventory Supplier Owing PO'});
+        let cashChartAccount = AccountMapping.findOne({name: 'A/P PO'});
         transaction.push({
                 account: oweInventoryChartAccount.account,
                 dr: doc.total,

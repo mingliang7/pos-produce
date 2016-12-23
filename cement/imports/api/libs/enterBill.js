@@ -1,7 +1,7 @@
 import {Invoices} from '../collections/invoice';
 export default  class EnterBillMutation {
     static updateInvoiceRefBillId({doc}) {
-        console.log('-----------------Update Invoice Ref BillId---------------------')
+        console.log('-----------------Update Invoice Ref BillId---------------------');
         if (doc.invoiceId && doc.invoiceId.length > 0) {
             for (let i = 0; i < doc.invoiceId.length; i++) {
                 let invoice = Invoices.findOne(doc.invoiceId[i]);
@@ -19,9 +19,6 @@ export default  class EnterBillMutation {
                     invoiceItems.push(item);
 
                 });
-                console.log(invoice.items);
-                console.log('--------------');
-                console.log(invoiceItems);
                 Invoices.update({_id: invoice._id}, {
                     $set: {
                         refBillId: doc._id,
