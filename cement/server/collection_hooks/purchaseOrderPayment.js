@@ -17,7 +17,7 @@ PurchaseOrderPayment.after.insert(function (userId, doc) {
             let transaction = [];
             let data = doc;
             data.type = "PayPurchaseOrder";
-            let apChartAccount = AccountMapping.findOne({name: 'A/P'});
+            let apChartAccount = AccountMapping.findOne({name: 'A/P PO'});
             let cashChartAccount = AccountMapping.findOne({name: 'Cash on Hand'});
             let purchaseDiscountChartAccount = AccountMapping.findOne({name: 'PO Discount'});
             let discountAmount = doc.dueAmount * doc.discount / 100;
@@ -77,7 +77,7 @@ PurchaseOrderPayment.after.update(function (userId, doc) {
             let transaction = [];
             let data = doc;
             data.type = "PayPurchaseOrder";
-            let apChartAccount = AccountMapping.findOne({name: 'A/P'});
+            let apChartAccount = AccountMapping.findOne({name: 'A/P PO'});
             let cashChartAccount = AccountMapping.findOne({name: 'Cash on Hand'});
             let purchaseDiscountChartAccount = AccountMapping.findOne({name: 'PO Discount'});
             let discountAmount = doc.dueAmount * doc.discount / 100;

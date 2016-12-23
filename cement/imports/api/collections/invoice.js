@@ -11,10 +11,6 @@ import {SelectOpts} from '../../ui/libs/select-opts.js';
 export const Invoices = new Mongo.Collection("cement_invoices");
 // Items sub schema
 Invoices.itemsSchema = new SimpleSchema({
-    refBillId: {
-        type: String,
-        optional: true
-    },
     itemId: {
         type: String
     },
@@ -54,12 +50,39 @@ Invoices.itemsSchema = new SimpleSchema({
     },
     unitConvertId: {
         type: String,
+    cost: {
+        type: Number,
+        decimal: true,
+        optional: true
+    },
+    amountCost: {
+        type: Number,
+        decimal: true,
+        optional: true
+    },
+    profit: {
+        type: Number,
+        decimal: true,
         optional: true
     }
 });
 
 // Invoices schema
 Invoices.schema = new SimpleSchema({
+    refBillId: {
+        type: String,
+        optional: true
+    },
+    profit: {
+        type: Number,
+        decimal: true,
+        optional: true
+    },
+    totalCost: {
+        type: Number,
+        decimal: true,
+        optional: true
+    },
     voucherId: {
         type: String,
         optional: true
