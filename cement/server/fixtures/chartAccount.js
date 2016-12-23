@@ -125,6 +125,66 @@ Meteor.startup(function () {
                 "name":"PO Discount",
                 isUsed:true
             },
+            {
+                "_id": "021",
+                "name": "A/P PO",
+                isUsed: true,
+                //"account": "343434 | A/P"
+            },
+            {
+                "_id": "022",
+                "name": "A/R SO",
+                isUsed: true,
+                //"account": "121212 | A/R"
+            },
+            {
+                "_id": "023",
+                "name": "Transport Payable",
+                isUsed: true,
+                //"account": "121212 | A/R"
+            },
+            {
+                "_id": "024",
+                "name": "Owe Inventory Customer SO",
+                isUsed: true,
+                //"account": "320004 | Owe Inventory Customer"
+            },
+            {
+                "_id": "025",
+                "name": "Inventory Supplier Owing PO",
+                isUsed: true,
+                //"account": "120002 | Inventory Supplier Owing"
+            },
+            {
+                "_id": "026",
+                "name": "Inventory SO",
+                isUsed: true,
+                //"account": "120003 | Inventory"
+            },
+            {
+                "_id": "027",
+                "name": "PO COD",
+                isUsed: true,
+                //"account": "120003 | Inventory"
+            }, {
+                "_id": "028",
+                "name": "PO Benefit",
+                isUsed: true,
+                //"account": "120003 | Inventory"
+            },
+            {
+                "_id": "029",
+                "name": "SO COD",
+                isUsed: true,
+                //"account": "120003 | Inventory"
+            },
+            {
+                "_id": "030",
+                "name": "SO Benefit",
+                isUsed: true,
+                //"account": "120003 | Inventory"
+            },
+
         ];
         chartAccount.forEach(function (obj) {
             AccountMapping.insert(obj);

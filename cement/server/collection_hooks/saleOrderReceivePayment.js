@@ -15,7 +15,7 @@ SaleOrderReceivePayment.after.insert(function (userId, doc) {
             let transaction = [];
             let data = doc;
             data.type = "SOReceivePayment";
-            let arChartAccount = AccountMapping.findOne({name: 'A/R'});
+            let arChartAccount = AccountMapping.findOne({name: 'A/R SO'});
             let cashChartAccount = AccountMapping.findOne({name: 'Cash on Hand'});
             let saleDiscountChartAccount = AccountMapping.findOne({name: 'SO Discount'});
             let discountAmount = doc.dueAmount * doc.discount / 100;
@@ -72,7 +72,7 @@ SaleOrderReceivePayment.after.update(function (userId, doc) {
             let transaction = [];
             let data = doc;
             data.type = "SOReceivePayment";
-            let arChartAccount = AccountMapping.findOne({name: 'A/R'});
+            let arChartAccount = AccountMapping.findOne({name: 'A/R SO'});
             let cashChartAccount = AccountMapping.findOne({name: 'Cash on Hand'});
             let saleDiscountChartAccount = AccountMapping.findOne({name: 'SO Discount'});
             let discountAmount = doc.dueAmount * doc.discount / 100;

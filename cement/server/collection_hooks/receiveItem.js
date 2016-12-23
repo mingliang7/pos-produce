@@ -38,7 +38,7 @@ ReceiveItems.after.insert(function (userId, doc) {
         doc.total = total;
         //Account Integration
         if (setting && setting.integrate) {
-            let inventoryChartAccount = AccountMapping.findOne({name: 'Inventory'});
+            let inventoryChartAccount = AccountMapping.findOne({name: 'Inventory SO'});
             let lostInventoryChartAccount = AccountMapping.findOne({name: 'Lost Inventory'});
             transaction.push({
                 account: inventoryChartAccount.account,
@@ -115,7 +115,7 @@ ReceiveItems.after.insert(function (userId, doc) {
             //Account Integration
             if (setting && setting.integrate) {
                 type = 'PurchaseOrder-RI';
-                let InventoryOwingChartAccount = AccountMapping.findOne({name: 'Inventory Supplier Owing'});
+                let InventoryOwingChartAccount = AccountMapping.findOne({name: 'Inventory Supplier Owing PO'});
                 transaction.push({
                     account: InventoryOwingChartAccount.account,
                     dr: 0,

@@ -76,6 +76,23 @@ PurchaseOrder.schema = new SimpleSchema({
             }
         }
     },
+    customerId: {
+        type: String,
+        optional: true,
+        autoform: {
+            type: 'universe-select',
+            afFieldInput: {
+                uniPlaceholder: 'Please search .... (Limit 10)',
+                optionsMethod: 'cement.selectOptMethods.customer',
+                optionsMethodParams: function () {
+                    if (Meteor.isClient) {
+                        let currentBranch = Session.get('currentBranch');
+                        return {branchId: currentBranch};
+                    }
+                }
+            }
+        }
+    },
     des: {
         type: String,
         optional: true,
@@ -119,7 +136,7 @@ PurchaseOrder.schema = new SimpleSchema({
     status: {
         type: String,
         autoValue(){
-            if(this.isInsert) {
+            if (this.isInsert) {
                 return 'active';
             }
         }
