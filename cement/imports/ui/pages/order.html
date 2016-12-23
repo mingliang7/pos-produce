@@ -13,7 +13,7 @@
 <!--Action-->
 <template name="Cement_orderAction">
     {{#columnAction}}
-        <li><a href="#" class="js-update"><i class="fa fa-pencil"></i> {{_ "action.edit"}}</a></li>
+        <!--<li><a href="#" class="js-update"><i class="fa fa-pencil"></i> {{_ "action.edit"}}</a></li>-->
         <li><a href="#" class="js-destroy"><i class="fa fa-remove"></i> {{_ "action.delete"}}</a></li>
         <li><a href="#" class="js-display"><i class="fa fa-eye"></i> {{_ "action.show"}}</a></li>
         <!--<li role="separator" class="divider"></li>-->
@@ -55,7 +55,7 @@
                                 {{> afQuickField name="voucherId"}}
                             </div>
                             <div class="col-md-12">
-                                {{> afQuickField name="des"}}
+                                {{> afQuickField name="des" value=description}}
                             </div>
                             <div class="col-md-12">
                                 {{> afQuickField type="hidden" name="branchId" value=currentBranch}}
@@ -132,7 +132,7 @@
                                 {{> afQuickField name="customerId"}}
                                 {{> afQuickField name="orderDate"}}
                                 {{> afQuickField name="voucherId"}}
-                                {{> afQuickField name="des"}}
+                                {{> afQuickField name="des" }}
 
                                 {{> afQuickField type="hidden" name="branchId"}}
                             </div>

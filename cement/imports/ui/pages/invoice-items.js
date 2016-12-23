@@ -34,12 +34,15 @@ import {Invoices} from '../../api/collections/invoice.js';
 import {Order} from '../../api/collections/order';
 // Declare template
 var itemsTmpl = Template.Cement_invoiceItems,
-    actionItemsTmpl = Template.Cement_invoiceItemsAction;
-editItemsTmpl = Template.Cement_invoiceItemsEdit;
+    actionItemsTmpl = Template.Cement_invoiceItemsAction,
+    editItemsTmpl = Template.Cement_invoiceItemsEdit,
+    unitConvertOptionTmpl = Template._unitConvertOptionsInInvoice;
+
 //methods
 import {removeItemInSaleOrder} from '../../../common/methods/sale-order';
+import UnitConvertClass from '../../api/libs/unitConvertClass'
 let currentItemsInUpdateForm = new Mongo.Collection(null);
-let tmpDeletedItem = new Mongo.Collection(null); // use to check with credit limit 
+let tmpDeletedItem = new Mongo.Collection(null); // use to check with credit limit
 // Local collection
 var itemsCollection;
 export const deletedItem = new Mongo.Collection(null); //export collection deletedItem to invoice js
@@ -50,7 +53,7 @@ import './invoice-items.html';
 itemsTmpl.onCreated(function () {
     // Create new  alertify
     createNewAlertify('item');
-
+    createNewAlertify('unitConvertOptionRadioBox');
     // Data context
     let data = Template.currentData();
     itemsCollection = data.itemsCollection;
@@ -60,9 +63,11 @@ itemsTmpl.onCreated(function () {
     this.defaultPrice = new ReactiveVar(0);
     this.transportFee = new ReactiveVar(0);
     this.defaultBaseUnit = new ReactiveVar([]);
-    this.defaultPrice = new ReactiveVar(0);
+    this.qtyAfterConvert = new ReactiveVar(0);
     this.defaultItem = new ReactiveVar();
     this.defaultQty = new ReactiveVar(0);
+    this.unitConvert = new ReactiveVar([]);
+    this.description = new ReactiveVar('');
     this.autorun(() => {
         if (FlowRouter.query.get('customerId')) {
             let sub = Meteor.subscribe('cement.activeSaleOrder', {
@@ -81,7 +86,7 @@ itemsTmpl.onCreated(function () {
             }
 
         }
-        if (this.defaultItem.get() && (this.defaultItem.get() || this.defaultQty.get())) {
+        /*if (this.defaultItem.get() && (this.defaultItem.get() || this.defaultQty.get())) {
             itemInfo.callPromise({
                 _id: this.defaultItem.get(),
                 customerId: Session.get('getCustomerId'),
@@ -92,6 +97,34 @@ itemsTmpl.onCreated(function () {
             }).catch((err) => {
                 console.log(err.message);
             });
+        }*/
+        if (this.defaultItem.get() && (this.defaultItem.get() || this.defaultQty.get())) {
+            itemInfo.callPromise({
+                _id: this.defaultItem.get(), qty: this.defaultQty.get(), routeName: FlowRouter.getRouteName()
+            }).then((result) => {
+                this.transportFee.set(result.transportFee);
+                this.defaultPrice.set(result.price);
+                if (result.sellingUnit) {
+                    this.defaultBaseUnit.set(result.sellingUnit)
+                }
+                if (result && result.unitConvert.length > 0) {
+                    if (result.unitConvert.length == 1) {
+                        let unitConvertObj = result.unitConvert[0];
+                        let currentConvertQty = UnitConvertClass.convertQtyFromUnitConvert({
+                            qty: this.defaultQty.get(),
+                            unitConvert: unitConvertObj
+                        });
+                        this.qtyAfterConvert.set(currentConvertQty);
+                        FlowRouter.query.set({unitConvertId: unitConvertObj._id});
+                    } else {
+                        this.unitConvert.set(result.unitConvert);
+                        this.unitConvertArr = result.unitConvert;
+                        alertify.unitConvertOptionRadioBox(fa('', 'Unit Convert Options'), renderTemplate(unitConvertOptionTmpl, this));
+                    }
+                }
+            }).catch((err) => {
+                console.log(err.message)
+            })
         }
         if (this.defaultItem.get()) {
             itemInfo.callPromise({
@@ -108,7 +141,44 @@ itemsTmpl.onCreated(function () {
         }
     });
 });
-
+unitConvertOptionTmpl.helpers({
+    unitConvertOptionData(){
+        return this.unitConvertArr;
+    },
+    printConvertUnit(){
+        let instance = Template.instance();
+        let currentQty = instance.data.defaultQty.get();
+        let currentConvertUnitObj = this;
+        let text = '';
+        if (currentConvertUnitObj.coefficient == 'divide') {
+            let currentConvertValue = currentQty / currentConvertUnitObj.convertAmount;
+            text = `${currentQty}${currentConvertUnitObj._unit.name} / Convert Amount: ${currentConvertUnitObj.convertAmount}=${currentConvertValue}${currentConvertUnitObj._item._unit.name}`
+        } else if (currentConvertUnitObj.coefficient == 'multiply') {
+            let currentConvertValue = currentQty * currentConvertUnitObj.convertAmount;
+            text = `${currentQty}${currentConvertUnitObj._unit.name} * Convert Amount: ${currentConvertUnitObj.convertAmount}=${currentConvertValue}${currentConvertUnitObj._item._unit.name}`
+        } else if (currentConvertUnitObj.coefficient == 'addition') {
+            let currentConvertValue = currentQty + currentConvertUnitObj.convertAmount;
+            text = `${currentQty}${currentConvertUnitObj._unit.name} + Convert Amount: ${currentConvertUnitObj.convertAmount}=${currentConvertValue}${currentConvertUnitObj._item._unit.name}`
+        } else {
+            let currentConvertValue = currentQty - currentConvertUnitObj.convertAmount;
+            text = `${currentQty}${currentConvertUnitObj._unit.name} - Convert Amount: ${currentConvertUnitObj.convertAmount}=${currentConvertValue}${currentConvertUnitObj._item._unit.name}`
+        }
+        return text;
+    }
+});
+unitConvertOptionTmpl.events({
+    'change .unitConvertOption'(event, instance){
+        let obj = instance.data.unitConvert.get();
+        let _id = event.currentTarget.value;
+        let unitConvertItemObj = obj.find(o => o._id == _id);
+        let currentConvertQty = UnitConvertClass.convertQtyFromUnitConvert({
+            qty: instance.data.defaultQty.get(),
+            unitConvert: unitConvertItemObj
+        });
+        FlowRouter.query.set({unitConvertId: _id});
+        instance.data.qtyAfterConvert.set(currentConvertQty);
+    }
+});
 itemsTmpl.onRendered(function () {
 
 });
@@ -196,7 +266,6 @@ itemsTmpl.helpers({
             if (Session.get('getCustomerId')) {
                 let deletedItemsTotal = 0;
                 if (AutoForm.getFormId() == "Cement_invoiceUpdate") {
-                    console.log(currentItemsInUpdateForm.find().fetch());
                     if (currentItemsInUpdateForm.find().count() > 0) {
                         currentItemsInUpdateForm.find().forEach(function (item) {
                             deletedItemsTotal += item.amount;
@@ -213,7 +282,7 @@ itemsTmpl.helpers({
     totalAmount() {
         try {
             let instance = Template.instance()
-            return instance.defaultPrice.get() * instance.defaultQty.get()
+            return instance.defaultPrice.get() * instance.qtyAfterConvert.get()
         } catch (error) {
         }
     },
@@ -231,7 +300,7 @@ itemsTmpl.helpers({
     },
     defaultQty() {
         let instance = Template.instance();
-        return instance.defaultQty.get()
+        return instance.qtyAfterConvert.get()
     }
 });
 
@@ -260,7 +329,7 @@ itemsTmpl.events({
         let qty = instance.$('[name="qty"]').val();
         qty = _.isEmpty(qty) ? 0 : parseFloat(qty);
         instance.defaultQty.set(qty);
-
+        instance.qtyAfterConvert.set(qty);
     },
     'change [name="price"]': function (event, instance) {
         let price = instance.$('[name="price"]').val();
@@ -273,6 +342,13 @@ itemsTmpl.events({
         let price = math.round(parseFloat(instance.$('[name="price"]').val()), 2);
         let amount = math.round(qty * price, 2);
         // Check exist
+        let currentUnitConvertArr = instance.unitConvert.get();
+        let currentUnitConvertId = FlowRouter.query.get('unitConvertId');
+        if (currentUnitConvertId) {
+            let currentUnitConvertObj = currentUnitConvertArr.find(o => o._id == currentUnitConvertId);
+            let des = UnitConvertClass.addParamsDes({qty: instance.defaultQty.get(), unitConvert: currentUnitConvertObj});
+            FlowRouter.query.set({des: des});
+        }
         Meteor.call('addScheme', {itemId}, function (err, result) {
             if (!_.isEmpty(result[0])) {
                 result.forEach(function (item) {
@@ -282,6 +358,7 @@ itemsTmpl.events({
                     //     itemsCollection.update({itemId: schemeItem.itemId}, {$inc: {qty: item.quantity, amount: amount}});
                     // }else{
                     itemsCollection.insert({
+                        unitConvertId: currentUnitConvertId,
                         itemId: item.itemId,
                         qty: item.quantity * qty,
                         price: item.price,
@@ -310,6 +387,7 @@ itemsTmpl.events({
                     });
                 } else {
                     itemsCollection.insert({
+                        unitConvertId: currentUnitConvertId,
                         itemId: itemId,
                         qty: qty,
                         price: price,
@@ -345,11 +423,13 @@ itemsTmpl.events({
                     if (isCurrenctItemExistInTmpCollection) {
                         currentItemsInUpdateForm.insert(itemDoc);
                     }
-                    itemsCollection.remove({itemId: itemDoc.itemId});
+                    let item =itemsCollection.remove({itemId: itemDoc.itemId});
+                    UnitConvertClass.removeConvertItem(item, instance,itemsCollection);
                     swal.close();
                 });
         } else {
-            itemsCollection.remove(this._id);
+            let item = itemsCollection.remove({_id: this._id});
+            UnitConvertClass.removeConvertItem(item, instance,itemsCollection);
         }
 
     },

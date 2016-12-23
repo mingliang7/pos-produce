@@ -714,3 +714,16 @@ CementRoutes.route('/purchaseOrderPaymentTransaction', {
         parent: 'cement.home'
     }
 });
+import '../imports/ui/pages/unitConvert'
+CementRoutes.route('/unitConvert', {
+    name: 'cement.unitConvert',
+    title: 'Unit Convert',
+    action: function (params, queryParams) {
+        Layout.main('Cement_unitConvert');
+    },
+    breadcrumb: {
+        title: 'Unit Convert',
+        icon: '',
+        parent: 'cement.home'
+    }
+});

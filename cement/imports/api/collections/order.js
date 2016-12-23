@@ -12,6 +12,10 @@ export const Order = new Mongo.Collection("cement_order");
 
 // Items sub schema
 Order.itemsSchema = new SimpleSchema({
+    unitConvertId: {
+        type: String,
+        optional: true
+    },
     itemId: {
         type: String
     },

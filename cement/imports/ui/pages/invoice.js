@@ -146,6 +146,14 @@ newTmpl.onCreated(function () {
     Meteor.call('getRepList', (err, result) => {
         this.repOptions.set(result);
     });
+    this.description = new ReactiveVar('');
+    this.autorun(() => {
+        if (FlowRouter.query.get('des')) {
+            this.description.set(FlowRouter.query.get('des'));
+        } else {
+            this.description.set('');
+        }
+    });
 });
 // New
 newTmpl.events({
@@ -198,6 +206,10 @@ newTmpl.events({
     }
 });
 newTmpl.helpers({
+    description(){
+        let instance = Template.instance();
+        return instance.description.get();
+    },
     stockLocation() {
         try {
             let stockLocationAndAccountMapping = Session.get('currentUserStockAndAccountMappingDoc');
@@ -350,6 +362,24 @@ editTmpl.onCreated(function () {
         FlowRouter.query.set('customerId', this.data.customerId);
         this.isSaleOrder.set(true);
     }
+    this.description = new ReactiveVar('');
+    this.autorun(() => {
+        if (FlowRouter.query.get('des') || this.data.des) {
+            this.description.set(FlowRouter.query.get('des') || this.data.des);
+        } else {
+            this.description.set('');
+        }
+    });
+    _.forEach(this.data.items, (value) => {
+        Meteor.call('getItem', value.itemId,value.unitConvertId, (err, result) => {
+            value.name = result.name;
+            value.saleId = this.saleId;
+            value.unitConvertId = result.unitConvertId;
+            console.log(value);
+            itemsCollection.insert(value);
+            currentItemsCollection.insert(value);
+        })
+    });
 });
 
 
@@ -385,6 +415,10 @@ editTmpl.events({
     }
 });
 editTmpl.helpers({
+    description(){
+        let instance = Template.instance();
+        return instance.description.get();
+    },
     closeSwal() {
         setTimeout(function () {
             swal.close();
@@ -399,14 +433,6 @@ editTmpl.helpers({
     data() {
         let data = this;
         // Add items to local collection
-        _.forEach(data.items, (value) => {
-            Meteor.call('getItem', value.itemId, (err, result) => {
-                value.name = result.name;
-                value.saleId = this.saleId;
-                itemsCollection.insert(value);
-                currentItemsCollection.insert(value);
-            })
-        });
         return data;
     },
     itemsCollection() {
@@ -789,6 +815,7 @@ let hooksObject = {
         deletedItem.remove({});
         Session.set('customerInfo', undefined);
         Session.set("getCustomerId", undefined);
+        FlowRouter.query.unset();
         // }
         displaySuccess();
     },

@@ -41,14 +41,7 @@ import {isInvoiceExist} from '../../../common/methods/sale-order';
 //import tracker
 import '../../api/tracker/creditLimitTracker';
 //Tracker for customer infomation
-Tracker.autorun(function () {
-    if (Session.get("saleOrderCustomerId")) {
-        customerInfo.callPromise({_id: Session.get("saleOrderCustomerId")})
-            .then(function (result) {
-                Session.set('customerInfo', result);
-            })
-    }
-});
+
 // Declare template
 let indexTmpl = Template.Cement_order,
     actionTmpl = Template.Cement_orderAction,
@@ -64,6 +57,14 @@ indexTmpl.onCreated(function () {
     // Create new  alertify
     createNewAlertify('order', {size: 'lg'});
     createNewAlertify('orderShow', {size: 'lg'});
+    this.autorun(function () {
+        if (Session.get("saleOrderCustomerId")) {
+            customerInfo.callPromise({_id: Session.get("saleOrderCustomerId")})
+                .then(function (result) {
+                    Session.set('customerInfo', result);
+                })
+        }
+    });
 });
 
 indexTmpl.helpers({
@@ -138,6 +139,14 @@ indexTmpl.events({
 newTmpl.onCreated(function () {
     Session.set('isPurchased', false);
     Meteor.subscribe('cement.requirePassword', {branchId: {$in: [Session.get('currentBranch')]}});//subscribe require password validation
+    this.description = new ReactiveVar('');
+    this.autorun(() => {
+        if (FlowRouter.query.get('des')) {
+            this.description.set(FlowRouter.query.get('des'));
+        } else {
+            this.description.set('');
+        }
+    });
 });
 editTmpl.onCreated(function () {
     Session.set('isPurchased', false);
@@ -145,7 +154,6 @@ editTmpl.onCreated(function () {
 newTmpl.events({
     'change [name=customerId]'(event, instance){
         if (event.currentTarget.value != '') {
-            FlowRouter.query.unset();
             Session.set('saleOrderCustomerId', event.currentTarget.value);
         }
     },
@@ -163,6 +171,10 @@ newTmpl.events({
     }
 });
 newTmpl.helpers({
+    description(){
+        let instance = Template.instance();
+        return instance.description.get();
+    },
     customerInfo() {
         try {
             let {customerInfo, totalAmountDue, whiteListCustomer} = Session.get('customerInfo');
@@ -209,6 +221,10 @@ newTmpl.onDestroyed(function () {
 // Edit
 
 editTmpl.helpers({
+    description(){
+        let instance = Template.instance();
+        return instance.description.get();
+    },
     collection(){
         return Order;
     },
@@ -216,7 +232,7 @@ editTmpl.helpers({
         let data = this;
 
         // Add items to local collection
-        _.forEach(data.items, (value)=> {
+        _.forEach(data.items, (value) => {
             Meteor.call('getItem', value.itemId, function (err, result) {
                 value.name = result.name;
                 itemsCollection.insert(value);
@@ -279,7 +295,7 @@ let hooksObject = {
             let isPurchased = Session.get('isPurchased');
             doc.isPurchased = isPurchased;
             let items = [];
-            itemsCollection.find().forEach((obj)=> {
+            itemsCollection.find().forEach((obj) => {
                 delete obj._id;
                 obj.remainQty = obj.qty;
                 items.push(obj);
@@ -291,7 +307,7 @@ let hooksObject = {
             let items = [];
             let isPurchased = Session.get('isPurchased');
             doc.isPurchased = isPurchased;
-            itemsCollection.find().forEach((obj)=> {
+            itemsCollection.find().forEach((obj) => {
                 delete obj._id;
                 obj.remainQty = obj.qty;
                 items.push(obj);

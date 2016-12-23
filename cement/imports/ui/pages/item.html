@@ -58,6 +58,21 @@
             <div class="row">
                 <div class="col-md-6">{{> afQuickField name='photo'}}</div>
             </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="input-group">
+                        <h4 class="text-blue"><i class="fa fa-circle-o"></i> Unit Convert Mapping</h4>
+                    </div>
+                    <hr>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3"><h4 class="text-blue"><u>Enable</u></h4></div>
+                <hr>
+            </div>
+            <div class="row">
+                <div class="col-md-3">{{> afQuickField name='mappingEnable'}}</div>
+            </div>
             {{> formFooterWithButton}}
         {{/autoForm}}
     </div>
@@ -112,6 +127,21 @@
             <div class="row">
                 <div class="col-md-6">{{> afQuickField name='photo'}}</div>
             </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="input-group">
+                        <h4 class="text-blue"><i class="fa fa-circle-o"></i> Unit Convert Mapping</h4>
+                    </div>
+                    <hr>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3"><h4 class="text-blue"><u>Enable</u></h4></div>
+                <hr>
+            </div>
+            <div class="row">
+                <div class="col-md-3">{{> afQuickField name='mappingEnable'}}</div>
+            </div>
             {{> formFooterWithButton}}
 
         {{/autoForm}}
@@ -161,7 +191,8 @@
                         {{> UI.dynamic template=../atts.subtemplate}}
 
                         <div class="col-sm-1">
-                            {{#if afArrayFieldHasMoreThanMinimum name=../atts.name minCount=../atts.minCount maxCount=../atts.maxCount}}
+                            {{#if afArrayFieldHasMoreThanMinimum name=../atts.name minCount=../atts.minCount
+                                  maxCount=../atts.maxCount}}
                                 <button type="button" class="btn btn-sm btn-danger autoform-remove-item btnRemove">
                                     <span class="glyphicon glyphicon-minus"></span>
                                 </button>
@@ -170,13 +201,16 @@
                     </div>
                 {{/afEachArrayItem}}
 
-                {{#if afArrayFieldHasLessThanMaximum name=this.atts.name minCount=this.atts.minCount maxCount=this.atts.maxCount}}
+                {{#if afArrayFieldHasLessThanMaximum name=this.atts.name minCount=this.atts.minCount
+                      maxCount=this.atts.maxCount}}
                     <div class="row">
                         <div class="col-sm-11"></div>
                         <!--Add more-->
                         <div class="col-sm-1">
-                            <button type="button" class="btn btn-primary autoform-add-item btn-sm btnAdd" data-autoform-field="{{this.atts.name}}" data-autoform-minCount="{{this.atts.minCount}}"
-                                data-autoform-maxCount="{{this.atts.maxCount}}">
+                            <button type="button" class="btn btn-primary autoform-add-item btn-sm btnAdd"
+                                    data-autoform-field="{{this.atts.name}}"
+                                    data-autoform-minCount="{{this.atts.minCount}}"
+                                    data-autoform-maxCount="{{this.atts.maxCount}}">
                                 <span class="glyphicon glyphicon-plus"></span>
                             </button>
                         </div>

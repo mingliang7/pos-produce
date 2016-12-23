@@ -51,6 +51,10 @@ Invoices.itemsSchema = new SimpleSchema({
                 return inputmaskOptions.currency();
             }
         }
+    },
+    unitConvertId: {
+        type: String,
+        optional: true
     }
 });
 

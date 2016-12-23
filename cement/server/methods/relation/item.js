@@ -12,10 +12,17 @@ import {PrepaidOrders} from '../../../imports/api/collections/prepaidOrder.js';
 import {PurchaseOrder} from '../../../imports/api/collections/purchaseOrder.js';
 import {ReceiveItems} from '../../../imports/api/collections/receiveItem.js';
 import {RingPullTransfers} from '../../../imports/api/collections/ringPullTransfer.js';
+import {UnitConvert} from '../../../imports/api/collections/unitConvert.js';
 
 Meteor.methods({
-    getItem: function (id) {
-        return Item.findOne(id)
+    getItem: function (id, unitConvertId) {
+        let item =  Item.findOne(id)
+        if(unitConvertId) {
+            let unitConvert = UnitConvert.findOne(unitConvertId)
+            item.unitConvertId = unitConvert && unitConvert._id;
+        }
+        return item;
+
     },
     isItemHasRelation: function (id) {
         let anyInvoice =

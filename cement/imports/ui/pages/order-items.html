@@ -99,3 +99,13 @@
     </div>
 
 </template>
+
+<template name="_unitConvertOptions">
+    <div class="row">
+        <div class="col-xs-12">
+            {{#each unitConvertOptionData}}
+                <input type="radio" name="unitConvertOption" value="{{_id}}" class="unitConvertOption"> {{printConvertUnit}}<br>
+            {{/each}}
+        </div>
+    </div>
+</template>

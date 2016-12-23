@@ -9,6 +9,7 @@ import {Item} from '../../imports/api/collections/item.js';
 import {Units} from '../../imports/api/collections/units.js'
 import {ItemPriceForCustomers} from '../../imports/api/collections/itemPriceForCustomer.js'
 import {QuantityRangeMapping} from '../../imports/api/collections/quantityRangeMapping.js'
+import {UnitConvert} from '../../imports/api/collections/unitConvert.js'
 // Check user password
 export const itemInfo = new ValidatedMethod({
     name: 'cement.itemInfo',
@@ -35,10 +36,12 @@ export const itemInfo = new ValidatedMethod({
                 }
             }
             if (qty && (routeName == 'cement.order' || routeName == 'cement.invoice')) {
-                console.log(data._id, typeof(qty));
                 let qtyRangePrice = QuantityRangeMapping.findOne({itemId: _id, startQty: {$lte: qty},endQty: {$gte: qty}});
-                if (qtyRangePrice && data.mappingEnable) {
+                let unitConverts = UnitConvert.find({itemId: _id});
+                if ((qtyRangePrice && data.mappingEnable)) {
                     data.price = qtyRangePrice.price;
+                }else if (unitConverts.count()> 0 && data.mappingEnable) {
+                    data.unitConvert = unitConverts.fetch();
                 }
             }
             if (data.sellingUnit) {
@@ -55,7 +58,6 @@ export const itemInfo = new ValidatedMethod({
                 });
                 data.sellingUnit = arr;
             }
-            console.log(data);
             return data;
         }
     }
