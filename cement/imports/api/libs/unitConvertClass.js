@@ -18,11 +18,11 @@ export default class UnitConvertClass {
         let des = FlowRouter.query.get('des') || '';
         if (unitConvert.coefficient == 'addition') {
             currentConvertQty = qty + unitConvert.convertAmount;
-            des += `<b>${unitConvert._item.name}</b> x${qty} គិតជា${unitConvert._unit.name} '+' ចំនួន Convert ${unitConvert.convertAmount}=${currentConvertQty}${unitConvert._item._unit.name},<br>`;
+            des += `<b>${unitConvert._item.name}</b> x${qty} គិតជា${unitConvert._unit.name} បូក ចំនួន Convert ${unitConvert.convertAmount}=${currentConvertQty}${unitConvert._item._unit.name},<br>`;
 
         } else if (unitConvert.coefficient == 'subtract') {
             currentConvertQty = qty - unitConvert.convertAmount;
-            des += `<b>${unitConvert._item.name}</b> x${qty} គិតជា${unitConvert._unit.name} '-' ចំនួន Convert ${unitConvert.convertAmount}=${currentConvertQty}${unitConvert._item._unit.name},<br>`;
+            des += `<b>${unitConvert._item.name}</b> x${qty} គិតជា${unitConvert._unit.name} ដក ចំនួន Convert ${unitConvert.convertAmount}=${currentConvertQty}${unitConvert._item._unit.name},<br>`;
 
         } else if (unitConvert.coefficient == 'divide') {
             currentConvertQty = qty / unitConvert.convertAmount;
@@ -41,10 +41,10 @@ export default class UnitConvertClass {
         let des = FlowRouter.query.get('des') || '';
         if (unitConvert.coefficient == 'addition') {
             currentConvertQty = (qty - unitConvert.convertAmount) + unitConvert.convertAmount;
-            des += `<b>${unitConvert._item.name}</b> x${qty - unitConvert.convertAmount} គិតជា${unitConvert._unit.name} '+' ចំនួន Convert ${unitConvert.convertAmount}=${currentConvertQty}${unitConvert._item._unit.name},<br>`;
+            des += `<b>${unitConvert._item.name}</b> x${qty - unitConvert.convertAmount} គិតជា${unitConvert._unit.name} បូក ចំនួន Convert ${unitConvert.convertAmount}=${currentConvertQty}${unitConvert._item._unit.name},<br>`;
         } else if (unitConvert.coefficient == 'subtract') {
             currentConvertQty = (qty + unitConvert.convertAmount) - unitConvert.convertAmount;
-            des += `<b>${unitConvert._item.name}</b> x${qty + unitConvert.convertAmount} គិតជា${unitConvert._unit.name} '-' ចំនួន Convert ${unitConvert.convertAmount}=${currentConvertQty}${unitConvert._item._unit.name},<br>`;
+            des += `<b>${unitConvert._item.name}</b> x${qty + unitConvert.convertAmount} គិតជា${unitConvert._unit.name} ដក ចំនួន Convert ${unitConvert.convertAmount}=${currentConvertQty}${unitConvert._item._unit.name},<br>`;
         } else if (unitConvert.coefficient == 'divide') {
             currentConvertQty = (qty * unitConvert.convertAmount) / unitConvert.convertAmount;
             des += `<b>${unitConvert._item.name}</b> x${qty * unitConvert.convertAmount} គិតជា${unitConvert._unit.name} ៖ ចំនួន Convert ${unitConvert.convertAmount}=${currentConvertQty}${unitConvert._item._unit.name},<br>`;
