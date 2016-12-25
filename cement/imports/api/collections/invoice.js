@@ -50,6 +50,7 @@ Invoices.itemsSchema = new SimpleSchema({
     },
     unitConvertId: {
         type: String,
+    },
     cost: {
         type: Number,
         decimal: true,
