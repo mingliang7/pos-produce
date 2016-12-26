@@ -111,7 +111,7 @@ ReceiveItems.after.insert(function (userId, doc) {
                 });
             }
             reduceCompanyExchangeRingPull(doc);
-        }else if (doc.type == 'PurchaseOrder') {
+        } else if (doc.type == 'PurchaseOrder') {
             //Account Integration
             if (setting && setting.integrate) {
                 type = 'PurchaseOrder-RI';
@@ -128,9 +128,9 @@ ReceiveItems.after.insert(function (userId, doc) {
         else {
             throw Meteor.Error('Require Receive Item type');
         }
-       /* doc.items.forEach(function (item) {
-            averageInventoryInsert(doc.branchId, item, doc.stockLocationId, 'receiveItem', doc._id);
-        });*/
+        /* doc.items.forEach(function (item) {
+         averageInventoryInsert(doc.branchId, item, doc.stockLocationId, 'receiveItem', doc._id);
+         });*/
 
 
         //Account Integration
@@ -238,7 +238,21 @@ ReceiveItems.after.update(function (userId, doc, fieldNames, modifier, options) 
             }
             increaseCompanyExchangeRingPull(preDoc);
             reduceCompanyExchangeRingPull(doc);
-        } else {
+        } else if (doc.type == 'PurchaseOrder') {
+            //Account Integration
+            if (setting && setting.integrate) {
+                type = 'PurchaseOrder-RI';
+                let InventoryOwingChartAccount = AccountMapping.findOne({name: 'Inventory Supplier Owing PO'});
+                transaction.push({
+                    account: InventoryOwingChartAccount.account,
+                    dr: 0,
+                    cr: doc.total,
+                    drcr: -doc.total
+                });
+            }
+            increasePurchaseOrder(preDoc);
+            reducePurchaseOrder(doc);
+        }else {
             throw Meteor.Error('Require Receive Item type');
         }
         reduceFromInventory(preDoc, 'receive-item-return');
@@ -274,7 +288,9 @@ ReceiveItems.after.remove(function (userId, doc) {
         } else if (doc.type == 'CompanyExchangeRingPull') {
             type = 'CompanyExchangeRingPull-RI';
             increaseCompanyExchangeRingPull(doc);
-
+        } else if (doc.type == 'PurchaseOrder') {
+            type = 'PurchaseOrder-RI';
+            increasePurchaseOrder(doc);
         } else {
             throw Meteor.Error('Require Receive Item type');
         }
@@ -469,7 +485,15 @@ function increaseExchangeGratis(preDoc) {
         ); //re sum remain qty
     });
 }
-
+function increasePurchaseOrder(preDoc) {
+    //let updatedFlag;
+    preDoc.items.forEach(function (item) {
+        PurchaseOrder.direct.update(
+            {_id: preDoc.purchaseOrderId, 'items.itemId': item.itemId},
+            {$inc: {'items.$.remainQty': item.qty, sumRemainQty: item.qty}}
+        ); //re sum remain qty
+    });
+}
 
 function averageInventoryInsert(branchId, item, stockLocationId, type, refId) {
     let lastPurchasePrice = 0;
