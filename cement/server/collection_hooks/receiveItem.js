@@ -452,6 +452,7 @@ function reducePurchaseOrder(doc) {
             });
     });
     let purchaseOrder = PurchaseOrder.findOne(doc.purchaseOrderId);
+    console.log(doc);
     if (purchaseOrder.sumRemainQty == 0) {
         PurchaseOrder.direct.update(purchaseOrder._id, {$set: {status: 'closed'}});
     } else {

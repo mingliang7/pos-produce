@@ -61,7 +61,7 @@ purchaseOrderTmpl.events({
                 if (tmpCollection.length > 0) {
                     let purchaseOrderIdExist = _.find(tmpCollection, function (o) {
                         return o.purchaseOrderId == purchaseOrderId;
-                    });
+                    })
                     if (purchaseOrderIdExist) {
                         insertPurchaseOrderItem({
                             self: this,
@@ -142,6 +142,7 @@ let insertPurchaseOrderItem = ({self, remainQty, purchaseOrderItem, purchaseOrde
         self.purchaseOrderId = purchaseOrderId;
         self.qty = remainQty;
         self.name = result.name;
+        self.lostQty = 0;
         self.amount = self.qty * self.price;
         let getItem = itemsCollection.findOne({itemId: self.itemId});
         if (getItem) {

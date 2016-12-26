@@ -35,10 +35,10 @@
                         <label for="receive-type">Receive From:<span style="color: red;">*</span> </label>
                         <select name="type" class="form-control" id="receive-type" disabled="{{enableReceiveType}}">
                             <option value="">(Select One)</option>
-                            <option value="PrepaidOrder">Prepaid Order</option>
-                            <option value="LendingStock">Lending Stock</option>
-                            <option value="CompanyExchangeRingPull">Ring Pull</option>
-                            <option value="ExchangeGratis">Gratis</option>
+                            <!--<option value="PrepaidOrder">Prepaid Order</option>-->
+                            <!--<option value="LendingStock">Lending Stock</option>-->
+                            <!--<option value="CompanyExchangeRingPull">Ring Pull</option>-->
+                            <!--<option value="ExchangeGratis">Gratis</option>-->
                             <option value="PurchaseOrder">Purchase Order</option>
                         </select>
                     </div>
@@ -242,7 +242,8 @@
 
                     <div class="row">
                         <div class="col-md-4" style="padding: 10px;">
-                            <strong>Vendor: </strong> {{customer}}<br>
+                            <strong>Vendor: </strong> {{_vendor.name}}<br>
+                            <strong>Staff: </strong> {{staff}}<br>
                             <span><strong>Bill Date: </strong>{{moFormat receiveItemDate 'YYYY-MM-DD HH:mm:ss'}}</span>,
                             <span><strong>Due Date: </strong>{{moFormat dueDate 'YYYY-MM-DD HH:mm:ss'}}</span><br>
                             <span><strong>Status: </strong>{{{colorizeStatus status}}}

@@ -27,7 +27,6 @@ import '../../../../../core/client/components/form-footer.js';
 import {ReceiveItems} from '../../../api/collections/receiveItem.js';
 import {PrepaidOrders} from '../../../api/collections/prepaidOrder.js';
 import {ExchangeGratis} from '../../../api/collections/exchangeGratis.js';
-import {PurchaseOrder} from '../../../api/collections/purchaseOrder.js';
 import {ReceiveDeletedItem} from './receiveItem-items.js';
 import {Item} from '../../../api/collections/item';
 import {vendorBillCollection} from '../../../api/collections/tmpCollection';
@@ -40,8 +39,8 @@ import './receiveItem-items.js';
 import '../info-tab.html';
 import './lendingStock.js';
 import './exchangeGratis.js';
-import './purchaseOrder.js';
 import './companyExchangeRingPull.js';
+import './purchaseOrder.js';
 //methods
 import {ReceiveItemInfo} from '../../../../common/methods/receiveItem.js'
 import {vendorInfo} from '../../../../common/methods/vendor.js';
@@ -72,7 +71,7 @@ Tracker.autorun(function () {
         } else if (query.get('type') == 'activeExchangeGratis') {
             data = Session.get('exchangeGratisItems');
         }else if(query.get('type') == 'activePurchaseOrder'){
-            data=Session.get('purchaseOrderItems')
+            data = Session.get('purchaseOrderItems')
         }
         Meteor.subscribe('cement.item', {_id: {$in: data}});
     }
@@ -87,7 +86,7 @@ let indexTmpl = Template.Cement_receiveItem,
     listPrepaidOrder = Template.listPrepaidOrder,
     listCompanyExchangeRingPull = Template.listCompanyExchangeRingPull,
     listExchangeGratis = Template.listExchangeGratis,
-    listLendingStock = Template.listLendingStock;
+    listLendingStock = Template.listLendingStock,
     listPurchaseOrder = Template.listPurchaseOrder;
 // Local collection
 import {itemsCollection} from '../../../api/collections/tmpCollection';
@@ -120,6 +119,7 @@ indexTmpl.events({
         alertify.receiveItem(fa('plus', TAPi18n.__('cement.receiveItem.title')), renderTemplate(newTmpl)).maximize();
     },
     'click .js-update' (event, instance) {
+        itemsCollection.remove({});
         alertify.receiveItem(fa('pencil', TAPi18n.__('cement.receiveItem.title')), renderTemplate(editTmpl, this));
     },
     'click .js-destroy' (event, instance) {
@@ -135,7 +135,7 @@ indexTmpl.events({
             title: "Pleas Wait",
             text: "Getting Invoices....", showConfirmButton: false
         });
-        this.customer = vendorBillCollection.findOne(this.vendorId).name;
+        // this.customer = vendorBillCollection.findOne(this.vendorId).name;
         Meteor.call('billShowItems', {doc: this}, function (err, result) {
             swal.close();
             alertify.receiveItemShow(fa('eye', TAPi18n.__('cement.invoice.title')), renderTemplate(showTmpl, result)).maximize();
@@ -272,15 +272,15 @@ newTmpl.helpers({
         }
         return {};
     },
-   /* isTerm(){
-        if (Session.get('vendorInfo')) {
-            let vendorInfo = Session.get('vendorInfo');
-            if (vendorInfo._term) {
-                return true;
-            }
-            return false;
-        }
-    },*/
+    /* isTerm(){
+     if (Session.get('vendorInfo')) {
+     let vendorInfo = Session.get('vendorInfo');
+     if (vendorInfo._term) {
+     return true;
+     }
+     return false;
+     }
+     },*/
     dueDate(){
         let date = AutoForm.getFieldValue('receiveItemDate');
         if (Session.get('vendorInfo')) {
@@ -318,6 +318,18 @@ editTmpl.onCreated(function () {
     this.repOptions = new ReactiveVar();
     Meteor.call('getRepList', (err, result) => {
         this.repOptions.set(result);
+    });
+    let type = FlowRouter.query.get('type');
+    let data = this.data;
+    let typeId = _.lowerFirst(data.type) + 'Id';
+    // Add items to local collection
+    _.forEach(data.items, (value) => {
+        Meteor.call('getItem', value.itemId, function (err, result) {
+            value.name = result.name;
+            value[typeId] = data[typeId];
+            value.exactQty = value.qty + value.lostQty;
+            itemsCollection.insert(value);
+        })
     });
 });
 editTmpl.events({
@@ -363,14 +375,6 @@ editTmpl.helpers({
     },
     data () {
         let data = this;
-        // Add items to local collection
-        _.forEach(data.items, (value)=> {
-            Meteor.call('getItem', value.itemId, function (err, result) {
-                value.name = result.name;
-                value.exactQty = value.qty + value.lostQty;
-                itemsCollection.insert(value);
-            })
-        });
         return data;
     },
     itemsCollection(){
@@ -474,10 +478,15 @@ editTmpl.helpers({
 });
 
 editTmpl.onDestroyed(function () {
-    debugger;
     // Remove items collection
     itemsCollection.remove({});
     ReceiveDeletedItem.remove({});
+    Session.set('vendorInfo', undefined);
+    Session.set('vendorId', undefined);
+    FlowRouter.query.unset();
+    Session.set('prepaidOrderItems', undefined);
+    Session.set('totalOrder', undefined);
+    Session.set('getVendorId', undefined);
 });
 
 // Show
@@ -516,7 +525,7 @@ let hooksObject = {
         insert: function (doc) {
             debugger;
             let items = [];
-            itemsCollection.find().forEach((obj)=> {
+            itemsCollection.find().forEach((obj) => {
                 delete obj._id;
                 if (obj.prepaidOrderId) {
                     doc.prepaidOrderId = obj.prepaidOrderId;
@@ -526,8 +535,8 @@ let hooksObject = {
                     doc.exchangeGratisId = obj.exchangeGratisId;
                 } else if (obj.companyExchangeRingPullId) {
                     doc.companyExchangeRingPullId = obj.companyExchangeRingPullId;
-                }else if(obj.purchaseOrderId){
-                    doc.purchaseOrderId=obj.purchaseOrderId;
+                }else if(obj.purchaseOrderId) {
+                    doc.purchaseOrderId = obj.purchaseOrderId;
                 }
                 items.push(obj);
             });
@@ -580,7 +589,6 @@ listPrepaidOrder.helpers({
         let prepaidOrders = PrepaidOrders.find({status: 'active', vendorId: FlowRouter.query.get('vendorId')}).fetch();
         if (ReceiveDeletedItem.find().count() > 0) {
             ReceiveDeletedItem.find().forEach(function (item) {
-                console.log(item);
                 prepaidOrders.forEach(function (prepaidOrder) {
                     prepaidOrder.items.forEach(function (prepaidOrderItem) {
                         if (prepaidOrderItem.itemId == item.itemId) {
@@ -592,7 +600,6 @@ listPrepaidOrder.helpers({
             });
         }
         prepaidOrders.forEach(function (prepaidOrder) {
-            debugger
             prepaidOrder.items.forEach(function (prepaidOrderItem) {
                 item.push(prepaidOrderItem.itemId);
             });
@@ -637,7 +644,7 @@ listPrepaidOrder.events({
                         swal("Retry!", "Item Must be in the same prepaidOrderId", "warning")
                     }
                 } else {
-                    Meteor.call('getItem', this.itemId, (err, result)=> {
+                    Meteor.call('getItem', this.itemId, (err, result) => {
                         this.prepaidOrderId = prepaidOrderId;
                         this.qty = parseFloat(remainQty);
                         this.name = result.name;
@@ -680,7 +687,7 @@ listPrepaidOrder.events({
                         swal("Retry!", "Item Must be in the same prepaidOrderId", "warning")
                     }
                 } else {
-                    Meteor.call('getItem', this.itemId, (err, result)=> {
+                    Meteor.call('getItem', this.itemId, (err, result) => {
                         this.prepaidOrderId = prepaidOrderId;
                         this.qty = parseFloat(remainQty);
                         this.exactQty = parseFloat(remainQty);
@@ -704,9 +711,10 @@ listPrepaidOrder.events({
 
 //insert prepaidOrder order item to itemsCollection
 let insertPrepaidOrderItem = ({self, remainQty, prepaidOrderItem, prepaidOrderId}) => {
-    Meteor.call('getItem', self.itemId, (err, result)=> {
+    Meteor.call('getItem', self.itemId, (err, result) => {
         self.prepaidOrderId = prepaidOrderId;
         self.qty = remainQty;
+        self.lostQty = 0;
         self.name = result.name;
         self.amount = self.qty * self.price;
         let getItem = itemsCollection.findOne({itemId: self.itemId});
@@ -754,13 +762,13 @@ function receiveTypeFn({receiveType, vendor}) {
         FlowRouter.query.set({vendorId: vendor, type: 'activeExchangeGratis'});
         alertify.listExchangeGratis(fa('', 'Exchange Gratis'), renderTemplate(listExchangeGratis));
 
-    }
-    else if (receiveType == 'PurchaseOrder') {
+    } else if (receiveType == 'PurchaseOrder') {
         label = "PurchaseOrder";
         FlowRouter.query.set({vendorId: vendor, type: 'activePurchaseOrder'});
         alertify.listPurchaseOrder(fa('', 'Purchase Order'), renderTemplate(listPurchaseOrder));
 
     }
+
     $('.receive-type-label').text(label);
 
 }
