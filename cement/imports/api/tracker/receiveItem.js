@@ -3,7 +3,7 @@ Tracker.autorun(function () {
     if (query.get('vendorId') && query.get('type')) {
         let sub = Meteor.subscribe(`cement.${query.get('type')}`, {
             vendorId: FlowRouter.query.get('vendorId'),
-            status: {$in: ['active', 'partial']}
+            status: {$in: ['active', 'partial', 'closed']}
         });
         if (!sub.ready()) {
             swal({

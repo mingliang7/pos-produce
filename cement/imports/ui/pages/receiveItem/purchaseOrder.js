@@ -13,7 +13,7 @@ var purchaseOrderTmpl = Template.listPurchaseOrder;
 purchaseOrderTmpl.helpers({
     purchaseOrders(){
         let item = [];
-        let purchaseOrders = PurchaseOrder.find({status: 'active', vendorId: FlowRouter.query.get('vendorId')}).fetch();
+        let purchaseOrders = PurchaseOrder.find({sumRemainQty: {$gt: 0}, vendorId: FlowRouter.query.get('vendorId')}).fetch();
         if (ReceiveDeletedItem.find().count() > 0) {
             ReceiveDeletedItem.find().forEach(function (item) {
                 console.log(item);
@@ -36,7 +36,7 @@ purchaseOrderTmpl.helpers({
         return purchaseOrders;
     },
     hasPurchaseOrders(){
-        let count = PurchaseOrder.find({status: 'active', vendorId: FlowRouter.query.get('vendorId')}).count();
+        let count = PurchaseOrder.find({sumRemainQty: {$gt: 0}, vendorId: FlowRouter.query.get('vendorId')}).count();
         return count > 0;
     },
     getItemName(itemId){

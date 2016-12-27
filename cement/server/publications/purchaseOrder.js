@@ -26,7 +26,11 @@ Meteor.publish('cement.activePurchaseOrder', function activePurchaseOrder(select
     }).validate({selector});
     if (this.userId) {
         Meteor._sleepForMs(200);
+        selector.sumRemainQty = {
+            $gt: 0
+        };
         let data = PurchaseOrder.find(selector);
+        console.log(data.fetch());
         return data;
     }
     return this.ready();
