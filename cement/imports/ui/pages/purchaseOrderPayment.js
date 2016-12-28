@@ -26,7 +26,7 @@ indexTmpl.onCreated(function () {
             let vendor = getVendorInfo(Session.get('vendorIdState'));
             billSub = Meteor.subscribe('cement.activePurchaseOrder', {
                 vendorId: Session.get('vendorIdState'),
-                status: {$in: ['active', 'partial']}
+                paymentStatus: {$in: ['active', 'partial']}
             });
         }
         if (Session.get('invoices')) {

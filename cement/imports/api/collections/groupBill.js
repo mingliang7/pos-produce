@@ -33,3 +33,4 @@ GroupBill_schema = new SimpleSchema({
         optional: true
     }
 });
+GroupBill.attachSchema(GroupBill_schema);
