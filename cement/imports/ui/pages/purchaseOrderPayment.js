@@ -24,10 +24,10 @@ indexTmpl.onCreated(function () {
                 _id: Session.get('vendorIdState')
             }, {});
             let vendor = getVendorInfo(Session.get('vendorIdState'));
-            billSub = Meteor.subscribe('cement.activePurchaseOrder', {
+            billSub = Meteor.subscribe('cement.purchaseOrder', {
                 vendorId: Session.get('vendorIdState'),
                 paymentStatus: {$in: ['active', 'partial']}
-            });
+            }, {});
         }
         if (Session.get('invoices')) {
             Meteor.subscribe('cement.purchaseOrderPayment', {
@@ -408,7 +408,12 @@ indexTmpl.events({
     },
     "keypress .discount" (evt) {
         var charCode = (evt.which) ? evt.which : evt.keyCode;
-        return !(charCode > 31 && (charCode < 48 || charCode > 57));
+        if ($(evt.currentTarget).val().indexOf('.') != -1) {
+            if (charCode == 46) {
+                return false;
+            }
+        }
+        return !(charCode != 46 && charCode > 31 && (charCode < 48 || charCode > 57));
     },
     'change .total' (event, instance) {
         var selectedInvoices = Session.get('enterBillsObj');
@@ -441,7 +446,12 @@ indexTmpl.events({
     },
     "keypress .total" (evt) {
         var charCode = (evt.which) ? evt.which : evt.keyCode;
-        return !(charCode > 31 && (charCode < 48 || charCode > 57));
+        if ($(evt.currentTarget).val().indexOf('.') != -1) {
+            if (charCode == 46) {
+                return false;
+            }
+        }
+        return !(charCode != 46 && charCode > 31 && (charCode < 48 || charCode > 57));
     }
 });
 

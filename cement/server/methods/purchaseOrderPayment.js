@@ -26,7 +26,7 @@ Meteor.methods({
                 $inc: {dueAmount: doc.paidAmount, balanceAmount: doc.paidAmount},
                 $set: {status: 'partial'}
             }, {multi: true});
-            selector.$set.status = 'partial';
+            selector.$set.paymentStatus = 'partial';
             collections.direct.update(doc.billId, selector);
         }
         PurchaseOrderPayment.remove({_id: doc._id});

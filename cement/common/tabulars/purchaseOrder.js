@@ -28,9 +28,9 @@ tabularOpts.columns = [
             return moment(val).format('YYYY-MM-DD');
         }
     },
+    {data: "_vendor.name", title: "Vendor"},
     {data: "total", title: "Total"},
     {data: "des", title: "Description"},
-    {data: "vendorId", title: "Vendor ID"},
     {
         data: "status",
         title: "Status",
@@ -42,7 +42,18 @@ tabularOpts.columns = [
             }
             return '<label class="label label-success">C</label>'
         }
-    },
+    },{
+        data: "paymentStatus",
+        title: "Payment Status",
+        render: function(val) {
+            if(val == 'active') {
+                return '<label class="label label-primary">A</label>'
+            }else if(val == 'partial') {
+                return '<label class="label label-warning">P</label>'
+            }
+            return '<label class="label label-success">C</label>'
+        }
+    }
     //{
     //    data: "_customer",
     //    title: "Customer Info",
@@ -51,4 +62,5 @@ tabularOpts.columns = [
     //    }
     //}
 ];
+tabularOpts.extraFields = ['vendorId'];
 export const PurchaseOrderTabular = new Tabular.Table(tabularOpts);
