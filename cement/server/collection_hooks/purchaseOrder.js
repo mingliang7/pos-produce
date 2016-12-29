@@ -5,6 +5,7 @@ import {idGenerator} from 'meteor/theara:id-generator';
 import {PurchaseOrder} from '../../imports/api/collections/purchaseOrder.js';
 import {AccountIntegrationSetting} from '../../imports/api/collections/accountIntegrationSetting.js';
 import {AccountMapping} from '../../imports/api/collections/accountMapping.js';
+import {Vendors} from '../../imports/api/collections/vendor.js';
 
 PurchaseOrder.before.insert(function (userId, doc) {
     let prefix = doc.vendorId;
@@ -20,6 +21,12 @@ PurchaseOrder.after.insert(function (userId, doc) {
         data.type = "PurchaseOrder";
         let oweInventoryChartAccount = AccountMapping.findOne({name: 'Inventory Supplier Owing PO'});
         let cashChartAccount = AccountMapping.findOne({name: 'A/P PO'});
+
+        let vendorDoc = Vendors.findOne({_id: doc.vendorId});
+        if (vendorDoc) {
+            data.name = vendorDoc.name;
+        }
+
         transaction.push({
                 account: oweInventoryChartAccount.account,
                 dr: doc.total,
@@ -48,6 +55,12 @@ PurchaseOrder.after.update(function (userId, doc) {
         data.type = "PurchaseOrder";
         let oweInventoryChartAccount = AccountMapping.findOne({name: 'Inventory Supplier Owing PO'});
         let cashChartAccount = AccountMapping.findOne({name: 'A/P PO'});
+
+        let vendorDoc = Vendors.findOne({_id: doc.vendorId});
+        if (vendorDoc) {
+            data.name = vendorDoc.name;
+        }
+
         transaction.push({
                 account: oweInventoryChartAccount.account,
                 dr: doc.total,

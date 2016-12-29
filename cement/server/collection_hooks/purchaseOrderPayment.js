@@ -4,6 +4,8 @@ import {PurchaseOrderPayment} from '../../imports/api/collections/purchaseOrderP
 import {Item} from '../../imports/api/collections/item.js';
 import {AccountIntegrationSetting} from '../../imports/api/collections/accountIntegrationSetting.js';
 import {AccountMapping} from '../../imports/api/collections/accountMapping.js'
+import {Vendors} from '../../imports/api/collections/vendor.js'
+
 PurchaseOrderPayment.before.insert(function (userId, doc) {
     doc._id = idGenerator.genWithPrefix(PurchaseOrderPayment, `${doc.branchId}-`, 9);
 });
@@ -22,6 +24,12 @@ PurchaseOrderPayment.after.insert(function (userId, doc) {
             let purchaseDiscountChartAccount = AccountMapping.findOne({name: 'PO Discount'});
             let discountAmount = doc.dueAmount * doc.discount / 100;
             data.total = doc.paidAmount + discountAmount;
+
+            let vendorDoc = Vendors.findOne({_id: doc.vendorId});
+            if (vendorDoc) {
+                data.name = vendorDoc.name;
+            }
+
             transaction.push({
                 account: apChartAccount.account,
                 dr: doc.paidAmount + discountAmount,
@@ -82,6 +90,12 @@ PurchaseOrderPayment.after.update(function (userId, doc) {
             let purchaseDiscountChartAccount = AccountMapping.findOne({name: 'PO Discount'});
             let discountAmount = doc.dueAmount * doc.discount / 100;
             data.total = doc.paidAmount + discountAmount;
+
+            let vendorDoc = Vendors.findOne({_id: doc.vendorId});
+            if (vendorDoc) {
+                data.name = vendorDoc.name;
+            }
+
             transaction.push({
                 account: apChartAccount.account,
                 dr: doc.paidAmount + discountAmount,

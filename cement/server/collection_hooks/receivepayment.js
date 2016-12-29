@@ -5,6 +5,7 @@ import {Invoices} from '../../imports/api/collections/invoice';
 import {GroupInvoice} from '../../imports/api/collections/groupInvoice';
 import {AccountIntegrationSetting} from '../../imports/api/collections/accountIntegrationSetting.js';
 import {AccountMapping} from '../../imports/api/collections/accountMapping.js';
+import {Customers} from '../../imports/api/collections/customer.js';
 
 ReceivePayment.before.insert(function (userId, doc) {
     console.log(doc._id);
@@ -23,6 +24,12 @@ ReceivePayment.after.insert(function (userId, doc) {
             let saleDiscountChartAccount = AccountMapping.findOne({name: 'Sale Discount'});
             let discountAmount = doc.dueAmount * doc.discount / 100;
             data.total = doc.paidAmount + discountAmount;
+
+            let customerDoc = Customers.findOne({_id: doc.customerId});
+            if (customerDoc) {
+                data.name = customerDoc.name;
+            }
+
             transaction.push({
                 account: cashChartAccount.account,
                 dr: doc.paidAmount,
@@ -99,6 +106,12 @@ ReceivePayment.after.update(function (userId, doc) {
             let saleDiscountChartAccount = AccountMapping.findOne({name: 'Sale Discount'});
             let discountAmount = doc.dueAmount * doc.discount / 100;
             data.total = doc.paidAmount + discountAmount;
+
+            let customerDoc = Customers.findOne({_id: doc.customerId});
+            if (customerDoc) {
+                data.name = customerDoc.name;
+            }
+
             transaction.push({
                 account: cashChartAccount.account,
                 dr: doc.paidAmount,
