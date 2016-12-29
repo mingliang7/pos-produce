@@ -42,14 +42,32 @@
 	<!--Reactive table-->
 	<div class="">
 		{{> reactiveTable settings=tableSettings}}
-		<div class="row">
-			<div class="col-sm-8">
-				<div class="pull-right">Total:</div>
-			</div>
-			<div class="col-sm-4">
-				{{> afQuickField name="total" value=total label=false readonly="true"}}
-			</div>
-		</div>
+        <div class="row">
+            <div class="col-sm-8">
+                <div class="pull-right">Sub Total:</div>
+            </div>
+            <div class="col-sm-4">
+                {{> afQuickField name="subTotal"  value=subTotal label=false readonly="true"}}
+                <br>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-8">
+                <div class="pull-right">Discount:</div>
+            </div>
+            <div class="col-sm-4">
+                {{> afQuickField name="discount"  label=false}}
+            </div>
+        </div>
+        <div class="row">
+
+            <div class="col-sm-8">
+                <div class="pull-right">Total:</div>
+            </div>
+            <div class="col-sm-4">
+                {{> afQuickField name="total" value=total label=false readonly="true"}}
+            </div>
+        </div>
 	</div>
 </template>
 <!--Action-->

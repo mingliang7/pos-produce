@@ -21,6 +21,7 @@ Meteor.methods({
                             itemName: '$itemDoc.name',
                             qty: '$items.qty',
                             price: '$items.price',
+                            discount: '$items.discount',
                             amount: '$items.amount',
                             remainQty: '$items.remainQty'
                         }
@@ -30,6 +31,8 @@ Meteor.methods({
                     orderDate: {$last: '$orderDate'},
                     status: {$last: '$status'},
                     total: {$last: '$total'},
+                    subTotal: {$last: '$subTotal'},
+                    discount: {$last: '$discount'},
                     voucherId: {$last: '$voucherId'},
                     sumRemainQty: {$last: 'sumRemainQty'}
                 }

@@ -58,6 +58,7 @@ itemsTmpl.onCreated(function () {
     this.defaultPrice = new ReactiveVar(0);
     this.defaultItem = new ReactiveVar();
     this.unitConvert = new ReactiveVar([]);
+    this.discount = new ReactiveVar(0);
     this.description = new ReactiveVar('');
     this.defaultBaseUnit = new ReactiveVar([]);
     this.qtyAfterConvert = new ReactiveVar(0);
@@ -185,6 +186,12 @@ itemsTmpl.helpers({
                 return Spacebars.SafeString(`<input type="text" value=${value} class="item-transport-fee">`)
             }
         }, {
+                key: 'discount',
+                label: __(`Discount`),
+                fn(value, object, key) {
+                    return Spacebars.SafeString(`<input type="text" value=${value} class="item-discount">`)
+                }
+        }, {
             key: 'amount',
             label: __(`${i18nPrefix}.amount.label`),
             fn(value, object, key) {
@@ -219,6 +226,20 @@ itemsTmpl.helpers({
         return {}
     },
     total: function () {
+        let instance = Template.instance();
+        let total = 0;
+        let discount = instance.discount.get();
+        let getItems = itemsCollection.find();
+        getItems.forEach((obj) => {
+            total += obj.amount
+        });
+        if (Session.get('saleOrderCustomerId')) {
+            Session.set('creditLimitAmount', total)
+        }
+        total = total > 0 ? total - discount : total;
+        return total
+    },
+    subTotal(){
         let total = 0;
         let getItems = itemsCollection.find();
         getItems.forEach((obj) => {
@@ -286,7 +307,7 @@ itemsTmpl.events({
     },
     'click .js-add-item': function (event, instance) {
         let itemId = instance.$('[name="itemId"]').val();
-        let qty = parseInt(instance.$('[name="qty"]').val());
+        let qty = parseFloat(instance.$('[name="qty"]').val());
         let price = math.round(parseFloat(instance.$('[name="price"]').val()), 2);
         let amount = math.round(qty * price, 2);
         let currentUnitConvertArr = instance.unitConvert.get();
@@ -309,6 +330,7 @@ itemsTmpl.events({
                         unitConvertId: currentUnitConvertId,
                         itemId: item.itemId,
                         qty: item.quantity * qty,
+                        discount: 0,
                         price: item.price,
                         transportFee: instance.transportFee.get(),
                         amount: (item.price * item.quantity) * qty + instance.transportFee.get(),
@@ -321,7 +343,7 @@ itemsTmpl.events({
                     itemId: itemId
                 });
                 if (exist) {
-                    qty += parseInt(exist.qty);
+                    qty += parseFloat(exist.qty);
                     amount = math.round(qty * price, 2) + (qty * exist.transportFee);
 
                     itemsCollection.update({
@@ -330,7 +352,7 @@ itemsTmpl.events({
                         $set: {
                             qty: qty,
                             price: price,
-                            amount: amount
+                            amount: amount - exist.discount
                         }
                     })
                 } else {
@@ -339,6 +361,7 @@ itemsTmpl.events({
                         itemId: itemId,
                         qty: qty,
                         price: price,
+                        discount: 0,
                         transportFee: instance.transportFee.get(),
                         amount: amount + (instance.transportFee.get() * qty),
                         name: instance.name
@@ -386,13 +409,31 @@ itemsTmpl.events({
         let selector = {};
         if (currentQty != '') {
             selector.$set = {
-                amount: (currentQty * currentItem.price) + (currentQty * currentItem.transportFee),
+                amount: (currentQty * currentItem.price) + (currentQty * currentItem.transportFee) - currentItem.discount,
                 qty: currentQty
             }
         } else {
             selector.$set = {
-                amount: (1 * currentItem.price) + (1 * currentItem.transportFee),
+                amount: (1 * currentItem.price) + (1 * currentItem.transportFee) - currentItem.discount,
                 qty: 1
+            }
+        }
+        itemsCollection.update({itemId: itemId}, selector)
+    },
+    'change .item-discount'(event, instance) {
+        let currentDiscount = event.currentTarget.value;
+        let itemId = $(event.currentTarget).parents('tr').find('.itemId').text();
+        let currentItem = itemsCollection.findOne({itemId: itemId});
+        let selector = {};
+        if (currentDiscount != '') {
+            selector.$set = {
+                amount:  (currentItem.qty * currentItem.price + currentItem.qty * currentItem.transportFee) - parseFloat(currentDiscount),
+                discount: parseFloat(currentDiscount)
+            }
+        } else {
+            selector.$set = {
+                amount: currentItem.amount,
+                discount: currentItem.discount
             }
         }
         itemsCollection.update({itemId: itemId}, selector)
@@ -404,12 +445,12 @@ itemsTmpl.events({
         let selector = {};
         if (currentTransportFee != '') {
             selector.$set = {
-                amount: (currentTransportFee * currentItem.qty) + (currentItem.qty * currentItem.price),
+                amount: (currentTransportFee * currentItem.qty) + (currentItem.qty * currentItem.price) - currentItem.discount,
                 transportFee: currentTransportFee
             }
         } else {
             selector.$set = {
-                amount: currentItem.amount,
+                amount: currentItem.amount - currentItem.discount,
                 transportFee: currentItem.transportFee
             }
         }
@@ -417,13 +458,18 @@ itemsTmpl.events({
     },
     'keypress .item-qty'(evt) {
         var charCode = (evt.which) ? evt.which : evt.keyCode;
-        return !(charCode > 31 && (charCode < 48 || charCode > 57))
+        if ($(evt.currentTarget).val().indexOf('.') != -1) {
+            if (charCode == 46) {
+                return false;
+            }
+        }
+        return !(charCode != 46 && charCode > 31 && (charCode < 48 || charCode > 57));
     },
     'change [name="qtyConvert"]'(event, instance) {
         let baseUnit = instance.defaultBaseUnit.get();
         if (baseUnit.length > 0) {
             let baseUnitIndex = $('[name="baseUnit"]').val();
-            let baseUnitDoc = baseUnit[parseInt(baseUnitIndex) - 1];
+            let baseUnitDoc = baseUnit[parseFloat(baseUnitIndex) - 1];
             let currentValue = event.currentTarget.value;
             if (currentValue !== 'string' && currentValue !== null) {
                 instance.defaultQty.set(parseFloat(event.currentTarget.value) * baseUnitDoc.convertAmount)
@@ -438,6 +484,23 @@ itemsTmpl.events({
         if (qtyConvert != '') {
             instance.defaultQty.set(parseFloat(qtyConvert) * parseFloat(currentValue))
         }
+    },
+    'change [name="discount"]'(event,instance){
+        let currentDiscount = event.currentTarget.value;
+        if(currentDiscount != '') {
+            instance.discount.set(parseFloat(currentDiscount));
+        }else{
+            instance.discount.set(0);
+        }
+    },
+    'keypress [name="discount"]'(evt,instance){
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if ($(evt.currentTarget).val().indexOf('.') != -1) {
+            if (charCode == 46) {
+                return false;
+            }
+        }
+        return !(charCode != 46 && charCode > 31 && (charCode < 48 || charCode > 57));
     }
 });
 
@@ -488,6 +551,7 @@ let hooksObject = {
         alertify.item().close();
         displaySuccess();
         itemsCollection.remove({})
+
     },
     onError: function (formType, error) {
         displayError(error.message)

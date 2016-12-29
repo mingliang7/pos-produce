@@ -292,6 +292,7 @@ showTmpl.events({
 let hooksObject = {
     before: {
         insert: function (doc) {
+            console.log(doc);
             let isPurchased = Session.get('isPurchased');
             doc.isPurchased = isPurchased;
             let items = [];

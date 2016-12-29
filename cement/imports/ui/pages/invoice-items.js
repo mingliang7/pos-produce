@@ -66,6 +66,7 @@ itemsTmpl.onCreated(function () {
     this.qtyAfterConvert = new ReactiveVar(0);
     this.defaultItem = new ReactiveVar();
     this.defaultQty = new ReactiveVar(0);
+    this.discount = new ReactiveVar(0);
     this.unitConvert = new ReactiveVar([]);
     this.description = new ReactiveVar('');
     this.autorun(() => {
@@ -87,17 +88,17 @@ itemsTmpl.onCreated(function () {
 
         }
         /*if (this.defaultItem.get() && (this.defaultItem.get() || this.defaultQty.get())) {
-            itemInfo.callPromise({
-                _id: this.defaultItem.get(),
-                customerId: Session.get('getCustomerId'),
-                qty: this.defaultQty.get(),
-                routeName: FlowRouter.getRouteName()
-            }).then((result) => {
-                this.defaultPrice.set(result.price);
-            }).catch((err) => {
-                console.log(err.message);
-            });
-        }*/
+         itemInfo.callPromise({
+         _id: this.defaultItem.get(),
+         customerId: Session.get('getCustomerId'),
+         qty: this.defaultQty.get(),
+         routeName: FlowRouter.getRouteName()
+         }).then((result) => {
+         this.defaultPrice.set(result.price);
+         }).catch((err) => {
+         console.log(err.message);
+         });
+         }*/
         if (this.defaultItem.get() && (this.defaultItem.get() || this.defaultQty.get())) {
             itemInfo.callPromise({
                 _id: this.defaultItem.get(), qty: this.defaultQty.get(), routeName: FlowRouter.getRouteName()
@@ -222,6 +223,12 @@ itemsTmpl.helpers({
                 return numeral(value).format('0,0.00');
             }
         }, {
+            key: 'discount',
+            label: __(`Discount`),
+            fn(value, obj, key) {
+                return FlowRouter.query.get('customerId') ? value : Spacebars.SafeString(`<input type="text" value=${value} class="item-discount">`)
+            }
+        }, {
             key: 'amount',
             label: __(`${i18nPrefix}.amount.label`),
             fn(value, object, key) {
@@ -255,7 +262,7 @@ itemsTmpl.helpers({
 
         return {};
     },
-    total: function () {
+    subTotal(){
         try {
             let total = 0;
             let getItems = itemsCollection.find({});
@@ -273,6 +280,39 @@ itemsTmpl.helpers({
                     }
                 }
                 Session.set('creditLimitAmount', total - deletedItemsTotal);
+            }
+            return total;
+        } catch (error) {
+            console.log(error.message);
+        }
+    },
+    total: function () {
+        try {
+            let total = 0;
+            let getItems = itemsCollection.find({});
+            let instance = Template.instance();
+            let discountInvoiceInItem = 0;
+            let discount = instance.discount.get();
+            getItems.forEach((obj) => {
+                total += obj.amount;
+                discountInvoiceInItem = obj.invoiceDiscount;
+            });
+            total = FlowRouter.query.get('customerId') ? 0 : total;
+            if (Session.get('getCustomerId')) {
+                let deletedItemsTotal = 0;
+                if (AutoForm.getFormId() == "Cement_invoiceUpdate") {
+                    if (currentItemsInUpdateForm.find().count() > 0) {
+                        currentItemsInUpdateForm.find().forEach(function (item) {
+                            deletedItemsTotal += item.amount;
+                        });
+                    }
+                }
+                Session.set('creditLimitAmount', total - deletedItemsTotal);
+            }
+            if(discountInvoiceInItem > 0 && discount == 0){
+                total = total > 0 ? total - discountInvoiceInItem : total; 
+            }else{
+                total = total > 0 ? total - discount : total;
             }
             return total;
         } catch (error) {
@@ -338,7 +378,7 @@ itemsTmpl.events({
     },
     'click .js-add-item': function (event, instance) {
         let itemId = instance.$('[name="itemId"]').val();
-        let qty = parseInt(instance.$('[name="qty"]').val());
+        let qty = parseFloat(instance.$('[name="qty"]').val());
         let price = math.round(parseFloat(instance.$('[name="price"]').val()), 2);
         let amount = math.round(qty * price, 2);
         // Check exist
@@ -346,7 +386,10 @@ itemsTmpl.events({
         let currentUnitConvertId = FlowRouter.query.get('unitConvertId');
         if (currentUnitConvertId) {
             let currentUnitConvertObj = currentUnitConvertArr.find(o => o._id == currentUnitConvertId);
-            let des = UnitConvertClass.addParamsDes({qty: instance.defaultQty.get(), unitConvert: currentUnitConvertObj});
+            let des = UnitConvertClass.addParamsDes({
+                qty: instance.defaultQty.get(),
+                unitConvert: currentUnitConvertObj
+            });
             FlowRouter.query.set({des: des});
         }
         Meteor.call('addScheme', {itemId}, function (err, result) {
@@ -362,6 +405,7 @@ itemsTmpl.events({
                         itemId: item.itemId,
                         qty: item.quantity * qty,
                         price: item.price,
+                        discount: 0,
                         transportFee: instance.transportFee.get(),
                         amount: (item.price * item.quantity) * qty + instance.transportFee.get(),
                         name: item.itemName
@@ -373,7 +417,7 @@ itemsTmpl.events({
                     itemId: itemId
                 });
                 if (exist) {
-                    qty += parseInt(exist.qty);
+                    qty += parseFloat(exist.qty);
                     amount = math.round(qty * price, 2) + (qty * exist.transportFee);
 
                     itemsCollection.update({
@@ -382,7 +426,7 @@ itemsTmpl.events({
                         $set: {
                             qty: qty,
                             price: price,
-                            amount: amount
+                            amount: amount - exist.discount
                         }
                     });
                 } else {
@@ -391,6 +435,7 @@ itemsTmpl.events({
                         itemId: itemId,
                         qty: qty,
                         price: price,
+                        discount: 0,
                         transportFee: instance.transportFee.get(),
                         amount: amount + (instance.transportFee.get() * qty),
                         name: instance.name
@@ -423,13 +468,13 @@ itemsTmpl.events({
                     if (isCurrenctItemExistInTmpCollection) {
                         currentItemsInUpdateForm.insert(itemDoc);
                     }
-                    let item =itemsCollection.remove({itemId: itemDoc.itemId});
-                    UnitConvertClass.removeConvertItem(item, instance,itemsCollection);
+                    let item = itemsCollection.remove({itemId: itemDoc.itemId});
+                    UnitConvertClass.removeConvertItem(item, instance, itemsCollection);
                     swal.close();
                 });
         } else {
             let item = itemsCollection.remove({_id: this._id});
-            UnitConvertClass.removeConvertItem(item, instance,itemsCollection);
+            UnitConvertClass.removeConvertItem(item, instance, itemsCollection);
         }
 
     },
@@ -440,12 +485,12 @@ itemsTmpl.events({
         let selector = {};
         if (currentQty != '') {
             selector.$set = {
-                amount: (currentQty * currentItem.price) + (currentQty * currentItem.transportFee),
+                amount: (currentQty * currentItem.price) + (currentQty * currentItem.transportFee) - currentItem.discount,
                 qty: currentQty
             }
         } else {
             selector.$set = {
-                amount: (1 * currentItem.price) + (1 * currentItem.transportFee),
+                amount: (1 * currentItem.price) + (1 * currentItem.transportFee) - currentItem.discount,
                 qty: 1
             }
         }
@@ -453,13 +498,45 @@ itemsTmpl.events({
     },
     "keypress .item-qty"(evt) {
         var charCode = (evt.which) ? evt.which : evt.keyCode;
-        return !(charCode > 31 && (charCode < 48 || charCode > 57));
+        if ($(evt.currentTarget).val().indexOf('.') != -1) {
+            if (charCode == 46) {
+                return false;
+            }
+        }
+        return !(charCode != 46 && charCode > 31 && (charCode < 48 || charCode > 57));
+    },
+    'change .item-discount'(event, instance) {
+        let currentDiscount = event.currentTarget.value;
+        let itemId = $(event.currentTarget).parents('tr').find('.itemId').text();
+        let currentItem = itemsCollection.findOne({itemId: itemId});
+        let selector = {};
+        if (currentDiscount != '') {
+            selector.$set = {
+                amount: (currentItem.qty * currentItem.price + currentItem.qty * currentItem.transportFee) - parseFloat(currentDiscount),
+                discount: parseFloat(currentDiscount)
+            }
+        } else {
+            selector.$set = {
+                amount: currentItem.amount,
+                discount: currentItem.discount
+            }
+        }
+        itemsCollection.update({itemId: itemId}, selector)
+    },
+    "keypress .item-discount"(evt){
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if ($(evt.currentTarget).val().indexOf('.') != -1) {
+            if (charCode == 46) {
+                return false;
+            }
+        }
+        return !(charCode != 46 && charCode > 31 && (charCode < 48 || charCode > 57));
     },
     'change [name="qtyConvert"]'(event, instance) {
         let baseUnit = instance.defaultBaseUnit.get()
         if (baseUnit.length > 0) {
             let baseUnitIndex = $('[name="baseUnit"]').val()
-            let baseUnitDoc = baseUnit[parseInt(baseUnitIndex) - 1]
+            let baseUnitDoc = baseUnit[parseFloat(baseUnitIndex) - 1]
             let currentValue = event.currentTarget.value
             if (currentValue !== 'string' && currentValue !== null) {
                 instance.defaultQty.set(parseFloat(event.currentTarget.value) * baseUnitDoc.convertAmount)
@@ -482,7 +559,7 @@ itemsTmpl.events({
         let selector = {}
         if (currentTransportFee != '') {
             selector.$set = {
-                amount: (currentTransportFee * currentItem.qty) + (currentItem.qty * currentItem.price),
+                amount: (currentTransportFee * currentItem.qty) + (currentItem.qty * currentItem.price) - currentItem.discount,
                 transportFee: currentTransportFee
             }
         } else {
@@ -492,6 +569,23 @@ itemsTmpl.events({
             }
         }
         itemsCollection.update({itemId: itemId}, selector)
+    },
+    'change [name="discount"]'(event, instance){
+        let currentDiscount = event.currentTarget.value;
+        if (currentDiscount != '') {
+            instance.discount.set(parseFloat(currentDiscount));
+        } else {
+            instance.discount.set(0);
+        }
+    },
+    'keypress [name="discount"]'(evt, instance){
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if ($(evt.currentTarget).val().indexOf('.') != -1) {
+            if (charCode == 46) {
+                return false;
+            }
+        }
+        return !(charCode != 46 && charCode > 31 && (charCode < 48 || charCode > 57));
     }
 });
 itemsTmpl.onDestroyed(function () {

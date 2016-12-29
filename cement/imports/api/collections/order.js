@@ -56,6 +56,17 @@ Order.itemsSchema = new SimpleSchema({
         type: Number,
         decimal: true,
         optional: true
+    },
+    discount: {
+        type: Number,
+        decimal: true,
+        optional :true,
+        autoform: {
+            type: 'inputmask',
+            inputmaskOptions: function () {
+                return inputmaskOptions.currency();
+            }
+        }
     }
 });
 
@@ -123,6 +134,16 @@ Order.schema = new SimpleSchema({
             }
         }
     },
+    subTotal: {
+        type: Number,
+        decimal: true,
+        autoform: {
+            type: 'inputmask',
+            inputmaskOptions: function () {
+                return inputmaskOptions.currency();
+            }
+        }
+    },
     branchId: {
         type: String
     },
@@ -177,6 +198,17 @@ Order.schema = new SimpleSchema({
         type: Number,
         decimal: true,
         optional: true
+    },
+    discount: {
+        type: Number,
+        decimal: true,
+        optional :true,
+        autoform: {
+            type: 'inputmask',
+            inputmaskOptions: function () {
+                return inputmaskOptions.currency();
+            }
+        }
     }
 });
 

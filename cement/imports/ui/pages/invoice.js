@@ -374,6 +374,7 @@ editTmpl.onCreated(function () {
         Meteor.call('getItem', value.itemId,value.unitConvertId, (err, result) => {
             value.name = result.name;
             value.saleId = this.saleId;
+            value.invoiceDiscount = this.data.discount;
             value.unitConvertId = result.unitConvertId;
             console.log(value);
             itemsCollection.insert(value);

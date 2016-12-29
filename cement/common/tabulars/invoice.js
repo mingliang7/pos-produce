@@ -29,6 +29,18 @@ tabularOpts.columns = [
         }
     },
     {
+        data: "subTotal",
+        title: "Sub Total",
+        render: function (val) {
+            return numeral(val).format('0,0.00');
+        }
+    }, {
+        data: "discount",
+        title: "Discount",
+        render: function (val) {
+            return numeral(val).format('0,0.00');
+        }
+    }, {
         data: "total",
         title: "Total",
         render: function (val) {

@@ -14,6 +14,11 @@ Invoices.itemsSchema = new SimpleSchema({
     itemId: {
         type: String
     },
+    discount: {
+        type: Number,
+        decimal: true,
+        optional: true
+    },
     qty: {
         type: Number,
         min: 1
@@ -243,6 +248,28 @@ Invoices.schema = new SimpleSchema({
     saleId: {
         type: String,
         optional: true
+    },
+    subTotal: {
+        type: Number,
+        decimal: true,
+        optional: true,
+        autoform: {
+            type: 'inputmask',
+            inputmaskOptions: function () {
+                return inputmaskOptions.currency();
+            }
+        }
+    },
+    discount: {
+        type: Number,
+        decimal: true,
+        optional: true,
+        autoform: {
+            type: 'inputmask',
+            inputmaskOptions: function () {
+                return inputmaskOptions.currency();
+            }
+        }
     }
 });
 
