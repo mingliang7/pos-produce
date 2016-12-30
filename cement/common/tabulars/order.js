@@ -65,5 +65,5 @@ tabularOpts.columns = [
     //    }
     //}
 ];
-tabularOpts.extraFields = ['items', 'customerId'];
+tabularOpts.extraFields = ['items', 'customerId','printId'];
 export const OrderTabular = new Tabular.Table(tabularOpts);

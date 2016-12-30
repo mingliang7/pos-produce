@@ -13,7 +13,7 @@ import {Exchange} from '../../../../core/imports/api/collections/exchange';
 import {correctFieldLabel} from '../../../imports/api/libs/correctFieldLabel';
 import {exchangeCoefficient} from '../../../imports/api/libs/exchangeCoefficient';
 export const invoiceByCustomerReport = new ValidatedMethod({
-    name: 'cement.invoiceByCustomerReport',
+    name: 'pos.invoiceByCustomerReport',
     mixins: [CallPromiseMixin],
     validate: null,
     run(params) {
@@ -32,13 +32,17 @@ export const invoiceByCustomerReport = new ValidatedMethod({
             let user = Meteor.users.findOne(Meteor.userId());
             let exchange = Exchange.findOne({}, {sort: {_id: -1}});
             let coefficient = exchangeCoefficient({exchange, fieldToCalculate: '$total'})
-
+            let filterItems = {'items.itemId': {$ne: ''}};
             // console.log(user);
             // let date = _.trim(_.words(params.date, /[^To]+/g));
             selector.invoiceType = {$ne: 'group'};
             selector.status = {$in: ['active', 'partial', 'closed']};
+            if (params.items) {
+                let arr = params.items.split(',');
+                filterItems = {'items.itemId': {$in: arr}};
+            }
             if (params.date) {
-                let dateAsArray = params.date.split(',')
+                let dateAsArray = params.date.split(',');
                 let fromDate = moment(dateAsArray[0]).toDate();
                 let toDate = moment(dateAsArray[1]).toDate();
                 data.title.date = moment(fromDate).format('YYYY-MMM-DD hh:mm a') + ' - ' + moment(toDate).format('YYYY-MMM-DD hh:mm a');
@@ -71,11 +75,12 @@ export const invoiceByCustomerReport = new ValidatedMethod({
                 project = {
                     'invoice': '$invoice',
                     '_id': '$_id',
+                    'items': '$items',
                     'invoiceDate': '$invoiceDate',
                     'total': '$total'
                 };
-                data.fields = [{field: 'Type'}, {field: 'ID'}, {field: 'Date'}, {field: 'Amount'}];
-                data.displayFields = [{field: 'invoice'}, {field: '_id'}, {field: 'invoiceDate'}, {field: 'total'}];
+                data.fields = [{field: 'Type'}, {field: 'ID'}, {field: 'Date'}, {field: 'Item'}, {field: 'Qty'}, {field: 'Price'},{field: 'TS fee'}, {field: 'Discount'},{field: 'Amount'}];
+                data.displayFields = [{field: 'invoice'}, {field: '_id'}, {field: 'invoiceDate'}, {field: 'items'}, {field: 'qty'}, {field: 'price'},{field: 'transportFee'}, {field: 'discount'},{field: 'amount'}];
             }
             // project['$invoice'] = 'Invoice';
             /****** Title *****/
@@ -86,8 +91,68 @@ export const invoiceByCustomerReport = new ValidatedMethod({
                     $match: selector
                 },
                 {
+                    $unwind: {path: '$items', preserveNullAndEmptyArrays: true}
+                },
+                {
                     $lookup: {
-                        from: 'Cement_reps',
+                        from: 'cement_item',
+                        localField: 'items.itemId',
+                        foreignField: '_id',
+                        as: 'itemDoc'
+                    }
+                },
+                {$unwind: {path: '$itemDoc', preserveNullAndEmptyArrays: true}},
+                {
+                    $sort: {'itemDoc.name': 1, _id: 1},
+                },
+                {$match: filterItems},
+                {
+                    $group: {
+                        _id: '$_id',
+                        customerId: {$last: '$customerId'},
+                        total: {$sum: '$items.amount'},
+                        dueDate: {$last: '$dueDate'},
+                        invoiceDate: {$last: '$invoiceDate'},
+                        branchId: {$last: '$branchId'},
+                        createdAt: {$last: '$createdAt'},
+                        createdBy: {$last: '$createdBy'},
+                        invoiceType: {$last: '$invoiceType'},
+                        items: {
+                            $push: {
+                                total: '$total',
+                                _id: '$_id',
+                                dueDate: '$dueDate',
+                                invoiceDate: '$invoiceDate',
+                                transportFee: '$items.transportFee',
+                                branchId: '$branchId',
+                                createdAt: '$createdAt',
+                                createdBy: '$createdBy',
+                                invoiceType: '$invoiceType',
+                                itemName: '$itemDoc.name',
+                                price: '$items.price',
+                                discount: {$multiply: ['$items.discount', '$items.qty']},
+                                qty: '$items.qty',
+                                amount: '$items.amount',
+                                profit: '$profit',
+                                repId: '$repId',
+                                staffId: '$staffId',
+                                stockLocationId: '$stockLocationId',
+                                totalCost: '$amountCost',
+                                status: '$status'
+                            }
+                        },
+                        profit: {$sum: '$items.profit'},
+                        repId: {$last: '$repId'},
+                        staffId: {$last: '$staffId'},
+                        stockLocationId: {$last: 'stockLocationId'},
+                        totalCost: {$last: '$items.amountCost'},
+                        status: {$last: '$status'}
+
+                    }
+                },
+                {
+                    $lookup: {
+                        from: 'cement_reps',
                         localField: 'repId',
                         foreignField: '_id',
                         as: 'repId'
@@ -120,7 +185,7 @@ export const invoiceByCustomerReport = new ValidatedMethod({
                 },
                 {
                     $lookup: {
-                        from: 'Cement_customers',
+                        from: 'cement_customers',
                         localField: 'customerId',
                         foreignField: '_id',
                         as: '_customer'

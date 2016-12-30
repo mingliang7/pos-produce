@@ -17,7 +17,7 @@
         <li><a href="#" class="js-destroy"><i class="fa fa-remove"></i> {{_ "action.delete"}}</a></li>
         <li><a href="#" class="js-display"><i class="fa fa-eye"></i> {{_ "action.show"}}</a></li>
         <!--<li role="separator" class="divider"></li>-->
-        <!--<li><a href="#" class="js-invoice"><i class="fa fa-print"></i> {{_ "cement.order.invoiceAction"}}</a></li>-->
+        <li><a href="/cement/print-sale-order?inv={{printId}}"><i class="fa fa-print"></i> {{_ "cement.order.invoiceAction"}}</a></li>
     {{/columnAction}}
 </template>
 
@@ -84,6 +84,9 @@
                                         {{>afQuickField name="vendorId" label=false}}
                                     </div>
                                 </div>
+                                <button type="submit" class="btn btn-info saveNPurchaseNPrint" {{disabledSubmitBtn}}>
+                                    <i class="fa fa-floppy-o"></i> Save & Purchase & Print
+                                </button>
                                 <button type="submit" class="btn btn-success saveNPurchase" {{disabledSubmitBtn}}>
                                     Save & Purchase
                                 </button>
@@ -98,6 +101,9 @@
                             <!--{{> formFooterWithButton}}-->
 
                             {{#formFooter}}
+                                <button type="submit" class="btn btn-warning saveNPrint" {{disabledSubmitBtn}}>
+                                    <i class="fa fa-floppy-o"></i> Save & Print
+                                </button>
                                 <button type="submit" class="btn btn-primary" {{disabledSubmitBtn}}>
                                     <i class="fa fa-floppy-o"></i> {{_ "form.btnSave"}}
                                 </button>

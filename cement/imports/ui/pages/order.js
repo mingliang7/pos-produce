@@ -166,6 +166,19 @@ newTmpl.events({
             Session.set('isPurchased', true);
         }
     },
+    'click .saveNPurchaseNPrint'(event, instance){
+        let vendorId = instance.$('[name="vendorId"]').val();
+        if (vendorId == '') {
+            instance.$('.warning-msg').text('*សូមជ្រើសរើសយក Vendor');
+            return false;
+        } else {
+            Session.set('isPurchased', true);
+            FlowRouter.query.set({p: 'true'});
+        }
+    },
+    'click .saveNPrint'(event, instance){
+        FlowRouter.query.set({p: 'true'});
+    },
     'change [name="vendorId"]'(event, instance){
         instance.$('.warning-msg').text('');
     }
@@ -319,8 +332,13 @@ let hooksObject = {
         }
     },
     onSuccess (formType, result) {
+        let print = FlowRouter.query.get('p');
         if (formType == 'update') {
             alertify.order().close();
+        }
+        if(print == 'true') {
+            alertify.order().close();
+            FlowRouter.go('/cement/print-sale-order?inv=' + result);
         }
         // Remove items collection
         itemsCollection.remove({});
@@ -330,6 +348,7 @@ let hooksObject = {
     },
     onError (formType, error) {
         displayError(error.message);
+        FlowRouter.query.unset();
     }
 };
 

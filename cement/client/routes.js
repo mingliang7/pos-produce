@@ -737,6 +737,15 @@ CementRoutes.route('/print-invoice', {
     }
 });
 
+import '../imports/ui/pages/print/printSaleOrder'
+CementRoutes.route('/print-sale-order', {
+    name: 'cement.printSaleOrder',
+    title: 'Sale Order',
+    action: function (params,queryParams) {
+        BlazeLayout.render('PrintLayout', {printLayout: 'pos_printSaleOrder'});
+    }
+});
+
 import '../imports/ui/pages/truck'
 CementRoutes.route('/truck', {
     name: 'cement.truck',

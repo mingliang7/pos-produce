@@ -6,11 +6,13 @@ import {renderTemplate} from '../../../../core/client/libs/render-template.js';
 import './invoiceByCustomer.html';
 //import DI
 import  'printthis';
+import {JSPanel} from '../../api/libs/jspanel';
 //import collection
-import {invoiceSchema} from '../../api/collections/reports/invoice';
+import {invoiceByCustomerSchema} from '../../api/collections/reports/invoiceByCustomer';
 
 //methods
 import {invoiceByCustomerReport} from '../../../common/methods/reports/invoiceByCustomer';
+import RangeDate from "../../api/libs/date";
 //state
 let paramsState = new ReactiveVar();
 let invoiceData = new ReactiveVar();
@@ -37,18 +39,66 @@ Tracker.autorun(function () {
 });
 
 indexTmpl.onCreated(function () {
-    createNewAlertify('invoiceReport');
+    createNewAlertify('invoiceByCustomer');
     paramsState.set(FlowRouter.query.params());
+    this.fromDate = new ReactiveVar(moment().startOf('days').toDate());
+    this.endDate = new ReactiveVar(moment().endOf('days').toDate());
 });
 indexTmpl.helpers({
     schema(){
-        return invoiceSchema;
+        return invoiceByCustomerSchema;
+    },
+    fromDate(){
+        let instance = Template.instance();
+        return instance.fromDate.get();
+    },
+    endDate(){
+        let instance = Template.instance();
+        return instance.endDate.get();
     }
 });
+
 indexTmpl.events({
+    'click .fullScreen'(event, instance){
+        $('.sub-body').addClass('rpt rpt-body');
+        $('.sub-header').addClass('rpt rpt-header');
+        // alertify.invoiceByCustomer(fa('', ''), renderTemplate(invoiceDataTmpl)).maximize();
+        let arrFooterTool = [
+            {
+                item: "<button type='button'></button>",
+                event: "click",
+                btnclass: 'btn btn-sm btn-primary',
+                btntext: 'Print',
+                callback: function (event) {
+                    setTimeout(function () {
+                        $('#invoice-by-customer').printThis();
+                    }, 500);
+                }
+            }
+        ];
+        JSPanel(
+            {
+                title: 'Invoice By Customer',
+                content: renderTemplate(invoiceDataTmpl).html,
+                footer: arrFooterTool
+            }
+        ).maximize();
+    },
+    'change #date-range-filter'(event, instance){
+        let currentRangeDate = RangeDate[event.currentTarget.value]();
+        instance.fromDate.set(currentRangeDate.start.toDate());
+        instance.endDate.set(currentRangeDate.end.toDate());
+    },
+});
+
+invoiceDataTmpl.events({
     'click .print'(event, instance){
         $('#to-print').printThis();
     }
+});
+invoiceDataTmpl.onDestroyed(function () {
+    $('.sub-body').removeClass('rpt rpt-body');
+    $('.sub-header').removeClass('rpt rpt-header');
 });
 invoiceDataTmpl.helpers({
     company(){
@@ -64,18 +114,15 @@ invoiceDataTmpl.helpers({
     display(col){
         let data = '';
         this.displayFields.forEach(function (obj) {
+            console.log(col);
             if (obj.field == 'invoiceDate') {
-                data += `<td>${moment(col[obj.field]).format('YYYY-MM-DD HH:mm:ss')}</td>`
-            } else if (obj.field == 'customerId') {
-                data += `<td>${col._customer.name}</td>`
+                data += `<td>${moment(col[obj.field]).format('YYYY-MM-DD ')}</td>`
             } else if (obj.field == 'total') {
-                data += `<td>${numeral(col[obj.field]).format('0,0.00')}</td>`
-            }
-            else {
+                data += `<td class="text-right">${numeral(col[obj.field]).format('0,0.00')}</td>`
+            } else {
                 data += `<td>${col[obj.field]}</td>`;
             }
         });
-
         return data;
     },
     getTotal(total, customerName){
@@ -84,16 +131,16 @@ invoiceDataTmpl.helpers({
         for (let i = 0; i < fieldLength; i++) {
             string += '<td></td>'
         }
-        string += `<td><u>Total ${_.capitalize(customerName)}:</u></td><td><u>${numeral(total).format('0,0.00')}</u></td>`;
+        string += `<td class="text-right"><u>Total ${_.capitalize(customerName)}:</u></td><td style="border-top: 1px solid black;" class="text-right"><u>${numeral(total).format('0,0.00')}</u></td>`;
         return string;
     },
     getTotalFooter(total, totalKhr, totalThb){
         let string = '';
-        let fieldLength = this.displayFields.length - 4;
+        let fieldLength = this.displayFields.length - 2;
         for (let i = 0; i < fieldLength; i++) {
             string += '<td></td>'
         }
-        string += `<td><b>Total:</td></b><td><b>${numeral(totalKhr).format('0,0')}<small>៛</small></b></td><td><b>${numeral(totalThb).format('0,0')}B</b></td><td><b>${numeral(total).format('0,0.00')}$</b></td>`;
+        string += `<td><b>Grand Total:</td></b><td style="1px solid black;" class="text-right"><b>${numeral(total).format('0,0.00')}$</b></td>`;
         return string;
     },
     capitalize(customerName){
@@ -103,14 +150,15 @@ invoiceDataTmpl.helpers({
 
 
 AutoForm.hooks({
-    invoiceReport: {
+    invoiceByCustomerReport: {
         onSubmit(doc){
             this.event.preventDefault();
             FlowRouter.query.unset();
             let params = {};
+            console.log(doc);
             if (doc.fromDate && doc.toDate) {
-                let fromDate = moment(doc.fromDate).format('YYYY-MM-DD HH:mm:ss');
-                let toDate = moment(doc.toDate).format('YYYY-MM-DD HH:mm:ss');
+                let fromDate = moment(doc.fromDate).startOf('days').format('YYYY-MM-DD HH:mm:ss');
+                let toDate = moment(doc.toDate).endOf('days').format('YYYY-MM-DD HH:mm:ss');
                 params.date = `${fromDate},${toDate}`;
             }
             if (doc.customer) {
@@ -118,6 +166,9 @@ AutoForm.hooks({
             }
             if (doc.filter) {
                 params.filter = doc.filter.join(',');
+            }
+            if (doc.itemId) {
+                params.items = doc.itemId.join(',');
             }
             FlowRouter.query.set(params);
             paramsState.set(FlowRouter.query.params());
