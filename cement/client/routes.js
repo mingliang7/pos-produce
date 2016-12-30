@@ -727,3 +727,12 @@ CementRoutes.route('/unitConvert', {
         parent: 'cement.home'
     }
 });
+
+import '../imports/ui/pages/print/printInvoice'
+CementRoutes.route('/print-invoice', {
+    name: 'pos.printInvoice',
+    title: 'Invoice',
+    action: function (params,queryParams) {
+        BlazeLayout.render('PrintLayout', {printLayout: 'pos_printInvoice'});
+    }
+});
