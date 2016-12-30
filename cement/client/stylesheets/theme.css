@@ -11,3 +11,9 @@ tr.cursor-pointer.sale-doc:hover {
     background: #00aa9a;
     color: #fff;
 }
+
+@media print {
+    .hidden-print {
+        display: none;
+    }
+}

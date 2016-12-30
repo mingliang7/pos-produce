@@ -17,6 +17,7 @@ import {invoiceState} from '../../common/globalState/invoice';
 //import methods
 import {updateItemInSaleOrder} from '../../common/methods/sale-order';
 Invoices.before.insert(function (userId, doc) {
+    doc.printId = doc._id;
     doc.totalTransportFee = 0;
     doc.items.forEach(function (item) {
         item.transportFeeAmount = item.qty * item.transportFee;

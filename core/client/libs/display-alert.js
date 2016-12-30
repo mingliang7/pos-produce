@@ -9,17 +9,17 @@ export const displaySuccess = (msg = null, i18n = false) => {
         msg = TAPi18n.__('alert.success');
     }
 
-    // sAlert.success(msg);
-    swal({
-        title: "Success",
-        text: msg,
-        type: "success",
-        allowEscapeKey: false,
-        showCloseButton: true,
-        showConfirmButton: false,
-        allowOutsideClick: true,
-        timer: 3000
-    }).done();
+    sAlert.success(msg);
+    // swal({
+    //     title: "Success",
+    //     text: msg,
+    //     type: "success",
+    //     allowEscapeKey: false,
+    //     showCloseButton: true,
+    //     showConfirmButton: false,
+    //     allowOutsideClick: true,
+    //     timer: 3000
+    // }).done();
 };
 
 export const displayError = (msg = null, i18n = false) => {

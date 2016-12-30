@@ -12,6 +12,7 @@ import {AccountMapping} from '../../imports/api/collections/accountMapping.js'
 import {Customers} from '../../imports/api/collections/customer.js'
 import {SaleOrderReceivePayment} from '../../imports/api/collections/saleOrderReceivePayment';
 Order.before.insert(function (userId, doc) {
+    doc.printId = doc._id;
     doc.totalTransportFee = 0;
     doc.sumRemainQty = 0;
     doc.items.forEach(function (item) {

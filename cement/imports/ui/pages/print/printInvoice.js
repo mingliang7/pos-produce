@@ -22,6 +22,10 @@ indexTmpl.onCreated(function () {
 });
 
 indexTmpl.helpers({
+    invoiceTypeSaleOrder(invoiceType){
+        console.log(invoiceType);
+        return invoiceType == 'saleOrder';
+    },
     data(){
         let instance = Template.instance();
         let data = instance.printData.get();
@@ -30,6 +34,20 @@ indexTmpl.helpers({
         return data;
     },
     hasPayment(paymentObj){
-        return !_.isEmpty(paymentObj);
+        return paymentObj && paymentObj.paidAmount > 0;
+    },
+    lookupRemainQty(sale, itemId){
+        if(sale.invoiceType == 'saleOrder') {
+            let saleOrderObj = sale.saleOrderDoc.items.find(x => x.itemId == itemId);
+            return numeral(saleOrderObj.remainQty).format('0,0.00');
+        }
+    },
+    no(index){
+        return index + 1;
+    }
+});
+indexTmpl.events({
+    'click .printInvoice'(event,instance){
+        window.print();
     }
 });

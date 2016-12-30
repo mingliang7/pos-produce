@@ -14,6 +14,7 @@ import {StockLocations} from '../../imports/api/collections/stockLocation.js';
 import {Vendors} from '../../imports/api/collections/vendor';
 import {PaymentGroups} from '../../imports/api/collections/paymentGroup';
 import {Terms} from '../../imports/api/collections/terms';
+import {Truck} from '../../imports/api/collections/truck';
 export let SelectOptMethods = {};
 
 SelectOptMethods.stockLocation = new ValidatedMethod({
@@ -146,6 +147,37 @@ SelectOptMethods.customer = new ValidatedMethod({
                 let termOrGroup = value._term ? ` (Term ${value._term.name})` : ` (Group ${value._paymentGroup.name})`;
                 let label = value._id + ' : ' + value.name + termOrGroup;
                 list.push({label: label, value: value._id});
+            });
+            return list;
+        }
+    }
+});
+SelectOptMethods.truck = new ValidatedMethod({
+    name: 'cement.selectOptMethods.truck',
+    validate: null,
+    run(options) {
+        if (!this.isSimulation) {
+            this.unblock();
+
+            let list = [];
+            let searchText = options.searchText;
+            let values = options.values;
+            let params = options.params || {};
+            let selector = {};
+            if (!_.isEmpty(params)) {
+                selector = params;
+            }
+            if (searchText) {
+                selector.$or = [
+                    {number: {$regex: searchText, $options: 'i'}},
+                    {name: {$regex: searchText, $options: 'i'}}
+                ];
+            } else if (values.length) {
+                selector._id = {$in: values};
+            }
+            let data = Truck.find(selector, {limit: 10});
+            data.forEach(function (value) {
+                list.push({label: value.name + ' | N: ' + value.number , value: value._id});
             });
             return list;
         }

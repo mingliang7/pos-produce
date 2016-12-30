@@ -209,6 +209,10 @@ Order.schema = new SimpleSchema({
                 return inputmaskOptions.currency();
             }
         }
+    },
+    printId: {
+        type: String,
+        optional: true
     }
 });
 

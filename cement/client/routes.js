@@ -736,3 +736,17 @@ CementRoutes.route('/print-invoice', {
         BlazeLayout.render('PrintLayout', {printLayout: 'pos_printInvoice'});
     }
 });
+
+import '../imports/ui/pages/truck'
+CementRoutes.route('/truck', {
+    name: 'cement.truck',
+    title: 'Truck',
+    action: function (params,queryParams) {
+        Layout.main('Cement_truck');
+    },
+    breadcrumb: {
+        title: 'Truck',
+        icon: '',
+        parent: 'cement.home'
+    }
+});

@@ -101,7 +101,7 @@ Invoices.schema = new SimpleSchema({
             afFieldInput: {
                 type: "bootstrap-datetimepicker",
                 dateTimePickerOptions: {
-                    format: 'DD/MM/YYYY HH:mm:ss',
+                    format: 'DD/MM/YYYY',
 
                 },
                 value(){
@@ -121,7 +121,7 @@ Invoices.schema = new SimpleSchema({
             afFieldInput: {
                 type: "bootstrap-datetimepicker",
                 dateTimePickerOptions: {
-                    format: 'DD/MM/YYYY HH:mm:ss',
+                    format: 'DD/MM/YYYY',
 
                 }
             }
@@ -269,6 +269,35 @@ Invoices.schema = new SimpleSchema({
             inputmaskOptions: function () {
                 return inputmaskOptions.currency();
             }
+        }
+    },
+    printId: {
+        type: String,
+        optional: true
+    },
+    truckId: {
+        type: String,
+        optional: true,
+        autoform: {
+            type: 'universe-select',
+            afFieldInput: {
+                uniPlaceholder: 'Please search .... (Limit 10)',
+                optionsMethod: 'cement.selectOptMethods.truck',
+                optionsMethodParams: function () {
+                    if (Meteor.isClient) {
+                        let currentBranch = Session.get('currentBranch');
+                        return {branchId: currentBranch};
+                    }
+                }
+            }
+        }
+    },
+    shipTo: {
+        type: String,
+        optional: true,
+        autoform: {
+            type: 'textarea',
+            row: 2
         }
     }
 });

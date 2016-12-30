@@ -1,22 +1,22 @@
-import { Template } from 'meteor/templating';
-import { AutoForm } from 'meteor/aldeed:autoform';
-import { Roles } from 'meteor/alanning:roles';
-import { alertify } from 'meteor/ovcharik:alertifyjs';
-import { sAlert } from 'meteor/juliancwirko:s-alert';
-import { fa } from 'meteor/theara:fa-helpers';
-import { lightbox } from 'meteor/theara:lightbox-helpers';
-import { _ } from 'meteor/erasaur:meteor-lodash';
+import {Template} from 'meteor/templating';
+import {AutoForm} from 'meteor/aldeed:autoform';
+import {Roles} from 'meteor/alanning:roles';
+import {alertify} from 'meteor/ovcharik:alertifyjs';
+import {sAlert} from 'meteor/juliancwirko:s-alert';
+import {fa} from 'meteor/theara:fa-helpers';
+import {lightbox} from 'meteor/theara:lightbox-helpers';
+import {_} from 'meteor/erasaur:meteor-lodash';
 import 'meteor/theara:jsonview';
-import { TAPi18n } from 'meteor/tap:i18n';
+import {TAPi18n} from 'meteor/tap:i18n';
 import 'meteor/tap:i18n-ui';
 
 
 // Lib
-import { createNewAlertify } from '../../../../core/client/libs/create-new-alertify.js';
-import { renderTemplate } from '../../../../core/client/libs/render-template.js';
-import { destroyAction } from '../../../../core/client/libs/destroy-action.js';
-import { displaySuccess, displayError } from '../../../../core/client/libs/display-alert.js';
-import { __ } from '../../../../core/common/libs/tapi18n-callback-helper.js';
+import {createNewAlertify} from '../../../../core/client/libs/create-new-alertify.js';
+import {renderTemplate} from '../../../../core/client/libs/render-template.js';
+import {destroyAction} from '../../../../core/client/libs/destroy-action.js';
+import {displaySuccess, displayError} from '../../../../core/client/libs/display-alert.js';
+import {__} from '../../../../core/common/libs/tapi18n-callback-helper.js';
 
 // Component
 import '../../../../core/client/components/loading.js';
@@ -24,14 +24,14 @@ import '../../../../core/client/components/column-action.js';
 import '../../../../core/client/components/form-footer.js';
 
 // Collection
-import { Invoices } from '../../api/collections/invoice.js';
-import { Order } from '../../api/collections/order';
-import { Item } from '../../api/collections/item';
-import { deletedItem } from './invoice-items';
-import { customerInvoiceCollection, nullCollection } from '../../api/collections/tmpCollection';
+import {Invoices} from '../../api/collections/invoice.js';
+import {Order} from '../../api/collections/order';
+import {Item} from '../../api/collections/item';
+import {deletedItem} from './invoice-items';
+import {customerInvoiceCollection, nullCollection} from '../../api/collections/tmpCollection';
 let currentItemsCollection = new Mongo.Collection(null);
 // Tabular
-import { InvoiceTabular } from '../../../common/tabulars/invoice.js';
+import {InvoiceTabular} from '../../../common/tabulars/invoice.js';
 
 // Page
 import './invoice.html';
@@ -39,13 +39,13 @@ import './invoice-items.js';
 import './info-tab.html';
 import './customer.html';
 //methods
-import { invoiceInfo } from '../../../common/methods/invoice.js'
-import { customerInfo } from '../../../common/methods/customer.js';
-import { isGroupInvoiceClosed } from '../../../common/methods/invoiceGroup';
+import {invoiceInfo} from '../../../common/methods/invoice.js'
+import {customerInfo} from '../../../common/methods/customer.js';
+import {isGroupInvoiceClosed} from '../../../common/methods/invoiceGroup';
 //Tracker for customer infomation
 Tracker.autorun(function () {
     if (Session.get("getCustomerId")) {
-        customerInfo.callPromise({ _id: Session.get("getCustomerId") })
+        customerInfo.callPromise({_id: Session.get("getCustomerId")})
             .then(function (result) {
                 Session.set('customerInfo', result);
             })
@@ -54,7 +54,7 @@ Tracker.autorun(function () {
             });
     }
     if (Session.get('saleOrderItems')) {
-        Meteor.subscribe('cement.item', { _id: { $in: Session.get('saleOrderItems') } });
+        Meteor.subscribe('cement.item', {_id: {$in: Session.get('saleOrderItems')}});
     }
 });
 
@@ -70,9 +70,9 @@ let itemsCollection = nullCollection;
 // Index
 indexTmpl.onCreated(function () {
     // Create new  alertify
-    createNewAlertify('invoice', { size: 'lg' });
-    createNewAlertify('invoiceShow', );
-    createNewAlertify('listSaleOrder', { size: 'lg' });
+    createNewAlertify('invoice', {size: 'lg'});
+    createNewAlertify('invoiceShow',);
+    createNewAlertify('listSaleOrder', {size: 'lg'});
     createNewAlertify('customer');
 });
 
@@ -81,7 +81,7 @@ indexTmpl.helpers({
         return InvoiceTabular;
     },
     selector() {
-        return { status: { $ne: 'removed' }, branchId: Session.get('currentBranch') };
+        return {status: {$ne: 'removed'}, branchId: Session.get('currentBranch')};
     }
 });
 indexTmpl.onDestroyed(function () {
@@ -115,8 +115,8 @@ indexTmpl.events({
         let data = this;
         destroyAction(
             Invoices,
-            { _id: data._id },
-            { title: TAPi18n.__('cement.invoice.title'), itemTitle: data._id }
+            {_id: data._id},
+            {title: TAPi18n.__('cement.invoice.title'), itemTitle: data._id}
         );
 
     },
@@ -126,14 +126,14 @@ indexTmpl.events({
             text: "Getting Invoices....", showConfirmButton: false
         });
         this.customer = _.capitalize(this._customer.name);
-        Meteor.call('invoiceShowItems', { doc: this }, function (err, result) {
+        Meteor.call('invoiceShowItems', {doc: this}, function (err, result) {
             swal.close();
             alertify.invoiceShow(fa('eye', TAPi18n.__('cement.invoice.title')), renderTemplate(showTmpl, result)).maximize();
         });
     },
     'click .js-invoice'(event, instance) {
         let params = {};
-        let queryParams = { invoiceId: this._id };
+        let queryParams = {invoiceId: this._id};
         let path = FlowRouter.path("cement.invoiceReportGen", params, queryParams);
 
         window.open(path, '_blank');
@@ -141,7 +141,7 @@ indexTmpl.events({
 });
 //on rendered
 newTmpl.onCreated(function () {
-    Meteor.subscribe('cement.requirePassword', { branchId: { $in: [Session.get('currentBranch')] } });//subscribe require password validation
+    Meteor.subscribe('cement.requirePassword', {branchId: {$in: [Session.get('currentBranch')]}});//subscribe require password validation
     this.repOptions = new ReactiveVar();
     Meteor.call('getRepList', (err, result) => {
         this.repOptions.set(result);
@@ -159,6 +159,9 @@ newTmpl.onCreated(function () {
 newTmpl.events({
     'click .add-new-customer'(event, instance) {
         alertify.customer(fa('plus', 'New Customer'), renderTemplate(Template.Cement_customerNew));
+    },
+    'click .saveNPrint'(event, instance){
+        FlowRouter.query.set({p: 'true'})
     },
     'click .go-to-receive-payment'(event, instance) {
         alertify.invoice().close();
@@ -270,14 +273,14 @@ newTmpl.helpers({
             let totalOrder = Session.get('totalOrder');
             return totalOrder;
         }
-        return { total };
+        return {total};
     },
     customerInfo() {
         try {
             let {customerInfo, totalAmountDue, whiteListCustomer} = Session.get('customerInfo');
             let allowOverAmountDue = whiteListCustomer ? whiteListCustomer.limitTimes : 'Not set';
             if (!customerInfo) {
-                return { empty: true, message: 'No data available' }
+                return {empty: true, message: 'No data available'}
             }
 
             return {
@@ -302,7 +305,7 @@ newTmpl.helpers({
     disabledSubmitBtn: function () {
         let cont = itemsCollection.find().count();
         if (cont == 0) {
-            return { disabled: true };
+            return {disabled: true};
         }
 
         return {};
@@ -352,7 +355,7 @@ newTmpl.onDestroyed(function () {
 // Edit
 editTmpl.onCreated(function () {
     Session.set('getCustomerId', this.data.customerId);
-    Meteor.subscribe('cement.requirePassword', { branchId: { $in: [Session.get('currentBranch')] } });//subscribe require password validation    
+    Meteor.subscribe('cement.requirePassword', {branchId: {$in: [Session.get('currentBranch')]}});//subscribe require password validation
     this.repOptions = new ReactiveVar();
     this.isSaleOrder = new ReactiveVar(false);
     Meteor.call('getRepList', (err, result) => {
@@ -371,7 +374,7 @@ editTmpl.onCreated(function () {
         }
     });
     _.forEach(this.data.items, (value) => {
-        Meteor.call('getItem', value.itemId,value.unitConvertId, (err, result) => {
+        Meteor.call('getItem', value.itemId, value.unitConvertId, (err, result) => {
             value.name = result.name;
             value.saleId = this.saleId;
             value.invoiceDiscount = this.data.discount;
@@ -445,7 +448,7 @@ editTmpl.helpers({
     disabledSubmitBtn: function () {
         let cont = itemsCollection.find().count();
         if (cont == 0) {
-            return { disabled: true };
+            return {disabled: true};
         }
 
         return {};
@@ -497,14 +500,14 @@ editTmpl.helpers({
             let totalOrder = Session.get('totalOrder');
             return totalOrder;
         }
-        return { total };
+        return {total};
     },
     customerInfo() {
         try {
             let {customerInfo, totalAmountDue, whiteListCustomer} = Session.get('customerInfo');
             let allowOverAmountDue = whiteListCustomer ? whiteListCustomer.limitTimes : 'Not set';
             if (!customerInfo) {
-                return { empty: true, message: 'No data available' }
+                return {empty: true, message: 'No data available'}
             }
 
             return {
@@ -578,12 +581,12 @@ editTmpl.onDestroyed(function () {
 showTmpl.onCreated(function () {
     this.invoice = new ReactiveVar();
     this.autorun(() => {
-        invoiceInfo.callPromise({ _id: this.data._id })
+        invoiceInfo.callPromise({_id: this.data._id})
             .then((result) => {
                 this.invoice.set(result);
             }).catch(function (err) {
             }
-            );
+        );
     });
 });
 
@@ -620,7 +623,7 @@ showTmpl.events({
 listSaleOrder.helpers({
     saleOrders() {
         let item = [];
-        let saleOrders = Order.find({ status: 'active', customerId: FlowRouter.query.get('customerId') }).fetch();
+        let saleOrders = Order.find({status: 'active', customerId: FlowRouter.query.get('customerId')}).fetch();
         if (deletedItem.find().count() > 0) {
             deletedItem.find().forEach(function (item) {
                 saleOrders.forEach(function (saleOrder) {
@@ -642,7 +645,7 @@ listSaleOrder.helpers({
         return saleOrders;
     },
     hasSaleOrders() {
-        let count = Order.find({ status: 'active', customerId: FlowRouter.query.get('customerId') }).count();
+        let count = Order.find({status: 'active', customerId: FlowRouter.query.get('customerId')}).count();
         return count > 0;
     },
     getItemName(itemId) {
@@ -745,10 +748,10 @@ let insertSaleOrderItem = ({self, remainQty, saleItem, saleId}) => {
         self.qty = remainQty;
         self.name = result.name;
         self.amount = self.qty * self.price;
-        let getItem = itemsCollection.findOne({ itemId: self.itemId });
+        let getItem = itemsCollection.findOne({itemId: self.itemId});
         if (getItem) {
             if (getItem.qty + remainQty <= self.remainQty) {
-                itemsCollection.update(getItem._id, { $inc: { qty: self.qty, amount: self.qty * getItem.price } });
+                itemsCollection.update(getItem._id, {$inc: {qty: self.qty, amount: self.qty * getItem.price}});
                 displaySuccess('Added!')
             } else {
                 swal("Retry!", `ចំនួនបញ្ចូលចាស់(${getItem.qty}) នឹងបញ្ចូលថ្មី(${remainQty}) លើសពីចំនួនកម្ម៉ង់ទិញចំនួន ${(self.remainQty)}`, "error");
@@ -776,7 +779,7 @@ let hooksObject = {
                 delete obj._id;
                 if (obj.saleId) {
                     doc.saleId = obj.saleId;
-                    doc.total=0;
+                    doc.total = 0;
                 }
                 items.push(obj);
             });
@@ -797,6 +800,8 @@ let hooksObject = {
     },
     onSuccess(formType, id) {
         //get invoiceId, total, customerId
+        let params = FlowRouter.query.get('p');
+
         if (formType != 'update') {
             if (!FlowRouter.query.get('customerId')) {
                 Meteor.call('getInvoiceId', id, function (err, result) {
@@ -819,6 +824,12 @@ let hooksObject = {
         FlowRouter.query.unset();
         // }
         displaySuccess();
+        if (params == 'true') {
+            alertify.invoice().close();
+            setTimeout(function () {
+                FlowRouter.go(`/cement/print-invoice?inv=${id}`);
+            }, 500);
+        }
     },
     onError(formType, error) {
         displayError(error.message);
