@@ -1,9 +1,10 @@
 <template name="pos_printInvoice">
     {{#if data}}
         {{#with data}}
-            <div align="center"
-                 style="font-family: 'Khmer OS Freehand'; font-size: 11px; width:420px; margin: 0 auto; line-height: 1.4">
+            <div align="center" class="container"
+                 style="font-family: 'Khmer OS Battambang'; font-size: 12px; width:595px; margin: 0 auto;">
 
+                <div class="invoice-title">
 
                 <br>
                 <span style="font-weight: bold;font-size: 16px;​font-family:'Khmer OS Muol Light'">
@@ -11,12 +12,10 @@
                 <span style="font-weight: bold;font-size: 18px;">
                             Invoice
                             </span>
-                <hr>
+                <div class="col-md-12">
+                    <table width="100%">
 
-
-                <table width="100%">
-
-<!--
+                        <!--
 
                     <tr>
                         <td>#{{sale._id}}</td>
@@ -29,87 +28,90 @@
 -->
 
 
-                    <tr>
-                        <td>លក់ជូន/Sold to: {{sale._customer.name }}</td>
-                        <td>No: {{sale._id}}</td>
-                    </tr>
-                    <tr>
-                        <td>អាស័យដ្ឋាន/Address: {{sale._customer.address}}</td>
-                        <td>កាលបរិច្ឆេទ/Date: {{sale.saleDate 'DD/MM/YYYY HH:mm:ss'}}</td>
-                    </tr>
-                    <tr>
-                        <td>ទូរស័ព្ទ/Tel: {{sale._customer.address}}</td>
-                        <td>ប្រភេទវិក្កយបត្រ: .........</td>
-                    </tr>
-                    <tr>
-                        <td>លេខឡាន/Truck Num: ............</td>
-                        <td>ថ្ងៃផុតកំណត់/Due Date: {{sale.dueDate}}</td>
-                    </tr>
-                    <tr>
-                        <td>ទៅអាស័យដ្ឋាន/To Address: ..........</td>
-                        <td>តំណាងលក់/Seller: ...........</td>
-                    </tr>
-                </table>
-
-
-                <table border="1" width="100%">
-                    <tr style="background-color: #f5f5f5">
-                        <td align="center"> ល.រ​</td>
-                        <td align="left"> រាយមុខទំនិញ</td>
-                        <td align="right"> បរិមាណ</td>
-                        <td align="right"> បរិមាណនៅសល់</td>
-                        <td align="right"> តម្លៃរាយ</td>
-                        <td align="right"> បញ្ចុះតម្លៃ</td>
-                        <td align="right"> សរុប</td>
-                    </tr>
-                    {{#each saleDetails}}
                         <tr>
-
-                            <td align="center">{{order}}</td>
-                            <td align="left">{{itemDoc.name}}</td>
-                            <td align="right">{{numFormat qty '0,0.00'}}</td>
-                            <td align="right">{{numFormat qty '0,0.00'}}</td>
-                            <td align="right">{{numFormat price '0,0.00'}}</td>
-                            <td align="right">{{numFormat discount '0,0.00'}}</td>
-                            <td align="right">{{numFormat amount '0,0.00'}}</td>
+                            <td>លក់ជូន/Sold to: {{sale._customer.name }}</td>
+                            <td>No: {{sale._id}}</td>
                         </tr>
-                    {{/each}}
-
-                    <tr style="text-align: right;">
-                        <td colspan="5">Sub Total:</td>
-                        <td colspan="2">{{numFormat sale.subTotal '0,0.00'}} </td>
-                    </tr>
-                    <tr style="text-align: right;">
-                        <td colspan="5" align="right">Dis:</td>
-                        <td colspan="2" align="right">{{numFormat sale.discount '0,0.00'}}</td>
-
-                    </tr>
-                    <tr style="text-align: right;">
-                        <td colspan="5">Total:</td>
-                        <td colspan="2">{{numFormat sale.total '0,0.00'}}</td>
-                    </tr>
-                    {{#each sale._exchangeRate.rates}}
-                        <tr style="text-align: right;">
-                            <td colspan="5" align="right">{{toCurrencyId}}:</td>
-                            <td colspan="2" align="right">{{totalFormatted}}{{symbol}}</td>
+                        <tr>
+                            <td>អាស័យដ្ឋាន/Address: {{sale._customer.address}}</td>
+                            <td>កាលបរិច្ឆេទ/Date: {{sale.saleDate 'DD/MM/YYYY HH:mm:ss'}}</td>
                         </tr>
-                    {{/each}}
-
-                    {{#if hasPayment paymentObj}}
-
-                        {{#with paymentObj}}
+                        <tr>
+                            <td>ទូរស័ព្ទ/Tel: {{sale._customer.address}}</td>
+                            <td>ប្រភេទវិក្កយបត្រ: .........</td>
+                        </tr>
+                        <tr>
+                            <td>លេខឡាន/Truck Num: ............</td>
+                            <td>ថ្ងៃផុតកំណត់/Due Date: {{sale.dueDate}}</td>
+                        </tr>
+                        <tr>
+                            <td>ទៅអាស័យដ្ឋាន/To Address: ..........</td>
+                            <td>តំណាងលក់/Seller: ...........</td>
+                        </tr>
+                    </table>
+                    <table border="1" width="100%" style="font-size: 12px; border-collapse:collapse; font-family: 'Khmer OS Battambang';">
+                        <tr style="-webkit-print-color-adjust: exact; background-color: lightgrey !important; text-align: center; height: 25px;">
+                            <td align="center"> ល.រ​</td>
+                            <td align="left"> រាយមុខទំនិញ</td>
+                            <td align="right"> បរិមាណ</td>
+                            <td align="right"> បរិមាណនៅសល់</td>
+                            <td align="right"> តម្លៃរាយ</td>
+                            <td align="right"> បញ្ចុះតម្លៃ</td>
+                            <td align="right"> សរុប</td>
+                        </tr>
+                        {{#each saleDetails}}
                             <tr>
-                                <td >Paid {{currencyId}}:</td>
-                                <td colspan="2" style="font-weight: bold">{{paidAmount}}</td>
-                                <td colspan="2" style="text-align: right">Change {{currencyId}}:</td>
-                                <td colspan="2" style="text-align: right;font-weight: bold">{{balanceAmount}}</td>
+
+                                <td align="center">{{order}}</td>
+                                <td align="left">{{itemDoc.name}}</td>
+                                <td align="right">{{numFormat qty '0,0.00'}}</td>
+                                <td align="right">{{numFormat qty '0,0.00'}}</td>
+                                <td align="right">{{numFormat price '0,0.00'}}</td>
+                                <td align="right">{{numFormat discount '0,0.00'}}</td>
+                                <td align="right">{{numFormat amount '0,0.00'}}</td>
                             </tr>
-                        {{/with}}
-                    {{/if}}
-                </table>
+                        {{/each}}
 
+                        <tr style="text-align: right;">
+                            <td colspan="5">Sub Total:</td>
+                            <td colspan="2">{{numFormat sale.subTotal '0,0.00'}} </td>
+                        </tr>
+                        <tr style="text-align: right;">
+                            <td colspan="5" align="right">Dis:</td>
+                            <td colspan="2" align="right">{{numFormat sale.discount '0,0.00'}}</td>
 
+                        </tr>
+                        <tr style="text-align: right;">
+                            <td colspan="5">Total:</td>
+                            <td colspan="2">{{numFormat sale.total '0,0.00'}}</td>
+                        </tr>
+                        {{#each sale._exchangeRate.rates}}
+                            <tr style="text-align: right;">
+                                <td colspan="5" align="right">{{toCurrencyId}}:</td>
+                                <td colspan="2" align="right">{{totalFormatted}}{{symbol}}</td>
+                            </tr>
+                        {{/each}}
+
+                        {{#if hasPayment paymentObj}}
+
+                            {{#with paymentObj}}
+                                <tr>
+                                    <td>Paid {{currencyId}}:</td>
+                                    <td colspan="2" style="font-weight: bold">{{paidAmount}}</td>
+                                    <td colspan="2" style="text-align: right">Change {{currencyId}}:</td>
+                                    <td colspan="2" style="text-align: right;font-weight: bold">{{balanceAmount}}</td>
+                                </tr>
+                            {{/with}}
+                        {{/if}}
+                    </table>
+                </div>
+                </div>
+                <div class="col-md-6">
+                    ក្រោយពីបានទទួលទំនិញគ្រប់ចំនួន និង គ្រប់លក្ខណៈ
+                    គឺផុតការទទួលខុសត្រូវរបស់អ្នកលក់។
+                </div>
             </div>
+            
         {{/with}}
         {{autoprint close="true"}}
     {{else}}
