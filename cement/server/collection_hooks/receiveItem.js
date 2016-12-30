@@ -11,6 +11,7 @@ import {LendingStocks} from '../../imports/api/collections/lendingStock.js';
 import {CompanyExchangeRingPulls} from '../../imports/api/collections/companyExchangeRingPull.js';
 import {ExchangeGratis} from '../../imports/api/collections/exchangeGratis.js';
 import {AccountIntegrationSetting} from '../../imports/api/collections/accountIntegrationSetting';
+import {Vendors} from '../../imports/api/collections/vendor.js';
 //import state
 import {receiveItemState} from '../../common/globalState/receiveItem';
 import {GroupBill} from '../../imports/api/collections/groupBill.js'
@@ -40,6 +41,12 @@ ReceiveItems.after.insert(function (userId, doc) {
         if (setting && setting.integrate) {
             let inventoryChartAccount = AccountMapping.findOne({name: 'Inventory SO'});
             let lostInventoryChartAccount = AccountMapping.findOne({name: 'Lost Inventory'});
+
+            let vendorDoc = Vendors.findOne({_id: doc.vendorId});
+            if (vendorDoc) {
+                data.name = vendorDoc.name;
+            }
+
             transaction.push({
                 account: inventoryChartAccount.account,
                 dr: doc.total,
@@ -61,6 +68,8 @@ ReceiveItems.after.insert(function (userId, doc) {
             if (setting && setting.integrate) {
                 type = 'PrepaidOrder-RI';
                 let InventoryOwingChartAccount = AccountMapping.findOne({name: 'Inventory Supplier Owing'});
+
+
                 transaction.push({
                     account: InventoryOwingChartAccount.account,
                     dr: 0,
@@ -138,6 +147,12 @@ ReceiveItems.after.insert(function (userId, doc) {
             let data = doc;
             data.type = type;
             data.transaction = transaction;
+
+            let vendorDoc = Vendors.findOne({_id: doc.vendorId});
+            if (vendorDoc) {
+                data.name = vendorDoc.name;
+            }
+
             console.log(data);
             Meteor.call('insertAccountJournal', data);
         }
@@ -165,6 +180,12 @@ ReceiveItems.after.update(function (userId, doc, fieldNames, modifier, options) 
         if (setting && setting.integrate) {
             let inventoryChartAccount = AccountMapping.findOne({name: 'Inventory'});
             let lostInventoryChartAccount = AccountMapping.findOne({name: 'Lost Inventory'});
+
+            let vendorDoc = Vendors.findOne({_id: doc.vendorId});
+            if (vendorDoc) {
+                data.name = vendorDoc.name;
+            }
+
             transaction.push({
                 account: inventoryChartAccount.account,
                 dr: doc.total,
@@ -264,6 +285,12 @@ ReceiveItems.after.update(function (userId, doc, fieldNames, modifier, options) 
             let data = doc;
             data.type = type;
             data.transaction = transaction;
+
+            let vendorDoc = Vendors.findOne({_id: doc.vendorId});
+            if (vendorDoc) {
+                data.name = vendorDoc.name;
+            }
+
             console.log(data);
             Meteor.call('updateAccountJournal', data);
         }

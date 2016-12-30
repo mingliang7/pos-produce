@@ -13,6 +13,7 @@ import {AccountMapping} from '../../imports/api/collections/accountMapping.js';
 import {billState} from '../../common/globalState/enterBill';
 import {GroupBill} from '../../imports/api/collections/groupBill.js'
 import {PayBills} from '../../imports/api/collections/payBill.js';
+import {Vendors} from '../../imports/api/collections/vendor.js';
 import {AccountIntegrationSetting} from '../../imports/api/collections/accountIntegrationSetting.js';
 EnterBills.before.insert(function (userId, doc) {
     if (doc.termId) {
@@ -52,6 +53,12 @@ EnterBills.after.insert(function (userId, doc) {
 
             let transaction = [];
             let data = doc;
+
+            let vendorDoc = Vendors.findOne({_id: doc.vendorId});
+            if (vendorDoc) {
+                data.name = vendorDoc.name;
+            }
+
             data.type = "EnterBill";
             /* data.items.forEach(function (item) {
              let itemDoc = Item.findOne(item.itemId);
@@ -121,6 +128,12 @@ EnterBills.after.update(function (userId, doc, fieldNames, modifier, options) {
             let transaction = [];
             let data = doc;
             data.type = "EnterBill";
+
+            let vendorDoc = Vendors.findOne({_id: doc.vendorId});
+            if (vendorDoc) {
+                data.name = vendorDoc.name;
+            }
+
             /*data.items.forEach(function (item) {
                 let itemDoc = Item.findOne(item.itemId);
                 if (itemDoc.accountMapping.inventoryAsset && itemDoc.accountMapping.accountPayable) {

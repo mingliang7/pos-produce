@@ -6,6 +6,7 @@ import {LendingStocks} from '../../imports/api/collections/lendingStock.js';
 import {AverageInventories} from '../../imports/api/collections/inventory.js';
 import {LendingInventories} from '../../imports/api/collections/lendingInventory.js';
 import {Item} from '../../imports/api/collections/item.js';
+import {Vendors} from '../../imports/api/collections/vendor.js';
 import {PrepaidOrders} from '../../imports/api/collections/prepaidOrder';
 //import state
 import {GroupBill} from '../../imports/api/collections/groupBill.js'
@@ -30,6 +31,12 @@ LendingStocks.after.insert(function (userId, doc) {
             data.type = "LendingStock";
             let lendingStockChartAccount = AccountMapping.findOne({name: 'Lending Stock'});
             let inventoryChartAccount = AccountMapping.findOne({name: 'Inventory'});
+
+            let vendorDoc = Vendors.findOne({_id: doc.vendorId});
+            if (vendorDoc) {
+                data.name = vendorDoc.name;
+            }
+
             transaction.push({
                 account: lendingStockChartAccount.account,
                 dr: doc.total,
@@ -62,6 +69,12 @@ LendingStocks.after.update(function (userId, doc, fieldNames, modifier, options)
             data.type = "LendingStock";
             let lendingStockChartAccount = AccountMapping.findOne({name: 'Lending Stock'});
             let inventoryChartAccount = AccountMapping.findOne({name: 'Inventory'});
+
+            let vendorDoc = Vendors.findOne({_id: doc.vendorId});
+            if (vendorDoc) {
+                data.name = vendorDoc.name;
+            }
+
             transaction.push({
                 account: lendingStockChartAccount.account,
                 dr: doc.total,

@@ -9,6 +9,7 @@ import {Item} from '../../imports/api/collections/item.js'
 import {Vendors} from '../../imports/api/collections/vendor.js'
 import {AverageInventories} from '../../imports/api/collections/inventory.js'
 import {AccountMapping} from '../../imports/api/collections/accountMapping.js'
+import {Customers} from '../../imports/api/collections/customer.js'
 import {SaleOrderReceivePayment} from '../../imports/api/collections/saleOrderReceivePayment';
 Order.before.insert(function (userId, doc) {
     doc.totalTransportFee = 0;
@@ -79,6 +80,12 @@ Order.after.insert(function (userId, doc) {
             let COGSChartAccount = AccountMapping.findOne({name: 'COGS'});
             let transportExpChartAccount = AccountMapping.findOne({name: 'Transport Expense'});
             let APChartAccount = AccountMapping.findOne({name: 'Transport Payable'});
+
+            let customerDoc = Customers.findOne({_id: doc.customerId});
+            if (customerDoc) {
+                data.name = customerDoc.name;
+            }
+
             transaction.push(
                 {
                     account: ARChartAccount.account,
@@ -199,6 +206,13 @@ Order.after.update(function (userId, doc) {
             let transportRevChartAccount = AccountMapping.findOne({name: 'Transport Revenue'});
             let transportExpChartAccount = AccountMapping.findOne({name: 'Transport Expense'});
             let APChartAccount = AccountMapping.findOne({name: 'Transport Payable'});
+
+            let customerDoc = Customers.findOne({_id: doc.customerId});
+            if (customerDoc) {
+                data.name = customerDoc.name;
+            }
+
+
             transaction.push(
                 {
                     account: ARChartAccount.account,
