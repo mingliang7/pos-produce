@@ -208,7 +208,7 @@ itemsTmpl.helpers({
             key: 'qty',
             label: __(`${i18nPrefix}.qty.label`),
             fn(value, obj, key) {
-                return FlowRouter.query.get('customerId') ? value : Spacebars.SafeString(`<input type="text" value=${value} class="item-qty">`);
+                return FlowRouter.query.get('customerId') ||FlowRouter.query.get('unitConvertId') ? value : Spacebars.SafeString(`<input type="text" value=${value} class="item-qty">`);
             }
         }, {
             key: 'transportFee',
@@ -309,9 +309,9 @@ itemsTmpl.helpers({
                 }
                 Session.set('creditLimitAmount', total - deletedItemsTotal);
             }
-            if(discountInvoiceInItem > 0 && discount == 0){
-                total = total > 0 ? total - discountInvoiceInItem : total; 
-            }else{
+            if (discountInvoiceInItem > 0 && discount == 0) {
+                total = total > 0 ? total - discountInvoiceInItem : total;
+            } else {
                 total = total > 0 ? total - discount : total;
             }
             return total;
@@ -426,7 +426,7 @@ itemsTmpl.events({
                         $set: {
                             qty: qty,
                             price: price,
-                            amount: amount - exist.discount
+                            amount: amount - exist.discount * exist.qty
                         }
                     });
                 } else {
@@ -485,12 +485,12 @@ itemsTmpl.events({
         let selector = {};
         if (currentQty != '') {
             selector.$set = {
-                amount: (currentQty * currentItem.price) + (currentQty * currentItem.transportFee) - currentItem.discount,
+                amount: (currentQty * currentItem.price) + (currentQty * currentItem.transportFee) - currentItem.discount * currentQty,
                 qty: currentQty
             }
         } else {
             selector.$set = {
-                amount: (1 * currentItem.price) + (1 * currentItem.transportFee) - currentItem.discount,
+                amount: (1 * currentItem.price) + (1 * currentItem.transportFee) - currentItem.discount * currentItem.qty,
                 qty: 1
             }
         }
@@ -512,7 +512,7 @@ itemsTmpl.events({
         let selector = {};
         if (currentDiscount != '') {
             selector.$set = {
-                amount: (currentItem.qty * currentItem.price + currentItem.qty * currentItem.transportFee) - parseFloat(currentDiscount),
+                amount: (currentItem.qty * currentItem.price + currentItem.qty * currentItem.transportFee) - parseFloat(currentDiscount) * currentItem.qty,
                 discount: parseFloat(currentDiscount)
             }
         } else {
@@ -559,7 +559,7 @@ itemsTmpl.events({
         let selector = {}
         if (currentTransportFee != '') {
             selector.$set = {
-                amount: (currentTransportFee * currentItem.qty) + (currentItem.qty * currentItem.price) - currentItem.discount,
+                amount: (currentTransportFee * currentItem.qty) + (currentItem.qty * currentItem.price) - currentItem.discount*currentItem.qty,
                 transportFee: currentTransportFee
             }
         } else {
