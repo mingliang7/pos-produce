@@ -77,7 +77,7 @@ Order.after.insert(function (userId, doc) {
             let saleIncomeChartAccount = AccountMapping.findOne({name: 'Sale Income SO'});
             let transportRevChartAccount = AccountMapping.findOne({name: 'Transport Revenue'});
             let oweInventoryChartAccount = AccountMapping.findOne({name: 'Owe Inventory Customer SO'});
-            let COGSChartAccount = AccountMapping.findOne({name: 'COGS'});
+            let COGSChartAccount = AccountMapping.findOne({name: 'COGS SO'});
             let transportExpChartAccount = AccountMapping.findOne({name: 'Transport Expense'});
             let APChartAccount = AccountMapping.findOne({name: 'Transport Payable'});
 
@@ -202,7 +202,7 @@ Order.after.update(function (userId, doc) {
             let ARChartAccount = AccountMapping.findOne({name: 'A/R SO'});
             let saleIncomeChartAccount = AccountMapping.findOne({name: 'Sale Income SO'});
             let oweInventoryChartAccount = AccountMapping.findOne({name: 'Owe Inventory Customer SO'});
-            let COGSChartAccount = AccountMapping.findOne({name: 'COGS'});
+            let COGSChartAccount = AccountMapping.findOne({name: 'COGS SO'});
             let transportRevChartAccount = AccountMapping.findOne({name: 'Transport Revenue'});
             let transportExpChartAccount = AccountMapping.findOne({name: 'Transport Expense'});
             let APChartAccount = AccountMapping.findOne({name: 'Transport Payable'});

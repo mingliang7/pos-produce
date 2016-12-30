@@ -189,6 +189,12 @@ Meteor.startup(function () {
                 "name": "Sale Income SO",
                 isUsed: true,
                 //"account": "120003 | Inventory"
+            },
+            {
+                "_id": "032",
+                "name": "COGS SO",
+                isUsed: true,
+                //"account": "120003 | Inventory"
             }
 
         ];
