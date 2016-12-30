@@ -11,7 +11,7 @@ Meteor.methods({
         data.refFrom = doc.type;
         data.total = doc.total;
         data.transaction = doc.transaction;
-        data.name = doc.name;
+        data.cusAndVenname = doc.name;
 
         Meteor.call('api_journalInsert', data, function (err, res) {
             if (res) {
@@ -33,7 +33,7 @@ Meteor.methods({
         data.refFrom = doc.type;
         data.total = doc.total;
         data.transaction = doc.transaction;
-        data.name = doc.name;
+        data.cusAndVenname = doc.name;
         Meteor.call('api_journalUpdate', data, function (err, res) {
             if (res) {
                 isTrue = res;
