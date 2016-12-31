@@ -17,12 +17,20 @@ import {invoiceState} from '../../common/globalState/invoice';
 //import methods
 import {updateItemInSaleOrder} from '../../common/methods/sale-order';
 Invoices.before.insert(function (userId, doc) {
+    let totalDiscount = 0;
     doc.printId = doc._id;
     doc.totalTransportFee = 0;
     doc.items.forEach(function (item) {
         item.transportFeeAmount = item.qty * item.transportFee;
         doc.totalTransportFee += item.transportFeeAmount;
+        if (item.discount) {
+            totalDiscount += item.discount * item.qty;
+        }
     });
+    if (doc.discount) {
+        totalDiscount += doc.discount;
+    }
+    doc.totalDiscount = totalDiscount;
     if (doc.total == 0) {
         doc.status = 'closed';
         doc.invoiceType = 'saleOrder'
@@ -40,11 +48,19 @@ Invoices.before.insert(function (userId, doc) {
     invoiceState.set(tmpInvoiceId, {customerId: doc.customerId, invoiceId: doc._id, total: doc.total});
 });
 Invoices.before.update(function (userId, doc, fieldNames, modifier, options) {
+    let totalDiscount = 0;
     modifier.$set.totalTransportFee = 0;
     modifier.$set.items.forEach(function (item) {
         item.transportFeeAmount = item.qty * item.transportFee;
         modifier.$set.totalTransportFee += item.transportFeeAmount;
+        if (item.discount) {
+            totalDiscount += item.discount * item.qty;
+        }
     });
+    if (modifier.$set.discount) {
+        totalDiscount += modifier.$set.discount
+    }
+    modifier.$set.totalDiscount = totalDiscount;
 });
 
 Invoices.after.insert(function (userId, doc) {
@@ -152,15 +168,14 @@ Invoices.after.insert(function (userId, doc) {
                 let transportRevChartAccount = AccountMapping.findOne({name: 'Transport Revenue'});
                 let transportExpChartAccount = AccountMapping.findOne({name: 'Transport Expense'});
                 let APChartAccount = AccountMapping.findOne({name: 'Transport Payable'});
-
-
+                let saleDiscountChartAccount = AccountMapping.findOne({name: 'Sale Discount'});
 
                 transaction.push(
                     {
                         account: ARChartAccount.account,
-                        dr: doc.total,
+                        dr: doc.total-doc.totalDiscount,
                         cr: 0,
-                        drcr: doc.total
+                        drcr: doc.total-doc.totalDiscount
                     },
                     {
                         account: saleIncomeChartAccount.account,
@@ -199,6 +214,14 @@ Invoices.after.insert(function (userId, doc) {
                         dr: 0,
                         cr: doc.totalTransportFee,
                         drcr: -doc.totalTransportFee,
+                    }
+                    ,
+
+                    {
+                        account: saleDiscountChartAccount.account,
+                        dr: doc.totalDiscount,
+                        cr: 0,
+                        drcr: doc.totalDiscount,
                     }
                 );
 
@@ -266,15 +289,15 @@ Invoices.after.insert(function (userId, doc) {
                 let transportRevChartAccount = AccountMapping.findOne({name: 'Transport Revenue'});
                 let transportExpChartAccount = AccountMapping.findOne({name: 'Transport Expense'});
                 let APChartAccount = AccountMapping.findOne({name: 'Transport Payable'});
-
+                let saleDiscountChartAccount = AccountMapping.findOne({name: 'Sale Discount'});
 
 
                 transaction.push(
                     {
                         account: ARChartAccount.account,
-                        dr: doc.total,
+                        dr: doc.total-doc.totalDiscount,
                         cr: 0,
-                        drcr: doc.total
+                        drcr: doc.total-doc.totalDiscount
                     },
                     {
                         account: saleIncomeChartAccount.account,
@@ -313,6 +336,13 @@ Invoices.after.insert(function (userId, doc) {
                         dr: 0,
                         cr: doc.totalTransportFee,
                         drcr: -doc.totalTransportFee,
+                    },
+
+                    {
+                        account: saleDiscountChartAccount.account,
+                        dr: doc.totalDiscount,
+                        cr: 0,
+                        drcr: doc.totalDiscount,
                     }
                 );
 
@@ -394,7 +424,6 @@ Invoices.after.update(function (userId, doc) {
             if (setting && setting.integrate) {
                 let oweInventoryCustomerChartAccount = AccountMapping.findOne({name: 'Owe Inventory Customer SO'});
                 let inventoryChartAccount = AccountMapping.findOne({name: 'Inventory SO'});
-
 
 
                 transaction.push({
@@ -479,14 +508,15 @@ Invoices.after.update(function (userId, doc) {
                 let transportRevChartAccount = AccountMapping.findOne({name: 'Transport Revenue'});
                 let transportExpChartAccount = AccountMapping.findOne({name: 'Transport Expense'});
                 let APChartAccount = AccountMapping.findOne({name: 'Transport Payable'});
+                let saleDiscountChartAccount = AccountMapping.findOne({name: 'Sale Discount'});
 
 
                 transaction.push(
                     {
                         account: ARChartAccount.account,
-                        dr: doc.total,
+                        dr: doc.total-doc.totalDiscount,
                         cr: 0,
-                        drcr: doc.total
+                        drcr: doc.total-doc.totalDiscount
                     },
                     {
                         account: saleIncomeChartAccount.account,
@@ -523,6 +553,13 @@ Invoices.after.update(function (userId, doc) {
                         dr: 0,
                         cr: doc.totalTransportFee,
                         drcr: -doc.totalTransportFee,
+                    },
+
+                    {
+                        account: saleDiscountChartAccount.account,
+                        dr: doc.totalDiscount,
+                        cr: 0,
+                        drcr: doc.totalDiscount,
                     }
                 );
 
@@ -604,14 +641,15 @@ Invoices.after.update(function (userId, doc) {
                 let transportRevChartAccount = AccountMapping.findOne({name: 'Transport Revenue'});
                 let transportExpChartAccount = AccountMapping.findOne({name: 'Transport Expense'});
                 let APChartAccount = AccountMapping.findOne({name: 'Transport Payable'});
+                let saleDiscountChartAccount = AccountMapping.findOne({name: 'Sale Discount'});
 
 
                 transaction.push(
                     {
                         account: ARChartAccount.account,
-                        dr: doc.total,
+                        dr: doc.total-doc.totalDiscount,
                         cr: 0,
-                        drcr: doc.total
+                        drcr: doc.total-doc.totalDiscount
                     },
                     {
                         account: saleIncomeChartAccount.account,
@@ -648,6 +686,13 @@ Invoices.after.update(function (userId, doc) {
                         dr: 0,
                         cr: doc.totalTransportFee,
                         drcr: -doc.totalTransportFee,
+                    },
+
+                    {
+                        account: saleDiscountChartAccount.account,
+                        dr: doc.totalDiscount,
+                        cr: 0,
+                        drcr: doc.totalDiscount,
                     }
                 );
 

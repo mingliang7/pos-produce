@@ -299,6 +299,11 @@ Invoices.schema = new SimpleSchema({
             type: 'textarea',
             row: 2
         }
+    },
+    totalDiscount:{
+        type: Number,
+        decimal: true,
+        optional: true,
     }
 });
 
