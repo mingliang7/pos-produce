@@ -12,6 +12,7 @@ import {Exchange} from '../../../../core/imports/api/collections/exchange';
 // lib func
 import {correctFieldLabel} from '../../../imports/api/libs/correctFieldLabel';
 import {exchangeCoefficient} from '../../../imports/api/libs/exchangeCoefficient';
+import ReportFn from "../../../imports/api/libs/report";
 export const termCustomerBalanceReport = new ValidatedMethod({
     name: 'cement.termCustomerBalanceReport',
     mixins: [CallPromiseMixin],
@@ -28,7 +29,14 @@ export const termCustomerBalanceReport = new ValidatedMethod({
                 content: [{index: 'No Result'}],
                 footer: {}
             };
-            let branch = [];
+            let branchId = [];
+            if(params.branchId) {
+                branchId = params.branchId.split(',');
+                selector.branchId = {
+                    $in: branchId
+                };
+                selector = ReportFn.checkIfUserHasRights({currentUser: Meteor.userId(), selector});
+            }
             let date = moment(params.date).add(1, 'days').toDate();
             let user = Meteor.users.findOne(Meteor.userId());
             let exchange = Exchange.findOne({}, {sort: {_id: -1}});
@@ -69,10 +77,11 @@ export const termCustomerBalanceReport = new ValidatedMethod({
                     'invoice': '$invoice',
                     '_id': '$_id',
                     'invoiceDate': '$invoiceDate',
+                    'dueDate': '$dueDate',
                     'total': '$total'
                 };
-                data.fields = [{field: 'Type'}, {field: 'ID'}, {field: 'Invoice Date'}, {field: 'Last Payment'}, {field: 'DueAmount'}, {field: 'PaidAmount'}, {field: 'Balance'}];
-                data.displayFields = [{field: 'invoice'}, {field: '_id'}, {field: 'invoiceDate'}, {field: 'lastPaymentDate'}, {field: 'dueAmount'}, {field: 'paidAmount'}, {field: 'balance'}];
+                data.fields = [{field: 'Type'}, {field: 'ID'}, {field: 'Invoice Date'}, {field: 'Aging'},{field: 'Last Payment'}, {field: 'DueAmount'}, {field: 'PaidAmount'}, {field: 'Balance'}];
+                data.displayFields = [{field: 'invoice'}, {field: '_id'}, {field: 'invoiceDate'},{field: 'dueDate'}, {field: 'lastPaymentDate'}, {field: 'dueAmount'}, {field: 'paidAmount'}, {field: 'balance'}];
             }
             // project['$invoice'] = 'Invoice';
             /****** Title *****/
@@ -96,6 +105,7 @@ export const termCustomerBalanceReport = new ValidatedMethod({
                     $group: {
                         _id: '$_id',
                         status: {$last: '$status'},
+                        dueDate: {$last: '$dueDate'},
                         invoiceDoc: {$last: '$$ROOT'},
                         lastPaymentDate: {$last: '$paymentDoc.paymentDate'},
                         dueAmount: {
@@ -127,6 +137,7 @@ export const termCustomerBalanceReport = new ValidatedMethod({
                             $ifNull: ["$paymentDoc.balanceAmount", "$total"]
                         },
                         invoiceDate: 1,
+                        dueDate: 1,
                         lastPaymentDate: {
                             $ifNull: ["$paymentDoc.paymentDate", "None"]
                         },
@@ -145,7 +156,7 @@ export const termCustomerBalanceReport = new ValidatedMethod({
                         data: {
                             $addToSet: '$$ROOT'
                         },
-                        lastPaymentDate: {$last: '$lastPaymentDate'},
+                        dueDate: {$last: '$dueDate'},
                         invoiceDate: {$last: '$invoiceDate'},
                         lastPaymentDate: {$last: '$lastPaymentDate'},
                         dueAmountSubTotal: {$sum: '$dueAmount'},

@@ -155,7 +155,10 @@ AutoForm.hooks({
             this.event.preventDefault();
             FlowRouter.query.unset();
             let params = {};
-            console.log(doc);
+            params.branchId = Session.get('currentBranch');
+            if(doc.branchId) {
+                params.branchId = doc.branchId.join(',');
+            }
             if (doc.fromDate && doc.toDate) {
                 let fromDate = moment(doc.fromDate).startOf('days').format('YYYY-MM-DD HH:mm:ss');
                 let toDate = moment(doc.toDate).endOf('days').format('YYYY-MM-DD HH:mm:ss');

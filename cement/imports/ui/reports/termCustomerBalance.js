@@ -65,15 +65,26 @@ invoiceDataTmpl.helpers({
         let data = '';
         this.displayFields.forEach(function (obj) {
             if (obj.field == 'invoiceDate' || obj.field == 'lastPaymentDate') {
-                if(col[obj.field] == 'None'){
+                if (col[obj.field] == 'None') {
                     data += `<td>${col[obj.field]}</td>`
-                }else{
-                    data += `<td>${moment(col[obj.field]).format('YYYY-MM-DD HH:mm:ss')}</td>`
+                } else {
+                    data += `<td>${moment(col[obj.field]).format('YYYY-MM-DD')}</td>`
                 }
             } else if (obj.field == 'customerId') {
                 data += `<td>${col._customer.name}</td>`
             } else if (obj.field == 'dueAmount' || obj.field == 'paidAmount' || obj.field == 'balance') {
                 data += `<td>${numeral(col[obj.field]).format('0,0.00')}</td>`
+            }
+            else if (obj.field == 'dueDate') {
+                let currentDate = moment(FlowRouter.query.get('date') || "");
+                let dueDate = moment(col[obj.field]);
+                let diffDay = currentDate.diff(dueDate, 'days');
+                console.log(console.log(diffDay));
+                if (currentDate.isAfter(dueDate) && diffDay != 0) {
+                    data += `<td>${diffDay}</td>`
+                } else {
+                    data += `<td></td>`
+                }
             }
             else {
                 data += `<td>${col[obj.field]}</td>`;
@@ -112,6 +123,7 @@ AutoForm.hooks({
             this.event.preventDefault();
             FlowRouter.query.unset();
             let params = {};
+            params.branchId = Session.get('currentBranch');
             if (doc.date) {
                 let formatDate = moment(doc.date).format('YYYY-MM-DD');
                 params.date = `${formatDate}`;
@@ -121,6 +133,9 @@ AutoForm.hooks({
             }
             if (doc.filter) {
                 params.filter = doc.filter.join(',');
+            }
+            if(doc.branchId) {
+                params.branchId = doc.branchId.join(',');
             }
             FlowRouter.query.set(params);
             paramsState.set(FlowRouter.query.params());

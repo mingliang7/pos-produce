@@ -12,6 +12,7 @@ import {Exchange} from '../../../../core/imports/api/collections/exchange';
 // lib func
 import {correctFieldLabel} from '../../../imports/api/libs/correctFieldLabel';
 import {exchangeCoefficient} from '../../../imports/api/libs/exchangeCoefficient';
+import ReportFn from "../../../imports/api/libs/report";
 export const invoiceByCustomerReport = new ValidatedMethod({
     name: 'pos.invoiceByCustomerReport',
     mixins: [CallPromiseMixin],
@@ -28,7 +29,14 @@ export const invoiceByCustomerReport = new ValidatedMethod({
                 content: [{index: 'No Result'}],
                 footer: {}
             };
-            let branch = [];
+            let branchId = [];
+            if(params.branchId) {
+                branchId = params.branchId.split(',');
+                selector.branchId = {
+                    $in: branchId
+                };
+                selector = ReportFn.checkIfUserHasRights({currentUser: Meteor.userId(), selector});
+            }
             let user = Meteor.users.findOne(Meteor.userId());
             let exchange = Exchange.findOne({}, {sort: {_id: -1}});
             let coefficient = exchangeCoefficient({exchange, fieldToCalculate: '$total'})
