@@ -12,6 +12,7 @@ import {AccountMapping} from '../../imports/api/collections/accountMapping.js'
 import {Customers} from '../../imports/api/collections/customer.js'
 import {SaleOrderReceivePayment} from '../../imports/api/collections/saleOrderReceivePayment';
 Order.before.insert(function (userId, doc) {
+    let totalDiscount = 0;
     doc.printId = doc._id;
     doc.totalTransportFee = 0;
     doc.sumRemainQty = 0;
@@ -19,21 +20,34 @@ Order.before.insert(function (userId, doc) {
         item.transportFeeAmount = item.qty * item.transportFee;
         doc.totalTransportFee += item.transportFeeAmount;
         doc.sumRemainQty += item.qty;
+        if (item.discount) {
+            totalDiscount += item.discount * item.qty;
+        }
     });
-    console.log(doc);
+    if (doc.discount) {
+        totalDiscount += doc.discount;
+    }
+    doc.totalDiscount = totalDiscount;
     let prefix = doc.customerId;
     doc._id = idGenerator.genWithPrefix(Order, prefix, 6);
 });
 
 Order.before.update(function (userId, doc, fieldNames, modifier, options) {
+    let totalDiscount = 0;
     modifier.$set.totalTransportFee = 0;
     modifier.$set.sumRemainQty = 0;
     modifier.$set.items.forEach(function (item) {
         item.transportFeeAmount = item.qty * item.transportFee;
         modifier.$set.totalTransportFee += item.transportFeeAmount;
         modifier.$set.sumRemainQty += item.qty;
+        if (item.discount) {
+            totalDiscount += item.discount * item.qty;
+        }
     });
-    console.log(modifier.$set);
+    if (modifier.$set.discount) {
+        totalDiscount += modifier.$set.discount;
+    }
+    modifier.$set.totalDiscount = totalDiscount;
 });
 
 Order.after.insert(function (userId, doc) {
@@ -45,7 +59,7 @@ Order.after.insert(function (userId, doc) {
             let purchaseObj = {
                 //repId: vendor.repId,
                 vendorId: doc.vendorId,
-                customerId:doc.customerId,
+                customerId: doc.customerId,
                 purchaseOrderDate: moment().toDate(),
                 des: 'From Sale Order: "' + doc._id + '"',
                 branchId: doc.branchId,
@@ -53,7 +67,7 @@ Order.after.insert(function (userId, doc) {
                 items: [],
                 saleOrderId: doc._id,
                 sumRemainQty: 0,
-                status:'active'
+                status: 'active'
             };
             doc.items.forEach(function (item) {
                 purchaseObj.sumRemainQty += item.qty;
@@ -81,6 +95,7 @@ Order.after.insert(function (userId, doc) {
             let COGSChartAccount = AccountMapping.findOne({name: 'COGS SO'});
             let transportExpChartAccount = AccountMapping.findOne({name: 'Transport Expense'});
             let APChartAccount = AccountMapping.findOne({name: 'Transport Payable'});
+            let saleDiscountChartAccount = AccountMapping.findOne({name: 'SO Discount'});
 
             let customerDoc = Customers.findOne({_id: doc.customerId});
             if (customerDoc) {
@@ -90,9 +105,9 @@ Order.after.insert(function (userId, doc) {
             transaction.push(
                 {
                     account: ARChartAccount.account,
-                    dr: data.total,
+                    dr: data.total-data.totalDiscount,
                     cr: 0,
-                    drcr: data.total
+                    drcr: data.total-data.totalDiscount
                 },
                 {
                     account: saleIncomeChartAccount.account,
@@ -129,6 +144,12 @@ Order.after.insert(function (userId, doc) {
                     dr: 0,
                     cr: data.totalTransportFee,
                     drcr: -data.totalTransportFee,
+                },
+                {
+                    account: saleDiscountChartAccount.account,
+                    dr: data.totalDiscount,
+                    cr: 0,
+                    drcr: data.totalDiscount,
                 }
             );
             data.transaction = transaction;
@@ -147,7 +168,7 @@ Order.after.update(function (userId, doc) {
                 let purchaseObj = {
                     //repId: vendor.repId,
                     vendorId: doc.vendorId,
-                    customerId:doc.customerId,
+                    customerId: doc.customerId,
                     purchaseOrderDate: moment().toDate(),
                     des: 'From Sale Order: "' + doc._id + '"',
                     branchId: doc.branchId,
@@ -155,7 +176,7 @@ Order.after.update(function (userId, doc) {
                     items: [],
                     saleOrderId: doc._id,
                     sumRemainQty: 0,
-                    status:'active'
+                    status: 'active'
                 };
                 doc.items.forEach(function (item) {
                     purchaseObj.sumRemainQty += item.qty;
@@ -207,6 +228,7 @@ Order.after.update(function (userId, doc) {
             let transportRevChartAccount = AccountMapping.findOne({name: 'Transport Revenue'});
             let transportExpChartAccount = AccountMapping.findOne({name: 'Transport Expense'});
             let APChartAccount = AccountMapping.findOne({name: 'Transport Payable'});
+            let saleDiscountChartAccount = AccountMapping.findOne({name: 'SO Discount'});
 
             let customerDoc = Customers.findOne({_id: doc.customerId});
             if (customerDoc) {
@@ -217,9 +239,9 @@ Order.after.update(function (userId, doc) {
             transaction.push(
                 {
                     account: ARChartAccount.account,
-                    dr: data.total,
+                    dr: data.total-data.totalDiscount,
                     cr: 0,
-                    drcr: data.total
+                    drcr: data.total-data.totalDiscount
                 },
                 {
                     account: saleIncomeChartAccount.account,
@@ -258,6 +280,12 @@ Order.after.update(function (userId, doc) {
                     dr: 0,
                     cr: data.totalTransportFee,
                     drcr: -data.totalTransportFee,
+                },
+                {
+                    account: saleDiscountChartAccount.account,
+                    dr: data.totalDiscount,
+                    cr: 0,
+                    drcr: data.totalDiscount,
                 }
             );
             data.transaction = transaction;
@@ -266,8 +294,7 @@ Order.after.update(function (userId, doc) {
         }
         //End Account Integration
     });
-})
-;
+});
 
 Order.after.remove(function (userId, doc) {
     Meteor.defer(function () {
