@@ -145,7 +145,8 @@ SelectOptMethods.customer = new ValidatedMethod({
             let data = Customers.find(selector, {limit: 10});
             data.forEach(function (value) {
                 let termOrGroup = value._term ? ` (Term ${value._term.name})` : ` (Group ${value._paymentGroup.name})`;
-                let label = value._id + ' : ' + value.name + termOrGroup;
+                // let label = value._id + ' : ' + value.name + termOrGroup;
+                let label = value.name
                 list.push({label: label, value: value._id});
             });
             return list;
@@ -250,7 +251,7 @@ SelectOptMethods.item = new ValidatedMethod({
             }
             let data = Item.find(selector, {limit: 10});
             data.forEach(function (value) {
-                let label = value._id + ' : ' + value.name;
+                let label = value.name;
                 list.push({label: label, value: value._id});
             });
 
