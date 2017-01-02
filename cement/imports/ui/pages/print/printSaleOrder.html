@@ -60,8 +60,11 @@
                                 <tr>
                                     <td align="center">{{no @index}}</td>
                                     <td align="left">{{item.itemName}}
+                                    {{#if existUnitConvert item.unitConvertDoc}}
                                         &nbsp;&nbsp;{{item.originalQty}}{{{item.itemDoc.name}}}{{item.unitConvertDoc.convertAmount}}
-                                        ={{item.qty}}</td>
+                                        =&nbsp;{{item.qty}}
+                                    {{/if}}
+                                    </td>
                                     <td align="right">{{numFormat item.qty '0,0.00'}}{{item.itemDoc._unit.name}}</td>
                                     <td align="right">{{numFormat item.remainQty
                                                                   '0,0.00'}}{{item.itemDoc._unit.name}}</td>

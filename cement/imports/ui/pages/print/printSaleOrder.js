@@ -45,6 +45,9 @@ indexTmpl.helpers({
     },
     no(index){
         return index + 1;
+    },
+    existUnitConvert(unitConvertDoc){
+        return !!unitConvertDoc;
     }
 });
 indexTmpl.events({

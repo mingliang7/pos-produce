@@ -69,12 +69,18 @@
                             {{#each item in sale.saleDetails}}
                                 <tr>
                                     <td align="center">{{no @index}}</td>
-                                    <td align="left">{{item.itemName}}
-                                        &nbsp;&nbsp;{{item.originalQty}}{{{item.itemDoc.name}}}{{item.unitConvertDoc.convertAmount}}
-                                        ={{item.qty}}</td>
+                                    <td align="left">
+                                        {{item.itemName}}
+                                        {{#if existUnitConvert item.unitConvertDoc}}
+                                            &nbsp;&nbsp;{{item.originalQty}}{{{item.itemDoc.name}}}
+                                            {{item.unitConvertDoc.convertAmount}}
+                                            =&nbsp;{{item.qty}}
+                                        {{/if}}
+                                    </td>
                                     <td align="right">{{numFormat item.qty '0,0.00'}}{{item.itemDoc._unit.name}}</td>
                                     {{#if invoiceTypeSaleOrder sale.invoiceType}}
-                                        <td align="right">{{lookupRemainQty sale item.itemId item.itemDoc._unit.name}}</td>
+                                        <td align="right">{{lookupRemainQty sale item.itemId
+                                                                            item.itemDoc._unit.name}}</td>
                                     {{/if}}
                                     <td align="right">{{numFormat item.price '0,0.00'}}</td>
                                     <td align="right">{{numFormat item.discount '0,0.00'}}</td>
