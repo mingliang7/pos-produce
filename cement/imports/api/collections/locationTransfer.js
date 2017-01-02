@@ -39,7 +39,7 @@ export const LocationTransfersItemSchema = new SimpleSchema({
         type: Number,
         label: 'Qty',
         optional: true,
-        min: 1,
+        decimal: true,min: 0,
         autoform: {
             type: 'inputmask',
             inputmaskOptions: function () {
@@ -136,7 +136,7 @@ LocationTransfers.itemsSchema = new SimpleSchema({
     },
     qty: {
         type: Number,
-        min: 1
+        decimal: true,min: 0
     },
     price: {
         type: Number,

@@ -342,7 +342,7 @@ let hooksObject = {
         }
         // Remove items collection
         itemsCollection.remove({});
-        FlowRouter.query.unset();
+        FlowRouter.query.unset('p');
         // }
         displaySuccess();
     },

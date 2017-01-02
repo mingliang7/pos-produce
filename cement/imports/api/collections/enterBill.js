@@ -15,7 +15,8 @@ EnterBills.itemsSchema = new SimpleSchema({
     },
     qty: {
         type: Number,
-        min: 1
+        decimal: true,
+        min: 0
     },
     price: {
         type: Number,

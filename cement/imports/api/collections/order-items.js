@@ -47,7 +47,7 @@ export const ItemsSchema = new SimpleSchema({
         type: Number,
         label: 'Qty',
         optional: true,
-        min: 1,
+        decimal: true,min: 0,
         autoform: {
             type: 'inputmask',
             inputmaskOptions: function () {
@@ -143,7 +143,7 @@ export const RingPullItemsSchema = new SimpleSchema({
         type: Number,
         label: 'Qty',
         optional: true,
-        min: 1,
+        decimal: true,min: 0,
         autoform: {
             type: 'inputmask',
             inputmaskOptions: function () {
@@ -256,7 +256,7 @@ export const EnterBillItemsSchema = new SimpleSchema({
         type: Number,
         label: 'Qty',
         optional: true,
-        min: 1,
+        decimal: true,min: 0,
         autoform: {
             type: 'inputmask',
             inputmaskOptions: function () {
