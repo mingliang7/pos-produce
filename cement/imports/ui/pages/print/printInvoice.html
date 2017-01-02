@@ -4,10 +4,16 @@
         {{#with data}}
             <div align="center" class="container"
                  style="font-family: 'Khmer OS Battambang'; font-size: 12px; width:595px; margin: 0 auto;">
-                <span><button class="hidden-print btn btn-small btn-primary printInvoice"><i class="fa fa-print"></i> Print</button></span>
-                <span><a href="/cement/invoice" class="hidden-print btn btn-small btn-default">Back</a></span>
+                <!--btn-small btn-primary-->
+                <div class="row">
+                    <div class="pull-right">
+                    <span><button class="hidden-print btn printInvoice bg-orange btn-flat margin"><i
+                            class="fa fa-print"></i> បោះពុម្ព</button></span>
+                        <span><a href="/cement/invoice"
+                                 class="hidden-print btn btn-info btn-flat margin">ត្រលប់ក្រោយ</a></span>
+                    </div>
+                </div>
                 <div class="invoice-title">
-
                     <br>
                     <span style="font-weight: bold;font-size: 16px;​font-family:'Khmer OS Muol Light'">
                             វិក្កយបត្រ</span><br>
@@ -15,59 +21,61 @@
                             Invoice
                             </span>
                     <div class="col-md-12">
+                        <div style="top: 0px; margin:10px 0px 10px 0px; padding: 0px 0px 0px 0px; border-width: 1px; border-bottom-width:1px;
+   border-bottom-color:black;
+   border-bottom-style: dashed;
+   width: 100%;"></div>
                         <table width="100%">
-
-                            <!--
-
-                    <tr>
-                        <td>#{{sale._id}}</td>
-                        <td align="right">Staff: {{sale._staff.username}}</td>
-                    </tr>
-                    <tr>
-                        <td>Date:{{numFormat sale.saleDate 'DD/MM/YYYY HH:mm:ss'}}</td>
-                        <td align="right">Customer:{{sale._customer.name}}</td>
-                    </tr>
--->
-
-
                             <tr>
-                                <td>លក់ជូន/Sold to: {{sale._customer.name }}</td>
-                                <td>No: {{sale._id}}</td>
+                                <td><b>លក់ជូន/Sold to</b></td>
+                                <td>: {{sale._customer.name }}</td>
+                                <td><b>No</b></td>
+                                <td>: {{sale._id}}</td>
                             </tr>
                             <tr>
-                                <td>តំណាងលក់/Seller: {{sale._rep.name}}</td>
-                                <td>កាលបរិច្ឆេទ/Date: {{moFormat sale.saleDate 'DD/MM/YYYY HH:mm:ss'}}</td>
+                                <td><b>តំណាងលក់/Seller</b></td>
+                                <td>: {{sale._rep.name}}</td>
+                                <td><b>កាលបរិច្ឆេទ/Date</b></td>
+                                <td>: {{moFormat sale.saleDate 'DD/MM/YYYY HH:mm:ss'}}</td>
                             </tr>
                             <tr>
-                                <td>ទូរស័ព្ទ/Tel: {{sale._customer.telephone}}</td>
-                                <td>ប្រភេទវិក្កយបត្រ: {{sale.typeOfInvoice}}</td>
+                                <td><b>ទូរស័ព្ទ/Tel</b></td>
+                                <td>: {{sale._customer.telephone}}</td>
+                                <td><b>ប្រភេទវិក្កយបត្រ:</b></td>
+                                <td>: {{sale.typeOfInvoice}}</td>
                             </tr>
                             <tr>
-                                <td>លេខឡាន/Truck Num: {{sale.truckDoc.number}}</td>
-                                <td>ថ្ងៃផុតកំណត់/Due Date: {{moFormat sale.dueDate 'DD/MM/YYYY HH:mm:ss'}}</td>
+                                <td><b>លេខឡាន/Truck Num</b></td>
+                                <td>: {{sale.truckDoc.number}}</td>
+                                <td><b>ថ្ងៃផុតកំណត់/Due Date</b></td>
+                                <td>: {{moFormat sale.dueDate 'DD/MM/YYYY HH:mm:ss'}}</td>
                             </tr>
                             <tr>
-                                <td colspan="2">អាស័យដ្ឋាន/Address: {{sale._customer.address}}</td>
+                                <td><b>អាស័យដ្ឋាន/Address</b></td>
+                                <td colspan="3">: {{sale._customer.address}}</td>
                             </tr>
                             <tr>
-                                <td colspan="2">ទៅអាស័យដ្ឋាន/To Address: {{{sale.shipTo}}}</td>
+                                <td><b>ទៅអាស័យដ្ឋាន/To Address</b></td>
+                                <td colspan="3">: {{{sale.shipTo}}}</td>
                             </tr>
                         </table>
+                        <div style="height: 7px;"></div>
                         <table border="1" width="100%"
                                style="font-size: 12px; border-collapse:collapse; font-family: 'Khmer OS Battambang';">
-                            <tr style="-webkit-print-color-adjust: exact; background-color: lightgrey !important; text-align: center; height: 25px;">
-                                <td align="center"> ល.រ​</td>
-                                <td align="left"> រាយមុខទំនិញ</td>
-                                <td align="right"> បរិមាណ</td>
+                            <tr align="center"
+                                style="-webkit-print-color-adjust: exact; background-color: lightgrey !important; height: 30px; font-weight: bold;">
+                                <td> ល.រ​</td>
+                                <td> រាយមុខទំនិញ</td>
+                                <td> បរិមាណ</td>
                                 {{#if invoiceTypeSaleOrder sale.invoiceType}}
-                                    <td align="right"> បរិមាណនៅសល់</td>
+                                    <td> បរិមាណនៅសល់</td>
                                 {{/if}}
-                                <td align="right"> តម្លៃរាយ</td>
-                                <td align="right"> បញ្ចុះតម្លៃ</td>
-                                <td align="right"> សរុប</td>
+                                <td> តម្លៃរាយ</td>
+                                <td> បញ្ចុះតម្លៃ</td>
+                                <td> សរុប</td>
                             </tr>
                             {{#each item in sale.saleDetails}}
-                                <tr>
+                                <tr style="height: 25px;">
                                     <td align="center">{{no @index}}</td>
                                     <td align="left">
                                         {{item.itemName}}
@@ -88,46 +96,87 @@
                                 </tr>
                             {{/each}}
 
-                            <tr style="text-align: right;">
+                            <tr align="right" style="height: 25px;">
                                 <td colspan="5">Sub Total:</td>
                                 <td colspan="2">{{numFormat sale.subTotal '0,0.00'}} </td>
                             </tr>
-                            <tr style="text-align: right;">
+                            <tr align="right" style=" height: 25px;">
                                 <td colspan="5" align="right">Dis:</td>
                                 <td colspan="2" align="right">{{numFormat sale.discount '0,0.00'}}</td>
 
                             </tr>
-                            <tr style="text-align: right;">
-                                <td colspan="5">Total:</td>
+                            <tr align="right" style="height: 25px;">
+                                <td colspan="5"><b>Total</b>:</td>
                                 <td colspan="2">{{numFormat sale.total '0,0.00'}}</td>
                             </tr>
                             {{#each sale._exchangeRate.rates}}
-                                <tr style="text-align: right;">
-                                    <td colspan="5" align="right">{{toCurrencyId}}:</td>
-                                    <td colspan="2" align="right">{{totalFormatted}}{{symbol}}</td>
+                                <tr align="right" style="height: 25px;">
+                                    <td colspan="5">{{toCurrencyId}}:</td>
+                                    <td colspan="2">{{totalFormatted}}{{symbol}}</td>
                                 </tr>
                             {{/each}}
                             {{#unless invoiceTypeSaleOrder sale.invoiceType}}
                                 {{#if hasPayment sale.paymentObj}}
                                     {{#with sale.paymentObj}}
-                                        <tr>
-                                            <td>Paid $:</td>
-                                            <td colspan="2" style="font-weight: bold">{{numFormat paidAmount
-                                                                                                  '0,0.00'}}</td>
-                                            <td colspan="2" style="text-align: right">Balance $:</td>
-                                            <td colspan="2" style="text-align: right;font-weight: bold">{{numFormat
-                                                    balanceAmount '0,0.00'}}</td>
+                                        <tr style="height: 25px;">
+                                            <td><b>Paid </b>:</td>
+                                            <td align="right" colspan="2" style="font-weight: bold">{{numFormat
+                                                    paidAmount
+                                                    '0,0.00'}}$</td>
+                                            <td colspan="2" align="left"><b>Balance</b>:</td>
+                                            <td colspan="2" align="right"><b>{{numFormat
+                                                    balanceAmount '0,0.00'}}$</b></td>
                                         </tr>
                                     {{/with}}
                                 {{/if}}
                             {{/unless}}
                         </table>
+                        <div style="height: 7px;"></div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table>
+                                    <tr>
+                                        <td>
+                                            ក្រោយពីបានទទួលទំនិញគ្រប់ចំនួន និង គ្រប់លក្ខណៈ
+                                            គឺផុតការទទួលខុសត្រូវរបស់អ្នកលក់។
+                                        </td>
+                                        <td width="50%">
+                                        </td>
+                                    </tr>
+                                </table>
+                                <div style="height: 7px;"></div>
+                                <table width="100%">
+                                    <tr align="center">
+                                        <td width="50%">
+                                            <b>តំណាងទិញ</b><br>
+                                            <b>Buyer</b>
+                                        </td>
+                                        <td width="50%">
+                                            <b>តំណាងលក់</b><br>
+                                            <b>Seller</b>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        <div style="height: 40px;"></div>
+                        <div style="top: 0px; margin:10px 0px 10px 0px; padding: 0px 0px 0px 0px; border-width: 1px; border-bottom-width:1px;
+   border-bottom-color:black;
+   border-bottom-style: dashed;
+   width: 100%;"></div>
+                        <div class="row">
+                            <div class="col-md-12"
+                                 style="text-align: center; font-family: 'Khmer OS Battambang'; font-size: 10px;">
+                                <span>អរគុណ សូមអញ្ចើញមកម្តងទៀត!</span>
+                                <br>
+                                <div style="margin-bottom: 1px;">
+                                    <p style="text-align: center;">Powered by Rabbit Technology</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    ក្រោយពីបានទទួលទំនិញគ្រប់ចំនួន និង គ្រប់លក្ខណៈ
-                    គឺផុតការទទួលខុសត្រូវរបស់អ្នកលក់។
-                </div>
+
             </div>
 
         {{/with}}
