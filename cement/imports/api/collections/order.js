@@ -214,6 +214,11 @@ Order.schema = new SimpleSchema({
     printId: {
         type: String,
         optional: true
+    },
+    totalDiscount:{
+        type: Number,
+        decimal: true,
+        optional: true,
     }
 });
 
