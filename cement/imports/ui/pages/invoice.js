@@ -833,7 +833,7 @@ let hooksObject = {
     },
     onError(formType, error) {
         displayError(error.message);
-        FlowRouter.query.unset('p');
+        // FlowRouter.query.unset('p');
     }
 };
 
