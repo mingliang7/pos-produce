@@ -60,7 +60,7 @@ Order.after.insert(function (userId, doc) {
                 //repId: vendor.repId,
                 vendorId: doc.vendorId,
                 customerId: doc.customerId,
-                purchaseOrderDate: moment().toDate(),
+                purchaseOrderDate: doc.orderDate,
                 des: 'From Sale Order: "' + doc._id + '"',
                 branchId: doc.branchId,
                 total: doc.total - doc.totalTransportFee,
@@ -100,14 +100,15 @@ Order.after.insert(function (userId, doc) {
             let customerDoc = Customers.findOne({_id: doc.customerId});
             if (customerDoc) {
                 data.name = customerDoc.name;
+                data.des = data.des == "" || data.des == null ? ('កម្ម៉ង់ទិញទំនិញពីអតិថិជនៈ ' + data.name) : data.des;
             }
 
             transaction.push(
                 {
                     account: ARChartAccount.account,
-                    dr: data.total-data.totalDiscount,
+                    dr: data.total - data.totalDiscount,
                     cr: 0,
-                    drcr: data.total-data.totalDiscount
+                    drcr: data.total - data.totalDiscount
                 },
                 {
                     account: saleIncomeChartAccount.account,
@@ -154,6 +155,7 @@ Order.after.insert(function (userId, doc) {
             );
             data.transaction = transaction;
             data.total = total;
+            data.journalDate = data.orderDate;
             Meteor.call('insertAccountJournal', data);
         }
         //End Account Integration
@@ -169,7 +171,7 @@ Order.after.update(function (userId, doc) {
                     //repId: vendor.repId,
                     vendorId: doc.vendorId,
                     customerId: doc.customerId,
-                    purchaseOrderDate: moment().toDate(),
+                    purchaseOrderDate: doc.orderDate,
                     des: 'From Sale Order: "' + doc._id + '"',
                     branchId: doc.branchId,
                     total: doc.total - doc.totalTransportFee,
@@ -193,7 +195,7 @@ Order.after.update(function (userId, doc) {
             } else {
                 let purchaseObj = {
                     vendorId: doc.vendorId,
-                    purchaseOrderDate: moment().toDate(),
+                    purchaseOrderDate: doc.orderDate,
                     des: 'From Sale Order: "' + doc._id + '"',
                     branchId: doc.branchId,
                     total: doc.total - doc.totalTransportFee,
@@ -233,15 +235,16 @@ Order.after.update(function (userId, doc) {
             let customerDoc = Customers.findOne({_id: doc.customerId});
             if (customerDoc) {
                 data.name = customerDoc.name;
+                data.des = data.des == "" || data.des == null ? ('កម្ម៉ង់ទិញទំនិញពីអតិថិជនៈ ' + data.name) : data.des;
             }
 
 
             transaction.push(
                 {
                     account: ARChartAccount.account,
-                    dr: data.total-data.totalDiscount,
+                    dr: data.total - data.totalDiscount,
                     cr: 0,
-                    drcr: data.total-data.totalDiscount
+                    drcr: data.total - data.totalDiscount
                 },
                 {
                     account: saleIncomeChartAccount.account,
@@ -290,6 +293,7 @@ Order.after.update(function (userId, doc) {
             );
             data.transaction = transaction;
             data.total = total;
+            data.journalDate = data.orderDate;
             Meteor.call('updateAccountJournal', data);
         }
         //End Account Integration

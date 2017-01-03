@@ -2,7 +2,7 @@ Meteor.methods({
     insertAccountJournal(doc){
         let id;
         let data = {};
-        data.journalDate = moment().toDate();
+        data.journalDate = doc.journalDate;
         data.branchId = doc.branchId;
         data.voucherId = doc.voucherId;
         data.currencyId = doc.currencyId == null ? 'USD' : doc.currencyId;
@@ -24,7 +24,7 @@ Meteor.methods({
 
         let isTrue = false;
         let data = {};
-        data.journalDate = moment().toDate();
+        data.journalDate = doc.journalDate;
         data.branchId = doc.branchId;
         data.voucherId = doc.voucherId;
         data.currencyId = doc.currencyId == null ? 'USD' : doc.currencyId;

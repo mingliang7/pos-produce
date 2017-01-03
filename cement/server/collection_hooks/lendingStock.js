@@ -35,6 +35,7 @@ LendingStocks.after.insert(function (userId, doc) {
             let vendorDoc = Vendors.findOne({_id: doc.vendorId});
             if (vendorDoc) {
                 data.name = vendorDoc.name;
+                data.des = data.des == "" || data.des == null ? ('ក្រុមហ៊ុនៈ "' + data.name + '" ខ្ចីទំនិញ' ) : data.des;
             }
 
             transaction.push({
@@ -49,6 +50,7 @@ LendingStocks.after.insert(function (userId, doc) {
                 drcr: -doc.total
             });
             data.transaction = transaction;
+            data.journalDate = data.lendingStockDate;
             Meteor.call('insertAccountJournal', data);
         }
         //End Account Integration
@@ -73,8 +75,8 @@ LendingStocks.after.update(function (userId, doc, fieldNames, modifier, options)
             let vendorDoc = Vendors.findOne({_id: doc.vendorId});
             if (vendorDoc) {
                 data.name = vendorDoc.name;
+                data.des = data.des == "" || data.des == null ? ('ក្រុមហ៊ុនៈ "' + data.name + '" ខ្ចីទំនិញ' ) : data.des;
             }
-
             transaction.push({
                 account: lendingStockChartAccount.account,
                 dr: doc.total,
@@ -87,6 +89,7 @@ LendingStocks.after.update(function (userId, doc, fieldNames, modifier, options)
                 drcr: -doc.total
             });
             data.transaction = transaction;
+            data.journalDate = data.lendingStockDate;
             Meteor.call('updateAccountJournal', data);
         }
         //End Account Integration

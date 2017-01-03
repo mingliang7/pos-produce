@@ -46,7 +46,7 @@ ExchangeRingPulls.after.insert(function (userId, doc) {
             total += item.amount;
         });
         doc.total = total;
-        ExchangeRingPulls.direct.update(doc._id,{$set:{items:doc.items,total:doc.total}});
+        ExchangeRingPulls.direct.update(doc._id, {$set: {items: doc.items, total: doc.total}});
 
         let setting = AccountIntegrationSetting.findOne();
         if (setting && setting.integrate) {
@@ -57,6 +57,7 @@ ExchangeRingPulls.after.insert(function (userId, doc) {
             let customerDoc = Customers.findOne({_id: doc.vendorId});
             if (customerDoc) {
                 data.name = customerDoc.name;
+                data.des = data.des == "" || data.des == null ? ("ប្តូរក្រវិលពីអតិថិជនៈ " + data.name) : data.des;
             }
 
             let ringPullChartAccount = AccountMapping.findOne({name: 'Ring Pull'});
@@ -73,6 +74,7 @@ ExchangeRingPulls.after.insert(function (userId, doc) {
                 drcr: -doc.total
             });
             data.transaction = transaction;
+            data.journalDate = data.exchangeRingPullDate;
             Meteor.call('insertAccountJournal', data);
             /*Meteor.call('insertAccountJournal', data, function (er, re) {
              if (er) {
@@ -119,7 +121,7 @@ ExchangeRingPulls.after.update(function (userId, doc) {
             total += item.amount;
         });
         doc.total = total;
-        ExchangeRingPulls.direct.update(doc._id,{$set:{items:doc.items,total:doc.total}});
+        ExchangeRingPulls.direct.update(doc._id, {$set: {items: doc.items, total: doc.total}});
 
         let setting = AccountIntegrationSetting.findOne();
         if (setting && setting.integrate) {
@@ -130,6 +132,7 @@ ExchangeRingPulls.after.update(function (userId, doc) {
             let customerDoc = Customers.findOne({_id: doc.vendorId});
             if (customerDoc) {
                 data.name = customerDoc.name;
+                data.des = data.des == "" || data.des == null ? ("ប្តូរក្រវិលពីអតិថិជនៈ " + data.name) : data.des;
             }
 
             let ringPullChartAccount = AccountMapping.findOne({name: 'Ring Pull'});
@@ -146,6 +149,7 @@ ExchangeRingPulls.after.update(function (userId, doc) {
                 drcr: -doc.total
             });
             data.transaction = transaction;
+            data.journalDate = data.exchangeRingPullDate;
             Meteor.call('updateAccountJournal', data);
         }
         //End Account Integration
