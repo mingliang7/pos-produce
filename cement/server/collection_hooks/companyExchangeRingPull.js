@@ -45,6 +45,7 @@ CompanyExchangeRingPulls.after.insert(function (userId, doc) {
         if (setting && setting.integrate) {
             let transaction = [];
             let data = doc;
+            data.des = data.des == "" || data.des == null ? "ប្តូរក្រវិលពីក្រុមហ៊ុន" : data.des;
             data.type = "CompanyExchangeRingPull";
 
             let vendorDoc = Vendors.findOne({_id: doc.vendorId});
@@ -66,6 +67,7 @@ CompanyExchangeRingPulls.after.insert(function (userId, doc) {
                 drcr: -doc.total
             });
             data.transaction = transaction;
+            data.journalDate = data.companyExchangeRingPullDate;
             Meteor.call('insertAccountJournal', data);
         }
         //End Account Integration
@@ -109,6 +111,7 @@ CompanyExchangeRingPulls.after.update(function (userId, doc) {
             let vendorDoc = Vendors.findOne({_id: doc.vendorId});
             if (vendorDoc) {
                 data.name = vendorDoc.name;
+                data.des = data.des == "" || data.des == null ? ("ប្តូរក្រវិលពីក្រុមហ៊ុនៈ " + data.name) : data.des;
             }
 
             let oweInventoryRingPullChartAccount = AccountMapping.findOne({name: 'Inventory Ring Pull Owing'});
@@ -125,6 +128,7 @@ CompanyExchangeRingPulls.after.update(function (userId, doc) {
                 drcr: -doc.total
             });
             data.transaction = transaction;
+            data.journalDate = data.companyExchangeRingPullDate;
             Meteor.call('updateAccountJournal', data);
         }
         //End Account Integration

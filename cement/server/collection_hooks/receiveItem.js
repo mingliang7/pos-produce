@@ -142,13 +142,13 @@ ReceiveItems.after.insert(function (userId, doc) {
             let data = doc;
             data.type = type;
             data.transaction = transaction;
-
+            data.journalDate = data.receiveItemDate;
             let vendorDoc = Vendors.findOne({_id: doc.vendorId});
             if (vendorDoc) {
                 data.name = vendorDoc.name;
+                data.des = data.des == "" || data.des == null ? ('ទទួលទំនិញពីក្រុមហ៊ុនៈ ' + data.name) : data.des;
             }
 
-            console.log(data);
             Meteor.call('insertAccountJournal', data);
         }
         //End Account Integration
@@ -275,13 +275,12 @@ ReceiveItems.after.update(function (userId, doc, fieldNames, modifier, options) 
             let data = doc;
             data.type = type;
             data.transaction = transaction;
-
+            data.journalDate = data.receiveItemDate;
             let vendorDoc = Vendors.findOne({_id: doc.vendorId});
             if (vendorDoc) {
                 data.name = vendorDoc.name;
+                data.des = data.des == "" || data.des == null ? ('ទទួលទំនិញពីក្រុមហ៊ុនៈ ' + data.name) : data.des;
             }
-
-            console.log(data);
             Meteor.call('updateAccountJournal', data);
         }
         //End Account Integration

@@ -25,6 +25,7 @@ SaleOrderReceivePayment.after.insert(function (userId, doc) {
             let customerDoc = Customers.findOne({_id: doc.customerId});
             if (customerDoc) {
                 data.name = customerDoc.name;
+                data.des = data.des == "" || data.des == null ? ('ទទួលការបង់ប្រាក់ពីអតិថិជនៈ ' + data.name + '(SO)') : data.des;
             }
 
             transaction.push({
@@ -48,8 +49,8 @@ SaleOrderReceivePayment.after.insert(function (userId, doc) {
                 drcr: -doc.paidAmount + discountAmount
             });
             data.transaction = transaction;
+            data.journalDate = data.paymentDate;
             Meteor.call('insertAccountJournal', data);
-            console.log(data);
         }
         //End Account Integration
     });
@@ -88,6 +89,7 @@ SaleOrderReceivePayment.after.update(function (userId, doc) {
             let customerDoc = Customers.findOne({_id: doc.customerId});
             if (customerDoc) {
                 data.name = customerDoc.name;
+                data.des = data.des == "" || data.des == null ? ('ទទួលការបង់ប្រាក់ពីអតិថិជនៈ ' + data.name + '(SO)') : data.des;
             }
 
             transaction.push({
@@ -111,8 +113,8 @@ SaleOrderReceivePayment.after.update(function (userId, doc) {
                 drcr: -doc.paidAmount + discountAmount
             });
             data.transaction = transaction;
+            data.journalDate = data.paymentDate;
             Meteor.call('updateAccountJournal', data);
-            console.log(data);
         }
         //End Account Integration
     });
