@@ -1,0 +1,99 @@
+<template name="Cement_unpaidCustomerSummaryReport">
+    <div class="panel-group" id="accordion1">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h5 class="panel-title">
+                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion1"
+                       href="#accordion1_1">ចុចទីនេះដើម្បីបង្ហាញឬលាក់ Form</a>
+                </h5>
+            </div>
+            <div id="accordion1_1" class="panel-collapse collapse in">
+                <div class="panel-body">
+                    <div class="container-fluid">
+                        <div class="inbox-head report-header">
+                            <div class="row">
+                                {{#autoForm schema=schema id='unpaidCustomerSummaryReport'}}
+                                    <div class="row">
+                                        <div class="col-md-2">
+                                            {{> afQuickField name="date" label= 'As of date'}}
+                                        </div>
+                                        <div class="col-md-2">
+                                            {{> afQuickField name="customer" label="Customer"}}
+                                        </div>
+                                        <div class="col-md-2">
+                                            {{> afQuickField name="branchId" label="Branch"}}
+                                        </div>
+                                        <!--<div class="col-md-4">-->
+                                        <!--{{> afQuickField name="filter" label="Custom Fields"}}-->
+                                        <!--</div>-->
+                                    </div>
+                                    <button class="btn btn-primary"><i class="fa fa-play" aria-hidden="true"></i> Run
+                                    </button>
+                                {{/autoForm}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {{>unpaidCustomerSummaryReportData}}
+        </div>
+    </div>
+</template>
+
+<template name="unpaidCustomerSummaryReportData">
+    <div class="container-fluid" id="unpaid-customer-summary">
+        {{#with company}}
+            <table class="table">
+                <tr>
+                    <td class="text-center"><h3 class="text-center">{{khName}}</h3></td>
+                </tr>
+                <tr>
+                    <td class="text-center"><h4 class="text-center">{{enName}}</h4></td>
+                </tr>
+                <tr>
+                    <td class="text-center"><h5 class="text-center">{{khAddress}}</h5></td>
+                </tr>
+                <tr>
+                    <td class="text-center"><h5 class="text-center"><i class="fa fa-phone-square"></i> {{telephone}}
+                    </h5></td>
+                </tr>
+                <tr>
+                    <td class="text-center"><h3 class="text-center">UNPAID CUSTOMER SUMMARY REPORT</h3></td>
+                </tr>
+                <tr>
+                    <td class="text-left"><strong>Date:</strong>{{data.title.date}}</td>
+                </tr>
+            </table>
+        {{/with}}
+
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Customer</th>
+                <th>Telephone</th>
+                <th>Address</th>
+                <th class="text-center">Total</th>
+            </tr>
+            </thead>
+            <tbody>
+            {{#with data}}
+                {{#each content}}
+                    <tr>
+                        <td>{{customerDoc.name}}</td>
+                        <td>{{customerDoc.telephone}}</td>
+                        <td>{{customerDoc.address}}</td>
+                        <td class="text-right">{{numFormat total '0,0.00'}}</td>
+                    </tr>
+                {{/each}}
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td class="text-right"><u><b>Grand Total</b></u></td>
+                    <td style="border-top: 1px dotted black;" class="text-right"><b>{{numFormat footer.grandTotal '0,0.00'}}</b></td>
+                </tr>
+            {{/with}}
+            </tbody>
+        </table>
+        {{> ReportSignFooter}}
+    </div>
+</template>

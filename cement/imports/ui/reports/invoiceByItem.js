@@ -11,6 +11,7 @@ import {invoiceSchema} from '../../api/collections/reports/invoice';
 
 //methods
 import {invoiceByItemReport} from '../../../common/methods/reports/invoiceByItem';
+import RangeDate from "../../api/libs/date";
 //state
 let paramsState = new ReactiveVar();
 let invoiceData = new ReactiveVar();
@@ -39,16 +40,31 @@ Tracker.autorun(function () {
 indexTmpl.onCreated(function () {
     createNewAlertify('invoiceReport');
     paramsState.set(FlowRouter.query.params());
+    this.fromDate = new ReactiveVar(moment().startOf('days').toDate());
+    this.toDate = new ReactiveVar(moment().endOf('days').toDate());
 });
 indexTmpl.helpers({
     schema(){
         return invoiceSchema;
+    },
+    fromDate(){
+        let instance = Template.instance();
+        return instance.fromDate.get();
+    },
+    toDate(){
+        let instance = Template.instance();
+        return instance.toDate.get();
     }
 });
 indexTmpl.events({
     'click .print'(event, instance){
         $('#to-print').printThis();
-    }
+    },
+    'change #date-range-filter'(event, instance){
+        let currentRangeDate = RangeDate[event.currentTarget.value]();
+        instance.fromDate.set(currentRangeDate.start.toDate());
+        instance.toDate.set(currentRangeDate.end.toDate());
+    },
 });
 invoiceDataTmpl.helpers({
     company(){
@@ -108,10 +124,14 @@ AutoForm.hooks({
             this.event.preventDefault();
             FlowRouter.query.unset();
             let params = {};
+            params.branchId = Session.get('currentBranch');
             if (doc.fromDate && doc.toDate) {
                 let fromDate = moment(doc.fromDate).format('YYYY-MM-DD HH:mm:ss');
                 let toDate = moment(doc.toDate).format('YYYY-MM-DD HH:mm:ss');
                 params.date = `${fromDate},${toDate}`;
+            }
+            if(doc.branchId) {
+                params.branchId = doc.branchId.join(',');
             }
             if (doc.customer) {
                 params.customer = doc.customer

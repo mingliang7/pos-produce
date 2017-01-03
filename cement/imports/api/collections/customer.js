@@ -11,7 +11,8 @@ export const Customers = new Mongo.Collection("cement_customers");
 
 Customers.schema = new SimpleSchema({
     name: {
-        type: String
+        type: String,
+        unique: true
     },
     gender: {
         type: String,

@@ -413,3 +413,18 @@ CementRoutes.route('/report/transferMoneyReport', {
         parent: 'cement.mainReport'
     }
 });
+
+import '../imports/ui/reports/unpaidCustomerSummary';
+CementRoutes.route('/report/unpaidCustomerSummary', {
+    name: 'cement.unpaidCustomerSummary',
+    title: 'Unpaid Customer Summary',
+    action: function (params, queryParams) {
+        Layout.customReportLayout('Cement_unpaidCustomerSummaryReport');
+    },
+    breadcrumb:{
+        // params:['vendorId'],
+        title: 'Transfer Money Report',
+        // icon: 'cart-plus',
+        parent: 'cement.mainReport'
+    }
+});

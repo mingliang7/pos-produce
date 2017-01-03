@@ -21,6 +21,9 @@ Template.Cement_sidebarMenu.helpers({
     termBalance() {
         return `/cement/report/termCustomerBalance?date=${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}&branchId=${Session.get('currentBranch')}`;
     },
+    unpaidCustomerSummary() {
+        return `/cement/report/unpaidCustomerSummary?date=${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}&branchId=${Session.get('currentBranch')}`;
+    },
     invoiceByCustomer() {
         return `/cement/report/invoiceByCustomer?date=${moment().startOf('days').format('YYYY-MM-DD HH:mm:ss')},${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}`;
     },
@@ -28,7 +31,7 @@ Template.Cement_sidebarMenu.helpers({
         return `/cement/report/invoice?date=${moment().startOf('days').format('YYYY-MM-DD HH:mm:ss')},${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}`;
     },
     invoiceByItem() {
-        return `/cement/report/invoiceByItemReport?date=${moment().startOf('days').format('YYYY-MM-DD HH:mm:ss')},${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}`;
+        return `/cement/report/invoiceByItemReport?date=${moment().startOf('days').format('YYYY-MM-DD HH:mm:ss')},${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}&branchId=${Session.get('currentBranch')}`;
     },
     groupInvoice() {
         return `/cement/report/groupReport?date=${moment().startOf('days').format('YYYY-MM-DD HH:mm:ss')},${moment().startOf('days').format('YYYY-MM-DD HH:mm:ss')}&branch=${Session.get('currentBranch')}`;
