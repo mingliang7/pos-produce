@@ -86,6 +86,9 @@ export const unpaidCustomerSummary = new ValidatedMethod({
                     }
                 },
                 {
+                  $sort: {'customerDoc.name': 1}
+                },
+                {
                     $group:{
                         _id: null,
                         data: {
