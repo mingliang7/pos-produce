@@ -92,7 +92,7 @@ CementRoutes.route('/report/invoice', {
 import '../imports/ui/reports/invoiceByCustomer';
 CementRoutes.route('/report/invoiceByCustomer', {
     name: 'cement.invoiceByCustomerReport',
-    title: 'Invoice By Customer Report',
+    title: 'Sale By Customer Report',
     action: function (params, queryParams) {
         Layout.customReportLayout('Cement_invoiceByCustomerReport');
     },
@@ -345,13 +345,13 @@ CementRoutes.route('/report/groupBillReport', {
 import '../imports/ui/reports/termCustomerBalance';
 CementRoutes.route('/report/termCustomerBalance', {
     name: 'cement.termCustomerBalance',
-    title: 'Term Customer Balance Report',
+    title: 'Customer Balance Report',
     action: function (params, queryParams) {
         Layout.customReportLayout('Cement_termCustomerBalance');
     },
     breadcrumb:{
         // params:['vendorId'],
-        title: 'Term Customer Balance Report',
+        title: 'Customer Balance Report',
         // icon: 'cart-plus',
         parent: 'cement.mainReport'
     }

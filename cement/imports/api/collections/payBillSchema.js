@@ -1,15 +1,15 @@
 export const payBillSchema = new SimpleSchema({
-    vendorBalance:{
+    vendorBalance: {
         type: String,
         label: 'Vendor Balance',
         optional: true
     },
-    decementitTo:{
+    decementitTo: {
         type: String,
         label: 'Decementit To',
         optional: true
     },
-    amount:{
+    amount: {
         type: Number,
         decimal: true,
         label: 'Amount',
@@ -21,7 +21,7 @@ export const payBillSchema = new SimpleSchema({
             }
         }
     },
-    exchangeRate:{
+    exchangeRate: {
         type: String,
         label: 'Exchange 1USD = ',
         optional: true
@@ -35,6 +35,12 @@ export const payBillSchema = new SimpleSchema({
                 type: "bootstrap-datetimepicker",
                 dateTimePickerOptions: {
                     format: 'DD/MM/YYYY HH:mm:ss'
+                }
+            },
+            value(){
+                let vendorId = AutoForm.getFieldValue('vendorId');
+                if (vendorId) {
+                    return moment().toDate();
                 }
             }
         }
@@ -66,7 +72,7 @@ export const payBillSchema = new SimpleSchema({
             }
         }
     },
-    paymentMethods:{
+    paymentMethods: {
         type: String,
         optional: true,
         autoform: {

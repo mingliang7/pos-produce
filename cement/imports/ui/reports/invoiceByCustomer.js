@@ -89,13 +89,11 @@ indexTmpl.events({
         instance.fromDate.set(currentRangeDate.start.toDate());
         instance.endDate.set(currentRangeDate.end.toDate());
     },
-});
-
-invoiceDataTmpl.events({
-    'click .print'(event, instance){
-        $('#to-print').printThis();
+    'click .printReport'(event,instance){
+        window.print();
     }
 });
+
 invoiceDataTmpl.onDestroyed(function () {
     $('.sub-body').removeClass('rpt rpt-body');
     $('.sub-header').removeClass('rpt rpt-header');
@@ -131,7 +129,7 @@ invoiceDataTmpl.helpers({
         for (let i = 0; i < fieldLength; i++) {
             string += '<td></td>'
         }
-        string += `<td class="text-right"><u>Total ${_.capitalize(customerName)}:</u></td><td style="border-top: 1px solid black;" class="text-right"><u>${numeral(total).format('0,0.00')}</u></td>`;
+        string += `<td class="text-center"><u>Total ${_.capitalize(customerName)}:</u></td><td style="border-top: 1px solid black;" class="text-right">${numeral(total).format('0,0.00')}</td>`;
         return string;
     },
     getTotalFooter(total, totalKhr, totalThb){

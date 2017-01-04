@@ -1,13 +1,13 @@
 <template name="Cement_invoiceByCustomerReport">
     <div class="panel-group" id="accordion1">
         <div class="panel panel-default">
-            <div class="panel-heading">
+            <div class="no-print panel-heading">
                 <h5 class="panel-title">
                     <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion1"
                        href="#accordion1_1">ចុចទីនេះដើម្បីបង្ហាញឬលាក់ Form</a>
                 </h5>
             </div>
-            <div id="accordion1_1" class="panel-collapse collapse in">
+            <div id="accordion1_1" class="no-print panel-collapse collapse in">
                 <div class="panel-body">
                     <div class="container-fluid">
                         <div class="inbox-head report-header">
@@ -45,7 +45,7 @@
                                 </div>
                                 <button class="btn btn-primary"><i class="fa fa-play" aria-hidden="true"></i> Run
                                 </button>
-                                <a class="btn btn-default fullScreen"> Full Screen
+                                <a class="btn btn-default printReport"><i class="fa fa-print"></i> Print
                                 </a>
                             {{/autoForm}}
                         </div>
@@ -62,23 +62,13 @@
         {{#with company}}
             <table class="table">
                 <tr>
-                    <td class="text-center"><h3 class="text-center">{{khName}}</h3></td>
+                    <td class="text-center text-blue"><h5 class="text-center">{{khName}}</h5></td>
                 </tr>
                 <tr>
-                    <td class="text-center"><h4 class="text-center">{{enName}}</h4></td>
+                    <td class="text-center text-blue"><h5 class="text-center">SALE BY CUSTOMER REPORT</h5></td>
                 </tr>
                 <tr>
-                    <td class="text-center"><h5 class="text-center">{{khAddress}}</h5></td>
-                </tr>
-                <tr>
-                    <td class="text-center"><h5 class="text-center"><i class="fa fa-phone-square"></i> {{telephone}}
-                    </h5></td>
-                </tr>
-                <tr>
-                    <td class="text-center"><h3 class="text-center">SALE BY CUSTOMER REPORT</h3></td>
-                </tr>
-                <tr>
-                    <td class="text-left"><strong>Date:</strong>{{data.title.date}}</td>
+                    <td class="text-left" style="font-size: 9px"><strong>Date:</strong>{{data.title.date}}</td>
                 </tr>
             </table>
         {{/with}}

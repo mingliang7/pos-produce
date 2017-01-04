@@ -48,6 +48,9 @@ indexTmpl.helpers({
 indexTmpl.events({
     'click .print'(event, instance){
         $('#to-print').printThis();
+    },
+    'click .printReport'(event,instance){
+        window.print();
     }
 });
 invoiceDataTmpl.helpers({

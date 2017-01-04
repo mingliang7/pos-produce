@@ -243,6 +243,7 @@ let hooksObject = {
         insert: function (doc) {
             let items = [];
             let sumRemainQty = 0;
+            console.log(moment(doc.purchaseOrderDate).format('DD/MM/YYYY HH:mm:ss'));
             itemsCollection.find().forEach((obj)=> {
                 delete obj._id;
                 obj.remainQty = obj.qty;

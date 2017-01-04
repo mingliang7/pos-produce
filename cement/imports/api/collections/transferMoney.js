@@ -9,6 +9,12 @@ TransferMoney.schema = new SimpleSchema({
                 dateTimePickerOptions: {
                     format: 'DD/MM/YYYY HH:mm:ss'
                 }
+            },
+            value(){
+                let toUserId = AutoForm.getFieldValue('toUserId');
+                if (toUserId) {
+                    return moment().toDate();
+                }
             }
         }
     },

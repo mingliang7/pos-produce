@@ -57,6 +57,12 @@ PrepaidOrders.schema = new SimpleSchema({
                     format: 'DD/MM/YYYY HH:mm',
 
                 }
+            },
+            value(){
+                let vendorId = AutoForm.getFieldValue('vendorId');
+                if (vendorId) {
+                    return moment().toDate();
+                }
             }
         }
     },

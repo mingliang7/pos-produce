@@ -54,8 +54,14 @@ ExchangeGratis.schema = new SimpleSchema({
             afFieldInput: {
                 type: "bootstrap-datetimepicker",
                 dateTimePickerOptions: {
-                    format: 'DD/MM/YYYY HH:mm',
+                    format: 'DD/MM/YYYY',
 
+                }
+            },
+            value(){
+                let vendorId = AutoForm.getFieldValue('vendorId');
+                if (vendorId) {
+                    return moment().toDate();
                 }
             }
         }

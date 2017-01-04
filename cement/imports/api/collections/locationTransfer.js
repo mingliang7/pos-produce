@@ -1,15 +1,15 @@
-import { Meteor } from 'meteor/meteor';
-import { Mongo } from 'meteor/mongo';
-import { SimpleSchema } from 'meteor/aldeed:simple-schema';
-import { AutoForm } from 'meteor/aldeed:autoform';
-import { moment } from 'meteor/momentjs:moment';
+import {Meteor} from 'meteor/meteor';
+import {Mongo} from 'meteor/mongo';
+import {SimpleSchema} from 'meteor/aldeed:simple-schema';
+import {AutoForm} from 'meteor/aldeed:autoform';
+import {moment} from 'meteor/momentjs:moment';
 //methods
 import {itemInfo} from '../../../common/methods/item-info';
 // Lib
-import { __ } from '../../../../core/common/libs/tapi18n-callback-helper.js';
-import { SelectOpts } from '../../ui/libs/select-opts.js';
+import {__} from '../../../../core/common/libs/tapi18n-callback-helper.js';
+import {SelectOpts} from '../../ui/libs/select-opts.js';
 //location
-import { StockLocations } from '../../api/collections/stockLocation';
+import {StockLocations} from '../../api/collections/stockLocation';
 let defaultPrice = new ReactiveVar(0);
 let defaultBaseUnit = new ReactiveVar();
 let itemFilterSelector = new ReactiveVar({});
@@ -28,7 +28,7 @@ export const LocationTransfersItemSchema = new SimpleSchema({
                         if (!_.isEmpty(itemFilterSelector.get())) {
                             return itemFilterSelector.get();
                         } else {
-                            return { scheme: {} };
+                            return {scheme: {}};
                         }
                     }
                 }
@@ -39,7 +39,7 @@ export const LocationTransfersItemSchema = new SimpleSchema({
         type: Number,
         label: 'Qty',
         optional: true,
-        decimal: true,min: 0,
+        decimal: true, min: 0,
         autoform: {
             type: 'inputmask',
             inputmaskOptions: function () {
@@ -136,7 +136,7 @@ LocationTransfers.itemsSchema = new SimpleSchema({
     },
     qty: {
         type: Number,
-        decimal: true,min: 0
+        decimal: true, min: 0
     },
     price: {
         type: Number,
@@ -169,7 +169,13 @@ LocationTransfers.schema = new SimpleSchema({
             afFieldInput: {
                 type: "bootstrap-datetimepicker",
                 dateTimePickerOptions: {
-                    format: 'DD/MM/YYYY HH:mm:ss'
+                    format: 'DD/MM/YYYY'
+                }
+            },
+            value(){
+                let toStockLocationId = AutoForm.getFieldValue('toStockLocationId');
+                if (toStockLocationId) {
+                    return moment().toDate();
                 }
             }
         }
@@ -199,11 +205,11 @@ LocationTransfers.schema = new SimpleSchema({
                 let list = [];
                 let branchId = AutoForm.getFieldValue('branch') || Meteor.isClient && Session.get('currentBranch');
                 if (branchId) {
-                    var subLocation = Meteor.subscribe('cement.stockLocation', { branchId: branchId }, {});
+                    var subLocation = Meteor.subscribe('cement.stockLocation', {branchId: branchId}, {});
                     if (subLocation.ready()) {
-                        let locations = StockLocations.find({ branchId: branchId });
+                        let locations = StockLocations.find({branchId: branchId});
                         locations.forEach(function (location) {
-                            list.push({ label: `${location._id}: ${location.name}`, value: location._id });
+                            list.push({label: `${location._id}: ${location.name}`, value: location._id});
                         });
                         return list;
                     }
@@ -222,11 +228,11 @@ LocationTransfers.schema = new SimpleSchema({
                 let list = [];
                 let branchId = AutoForm.getFieldValue('toBranchId');
                 if (branchId) {
-                    var subLocation = Meteor.subscribe('cement.stockLocation', { branchId: branchId }, {});
+                    var subLocation = Meteor.subscribe('cement.stockLocation', {branchId: branchId}, {});
                     if (subLocation.ready()) {
-                        let locations = StockLocations.find({ branchId: branchId });
+                        let locations = StockLocations.find({branchId: branchId});
                         locations.forEach(function (location) {
-                            list.push({ label: `${location._id}: ${location.name}`, value: location._id });
+                            list.push({label: `${location._id}: ${location.name}`, value: location._id});
                         });
                         return list;
                     }
@@ -291,7 +297,7 @@ LocationTransfers.schema = new SimpleSchema({
                 optionsMethodParams: function () {
                     if (Meteor.isClient) {
                         let currentBranch = Meteor.isClient && Session.get('currentBranch');
-                        return { branchId: currentBranch };
+                        return {branchId: currentBranch};
                     }
                 }
             }

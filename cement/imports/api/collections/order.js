@@ -83,7 +83,14 @@ Order.schema = new SimpleSchema({
                     format: 'DD/MM/YYYY',
 
                 }
+            },
+            value(){
+                let customerId = AutoForm.getFieldValue('customerId');
+                if (customerId) {
+                    return moment().toDate();
+                }
             }
+
         }
     },
     customerId: {

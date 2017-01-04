@@ -77,7 +77,7 @@ export const invoiceReport = new ValidatedMethod({
                 },
                 {
                     $lookup: {
-                        from: 'Cement_customers',
+                        from: 'cement_customers',
                         localField: 'customerId',
                         foreignField: '_id',
                         as: '_customer'

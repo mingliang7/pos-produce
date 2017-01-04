@@ -89,6 +89,9 @@ indexTmpl.events({
         instance.fromDate.set(currentRangeDate.start.toDate());
         instance.endDate.set(currentRangeDate.end.toDate());
     },
+    'click .printReport'(event,instance){
+        window.print();
+    }
 });
 
 invoiceDataTmpl.events({
@@ -123,10 +126,9 @@ AutoForm.hooks({
             if(doc.branchId) {
                 params.branchId = doc.branchId.join(',');
             }
-            if (doc.fromDate && doc.toDate) {
-                let fromDate = moment(doc.fromDate).startOf('days').format('YYYY-MM-DD HH:mm:ss');
-                let toDate = moment(doc.toDate).endOf('days').format('YYYY-MM-DD HH:mm:ss');
-                params.date = `${fromDate},${toDate}`;
+            if (doc.date) {
+                let toDate = moment(doc.date).endOf('days').format('YYYY-MM-DD HH:mm:ss');
+                params.date = `${toDate}`;
             }
             if (doc.customer) {
                 params.customer = doc.customer

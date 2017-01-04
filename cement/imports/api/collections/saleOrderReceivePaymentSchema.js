@@ -27,6 +27,12 @@ export const saleOrderReceivePaymentSchema = new SimpleSchema({
                 dateTimePickerOptions: {
                     format: 'DD/MM/YYYY HH:mm:ss',
                 }
+            },
+            value(){
+                let customerId = AutoForm.getFieldValue('customerId');
+                if (customerId) {
+                    return moment().toDate();
+                }
             }
 
         }

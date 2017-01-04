@@ -57,8 +57,8 @@ indexTmpl.helpers({
     }
 });
 indexTmpl.events({
-    'click .print'(event, instance){
-        $('#to-print').printThis();
+    'click .printReport'(event, instance){
+        window.print();
     },
     'change #date-range-filter'(event, instance){
         let currentRangeDate = RangeDate[event.currentTarget.value]();
