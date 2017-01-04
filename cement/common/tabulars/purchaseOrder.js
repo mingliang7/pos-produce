@@ -29,6 +29,7 @@ tabularOpts.columns = [
         }
     },
     {data: "_vendor.name", title: "Vendor"},
+    {data: "_customer.name", title: "Customer"},
     {data: "total", title: "Total"},
     {data: "des", title: "Description"},
     {
@@ -62,5 +63,5 @@ tabularOpts.columns = [
     //    }
     //}
 ];
-tabularOpts.extraFields = ['vendorId'];
+tabularOpts.extraFields = ['vendorId', 'items', 'customerId', 'voucherId'];
 export const PurchaseOrderTabular = new Tabular.Table(tabularOpts);

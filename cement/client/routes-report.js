@@ -428,3 +428,17 @@ CementRoutes.route('/report/unpaidCustomerSummary', {
         parent: 'cement.mainReport'
     }
 });
+import '../imports/ui/reports/customerList';
+CementRoutes.route('/report/customerListReport', {
+    name: 'cement.customerList',
+    title: 'Customer List',
+    action: function (params, queryParams) {
+        Layout.customReportLayout('Cement_customerListReport');
+    },
+    breadcrumb:{
+        // params:['vendorId'],
+        title: 'Customer List',
+        // icon: 'cart-plus',
+        parent: 'cement.mainReport'
+    }
+});

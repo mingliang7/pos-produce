@@ -15,6 +15,9 @@ Tracker.autorun(function () {
 
 Template.Cement_sidebarMenu.helpers({
     // customer
+    customerList(){
+        return `/cement/report/customerListReport?&branchId=${Session.get('currentBranch')}`;
+    },
     groupBalance() {
         return `/cement/report/groupCustomerBalance?date=${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}`;
     },

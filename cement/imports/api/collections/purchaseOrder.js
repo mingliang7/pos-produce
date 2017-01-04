@@ -48,6 +48,10 @@ PurchaseOrder.itemsSchema = new SimpleSchema({
 
 // PurchaseOrder schema
 PurchaseOrder.schema = new SimpleSchema({
+    voucherId: {
+        type: String,
+        optional: true
+    },
     purchaseOrderDate: {
         type: Date,
         defaultValue: moment().toDate(),
