@@ -4,7 +4,18 @@
             <i class="fa fa-home"></i> <span>{{_ "cement.sidebarMenu.home"}}</span>
         </a>
     </li>
-
+    <li class="treeview {{isActiveRoute name='acc.payment'}}">
+            <a href="{{pathFor 'acc.payment'}}">
+                <i class="fa fa-plus"></i>
+                <span>{{_ "acc.sidebarMenu.payment"}}</span>
+            </a>
+        </li>
+        <li class="treeview {{isActiveRoute name='acc.received'}}">
+            <a href="{{pathFor 'acc.received'}}">
+                <i class="fa fa-plus"></i>
+                <span>{{_ "acc.sidebarMenu.received"}}</span>
+            </a>
+        </li>
     <!--Data-->
     {{#if isInRole 'data-insert,data-update,data-remove' 'Cement'}}
         <li class="treeview active">
@@ -203,6 +214,11 @@
                     <a href="{{pathFor 'cement.mainReport'}}">
                         <i class="fa fa-file-o"></i>
                         <span>MAIN</span>
+                    </a>
+                </li>
+                 <li class="{{isActiveRoute name='acc.cashReport'}}">
+                    <a href="{{pathFor 'acc.cashReport'}}">
+                        <i class="fa fa-angle-right"></i> <span>{{_ "acc.sidebarMenu.cashReport"}}</span>
                     </a>
                 </li>
                 <li class="treeview">
