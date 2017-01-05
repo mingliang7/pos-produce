@@ -52,27 +52,27 @@ indexTmpl.events({
     },
     'click .next'(event, instance){
         let currentParams = FlowRouter.query.params();
-        let totalSkip = skip.get() + parseInt($('[name="skip"]').val());
+        let totalSkip = skip.get() + parseFloat($('[name="skip"]').val());
         skip.set(totalSkip);
         currentParams.skip = totalSkip;
-        currentParams.limit = parseInt($('[name="limit"]').val());
+        currentParams.limit = parseFloat($('[name="limit"]').val());
         FlowRouter.query.unset();
         FlowRouter.query.set(currentParams);
         paramsState.set(FlowRouter.query.params());
     },
     'click .previous'(event, instance){
-        let previousSkip = skip.get() - parseInt($('[name="skip"]').val());
+        let previousSkip = skip.get() - parseFloat($('[name="skip"]').val());
         let currentParams = FlowRouter.query.params();
         let totalSkip = previousSkip < 0 ? 0 : previousSkip;
         skip.set(totalSkip);
         currentParams.skip = totalSkip;
-        currentParams.limit = parseInt($('[name="limit"]').val());
+        currentParams.limit = parseFloat($('[name="limit"]').val());
         FlowRouter.query.unset();
         FlowRouter.query.set(currentParams);
         paramsState.set(FlowRouter.query.params());
     },
     'change [name="limit"]'(event, instance){
-        let limit = parseInt(event.currentTarget.value);
+        let limit = parseFloat(event.currentTarget.value);
         let currentParams = FlowRouter.query.params();
         let totalSkip = skip.get();
         currentParams.skip = totalSkip;

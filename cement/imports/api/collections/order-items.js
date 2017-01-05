@@ -260,7 +260,7 @@ export const EnterBillItemsSchema = new SimpleSchema({
         autoform: {
             type: 'inputmask',
             inputmaskOptions: function () {
-                return inputmaskOptions.integer();
+                return inputmaskOptions.decimal();
             }
         }
     },

@@ -139,7 +139,7 @@ itemsTmpl.events({
     'keyup [name="qty"],[name="price"]': function (event, instance) {
         let qty = instance.$('[name="qty"]').val();
         let price = instance.$('[name="price"]').val();
-        qty = _.isEmpty(qty) ? 0 : parseInt(qty);
+        qty = _.isEmpty(qty) ? 0 : parseFloat(qty);
         price = _.isEmpty(price) ? 0 : parseFloat(price);
         let amount = qty * price;
 
@@ -147,7 +147,7 @@ itemsTmpl.events({
     },
     'click .js-add-item': function (event, instance) {
         let itemId = instance.$('[name="itemId"]').val();
-        let qty = parseInt(instance.$('[name="qty"]').val());
+        let qty = parseFloat(instance.$('[name="qty"]').val());
         let price = math.round(parseFloat(instance.$('[name="price"]').val()), 2);
         let amount = math.round(qty * price, 2);
 
@@ -156,7 +156,7 @@ itemsTmpl.events({
             itemId: itemId
         });
         if (exist) {
-            qty += parseInt(exist.qty);
+            qty += parseFloat(exist.qty);
             amount = math.round(qty * price, 2);
 
             itemsCollection.update({
@@ -212,7 +212,12 @@ itemsTmpl.events({
     },
     "keypress .item-qty" (evt) {
         var charCode = (evt.which) ? evt.which : evt.keyCode;
-        return !(charCode > 31 && (charCode < 48 || charCode > 57));
+        if ($(evt.currentTarget).val().indexOf('.') != -1) {
+            if (charCode == 46) {
+                return false;
+            }
+        }
+        return !(charCode != 46 && charCode > 31 && (charCode < 48 || charCode > 57));
     }
 });
 
@@ -246,7 +251,7 @@ editItemsTmpl.events({
     'keyup [name="qty"],[name="price"]': function (event, instance) {
         let qty = instance.$('[name="qty"]').val();
         let price = instance.$('[name="price"]').val();
-        qty = _.isEmpty(qty) ? 0 : parseInt(qty);
+        qty = _.isEmpty(qty) ? 0 : parseFloat(qty);
         price = _.isEmpty(price) ? 0 : parseFloat(price);
         let amount = qty * price;
 

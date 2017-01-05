@@ -179,7 +179,7 @@ indexTmpl.helpers({
     },
     lastPaymentDate(){
         var lastPaymentDate = getLastPaymentDate(this._id);
-        if(lastPaymentDate) {
+        if (lastPaymentDate) {
             return `<br><span class="label label-success"><i class="fa fa-money"></i> Last Paid: ${moment(lastPaymentDate).format('YYYY-MM-DD HH:mm:ss')}</span>`;
         }
         return '';
@@ -196,7 +196,7 @@ indexTmpl.helpers({
                     count: 0
                 };
                 saleInvoices.count += 1;
-                let valueAfterDiscount = this.total * (1 - (discount / 100));
+                let valueAfterDiscount = this.total - discount;
                 this.receivedPay = valueAfterDiscount;
                 this.discount = discount;
                 saleInvoices[this._id] = this;
@@ -276,7 +276,7 @@ indexTmpl.helpers({
                     let lastPayment = _.last(receivePayments.fetch());
                     totalAmountDue += lastPayment.balanceAmount;
                 } else {
-                    totalAmountDue += invoice.total * (1 - (discount / 100));
+                    totalAmountDue += invoice.total - discount;
                 }
             });
         }
@@ -300,7 +300,7 @@ indexTmpl.helpers({
         try {
             let discount = this.status == 'active' ? checkTerm(this) : 0;
             let penalty = isPenalty.get() ? countLateInvoice.get().calculatePenalty[this._id] || 0 : 0;
-            let valueAfterDiscount = this.total * (1 - (discount / 100));
+            let valueAfterDiscount = this.total - discount;
             let lastPayment = getLastPayment(this._id);
             return lastPayment == 0 ? numeral(valueAfterDiscount + penalty).format('0,0.00') : numeral(lastPayment + penalty).format('0,0.00');
         } catch (e) {
@@ -450,14 +450,15 @@ indexTmpl.events({
         let discount = 0;
         let penalty = isPenalty.get() ? countLateInvoice.get().calculatePenalty[this._id] || 0 : 0;
         if (event.currentTarget.value == '') {
-            //trigger change on total
+            //trigger change on total+
             $(event.currentTarget).parents('.invoice-parents').find('.total').val(total + penalty).change();
             $(event.currentTarget).parents('.invoice-parents').find('.actual-pay').val(numeral(total + penalty).format('0,0.00')).change();
             $(event.currentTarget).val('0');
 
         } else {
             //trigger change on total
-            let valueAfterDiscount = (total * (1 - (parseFloat(event.currentTarget.value) / 100))) + penalty;
+            let valueAfterDiscount = (total - parseFloat(event.currentTarget.value)) + penalty;
+            console.log(valueAfterDiscount);
             $(event.currentTarget).parents('.invoice-parents').find('.total').val(valueAfterDiscount).change();
             $(event.currentTarget).parents('.invoice-parents').find('.actual-pay').val(numeral(valueAfterDiscount).format('0,0.00')).change();
         }
@@ -492,7 +493,7 @@ indexTmpl.events({
             selectedInvoices[this._id].discount = parseFloat(discount);
             selectedInvoices[this._id].penalty = penalty;
             selectedInvoices[this._id].receivedPay = parseFloat(event.currentTarget.value);
-            selectedInvoices[this._id].dueAmount = lastPayment == 0 ? this.total * (1 - parseFloat(discount / 100)) : lastPayment;
+            selectedInvoices[this._id].dueAmount = lastPayment == 0 ? this.total - discount : lastPayment;
             $(event.currentTarget).parents('.invoice-parents').find('.select-invoice').prop('checked', true);
             if (parseFloat(event.currentTarget.value) > selectedInvoices[this._id].dueAmount) { //check if entering payment greater than dueamount
                 selectedInvoices[this._id].receivedPay = selectedInvoices[this._id].dueAmount;
@@ -605,7 +606,7 @@ let hooksObject = {
             });
         } else {
             let paymentDate = this.insertDoc.paymentDate || new Date();
-            let voucherId = this.insertDoc.voucherId || '' ;
+            let voucherId = this.insertDoc.voucherId || '';
             swal({
                 title: "Processing Payment..",
                 text: "Click OK to continue!",
@@ -645,7 +646,7 @@ let hooksObject = {
 };
 
 function paymentDate(element) {
-    element.on("dp.change", (e)=> {
+    element.on("dp.change", (e) => {
         clearChecbox();
         currentPaymentDate.set(e.date.toDate());
     });

@@ -298,7 +298,7 @@ Template.schemeItem.events({
 	'keyup [name="qty"],[name="price"]': function (event, instance) {
 		let qty = instance.$('[name="qty"]').val();
 		let price = instance.$('[name="price"]').val();
-		qty = _.isEmpty(qty) ? 0 : parseInt(qty);
+		qty = _.isEmpty(qty) ? 0 : parseFloat(qty);
 		price = _.isEmpty(price) ? 0 : parseFloat(price);
 		let amount = qty * price;
 
@@ -306,13 +306,13 @@ Template.schemeItem.events({
 	},
 	'click .js-add-item': function (event, instance) {
 		let itemId = instance.$('[name="itemId"]').val();
-		let qty = parseInt(instance.$('[name="qty"]').val() == '' ? 1 : instance.$('[name="qty"]').val());
+		let qty = parseFloat(instance.$('[name="qty"]').val() == '' ? 1 : instance.$('[name="qty"]').val());
 		let price = math.round(parseFloat(instance.$('[name="price"]').val()), 2);
 		let amount = math.round(qty * price, 2);
 		// Check exist
 		// let exist = tmpCollection.findOne({itemId: itemId});
 		// if (exist) {
-		//     qty += parseInt(exist.quantity);
+		//     qty += parseFloat(exist.quantity);
 		//     amount = math.round(qty * price, 2);
 		//     tmpCollection.update(
 		//         {_id: exist._id},

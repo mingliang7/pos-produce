@@ -139,7 +139,7 @@ itemsTmpl.events({
     'keyup [name="qty"],[name="price"]': function (event, instance) {
         let qty = instance.$('[name="qty"]').val();
         let price = instance.$('[name="price"]').val();
-        qty = _.isEmpty(qty) ? 1 : parseInt(qty);
+        qty = _.isEmpty(qty) ? 1 : parseFloat(qty);
         price = _.isEmpty(price) ? 0 : parseFloat(price);
         let amount = qty * price;
 
@@ -148,7 +148,7 @@ itemsTmpl.events({
     'click .js-add-item': function (event, instance) {
         let itemId = instance.$('[name="itemId"]').val();
         let qty = instance.$('[name="qty"]').val();
-        qty = qty == "" ? 1 : parseInt(qty);
+        qty = qty == "" ? 1 : parseFloat(qty);
         let price = math.round(parseFloat(instance.$('[name="price"]').val()), 2);
         let amount = math.round(qty * price, 2);
 
@@ -157,7 +157,7 @@ itemsTmpl.events({
             itemId: itemId
         });
         if (exist) {
-            qty += parseInt(exist.qty);
+            qty += parseFloat(exist.qty);
             amount = math.round(qty * price, 2);
 
             itemsCollection.update({
@@ -247,7 +247,7 @@ editItemsTmpl.events({
     'keyup [name="qty"],[name="price"]': function (event, instance) {
         let qty = instance.$('[name="qty"]').val();
         let price = instance.$('[name="price"]').val();
-        qty = _.isEmpty(qty) ? 0 : parseInt(qty);
+        qty = _.isEmpty(qty) ? 0 : parseFloat(qty);
         price = _.isEmpty(price) ? 0 : parseFloat(price);
         let amount = qty * price;
 
