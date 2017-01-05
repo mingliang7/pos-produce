@@ -307,10 +307,20 @@ ReceiveItems.after.remove(function (userId, doc) {
         } else if (doc.type == 'PurchaseOrder') {
             type = 'PurchaseOrder-RI';
             increasePurchaseOrder(doc);
+            let purchaseOrder = PurchaseOrder.findOne(doc.purchaseOrderId);
+            if (purchaseOrder.sumRemainQty == 0) {
+                PurchaseOrder.direct.update(purchaseOrder._id, {$set: {status: 'closed'}});
+            } else {
+                PurchaseOrder.direct.update(purchaseOrder._id, {$set: {status: 'active'}});
+            }
         } else {
             throw Meteor.Error('Require Receive Item type');
         }
-        reduceFromInventory(doc, 'receive-item-return');
+
+
+
+
+       // reduceFromInventory(doc, 'receive-item-return');
         //Account Integration
         let setting = AccountIntegrationSetting.findOne();
         if (setting && setting.integrate) {

@@ -186,11 +186,11 @@ itemsTmpl.helpers({
                 return Spacebars.SafeString(`<input type="text" value=${value} class="item-transport-fee">`)
             }
         }, {
-                key: 'discount',
-                label: __(`Discount`),
-                fn(value, object, key) {
-                    return Spacebars.SafeString(`<input type="text" value=${value} class="item-discount">`)
-                }
+            key: 'discount',
+            label: __(`Discount`),
+            fn(value, object, key) {
+                return Spacebars.SafeString(`<input type="text" value=${value} class="item-discount">`)
+            }
         }, {
             key: 'amount',
             label: __(`${i18nPrefix}.amount.label`),
@@ -228,7 +228,7 @@ itemsTmpl.helpers({
     total: function () {
         let instance = Template.instance();
         let total = 0;
-        let discount = instance.discount.get();
+        let discount = isNaN(instance.discount.get()) || instance.discount == null ? 0 : instance.discount.get();
         let getItems = itemsCollection.find();
         getItems.forEach((obj) => {
             total += obj.amount
@@ -314,7 +314,10 @@ itemsTmpl.events({
         let currentUnitConvertId = FlowRouter.query.get('unitConvertId');
         if (currentUnitConvertId) {
             let currentUnitConvertObj = currentUnitConvertArr.find(o => o._id == currentUnitConvertId);
-            let des = UnitConvertClass.addParamsDes({qty: instance.defaultQty.get(), unitConvert: currentUnitConvertObj});
+            let des = UnitConvertClass.addParamsDes({
+                qty: instance.defaultQty.get(),
+                unitConvert: currentUnitConvertObj
+            });
             FlowRouter.query.set({des: des});
         }
         // Check exist
@@ -399,7 +402,7 @@ itemsTmpl.events({
                 })
         } else {
             let item = itemsCollection.remove({_id: this._id});
-            UnitConvertClass.removeConvertItem(item, instance,itemsCollection);
+            UnitConvertClass.removeConvertItem(item, instance, itemsCollection);
         }
     },
     'change .item-qty'(event, instance) {
@@ -427,14 +430,15 @@ itemsTmpl.events({
         let selector = {};
         if (currentDiscount != '') {
             selector.$set = {
-                amount:  (currentItem.qty * currentItem.price + currentItem.qty * currentItem.transportFee) - parseFloat(currentDiscount) * currentItem.qty,
+                amount: (currentItem.qty * currentItem.price + currentItem.qty * currentItem.transportFee) - parseFloat(currentDiscount) * currentItem.qty,
                 discount: parseFloat(currentDiscount)
             }
         } else {
             selector.$set = {
                 amount: currentItem.amount,
                 discount: currentItem.discount
-            }
+            };
+            $(event.currentTarget).val(currentItem.discount);
         }
         itemsCollection.update({itemId: itemId}, selector)
     },
@@ -445,14 +449,15 @@ itemsTmpl.events({
         let selector = {};
         if (currentTransportFee != '') {
             selector.$set = {
-                amount: (currentTransportFee * currentItem.qty) + (currentItem.qty * currentItem.price) - currentItem.discount*currentItem.qty,
+                amount: (currentTransportFee * currentItem.qty) + (currentItem.qty * currentItem.price) - currentItem.discount * currentItem.qty,
                 transportFee: currentTransportFee
             }
         } else {
             selector.$set = {
                 amount: currentItem.amount - currentItem.discount * currentItem.qty,
                 transportFee: currentItem.transportFee
-            }
+            };
+            $(event.currentTarget).val(currentItem.transportFee);
         }
         itemsCollection.update({itemId: itemId}, selector)
     },
@@ -485,15 +490,16 @@ itemsTmpl.events({
             instance.defaultQty.set(parseFloat(qtyConvert) * parseFloat(currentValue))
         }
     },
-    'change [name="discount"]'(event,instance){
+    'change [name="discount"]'(event, instance){
         let currentDiscount = event.currentTarget.value;
-        if(currentDiscount != '') {
+        if (currentDiscount != '') {
             instance.discount.set(parseFloat(currentDiscount));
-        }else{
+        } else {
             instance.discount.set(0);
+            $(event.currentTarget).val(0);
         }
     },
-    'keypress [name="discount"]'(evt,instance){
+    'keypress [name="discount"]'(evt, instance){
         var charCode = (evt.which) ? evt.which : evt.keyCode;
         if ($(evt.currentTarget).val().indexOf('.') != -1) {
             if (charCode == 46) {

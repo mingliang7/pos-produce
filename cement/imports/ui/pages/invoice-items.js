@@ -208,7 +208,7 @@ itemsTmpl.helpers({
             key: 'qty',
             label: __(`${i18nPrefix}.qty.label`),
             fn(value, obj, key) {
-                return FlowRouter.query.get('customerId') ||FlowRouter.query.get('unitConvertId') ? value : Spacebars.SafeString(`<input type="text" value=${value} class="item-qty">`);
+                return FlowRouter.query.get('customerId') || FlowRouter.query.get('unitConvertId') ? value : Spacebars.SafeString(`<input type="text" value=${value} class="item-qty">`);
             }
         }, {
             key: 'transportFee',
@@ -292,7 +292,7 @@ itemsTmpl.helpers({
             let getItems = itemsCollection.find({});
             let instance = Template.instance();
             let discountInvoiceInItem = 0;
-            let discount = instance.discount.get();
+            let discount = isNaN(instance.discount.get()) || instance.discount == null ? 0 : instance.discount.get();
             getItems.forEach((obj) => {
                 total += obj.amount;
                 discountInvoiceInItem = obj.invoiceDiscount;
@@ -519,8 +519,10 @@ itemsTmpl.events({
             selector.$set = {
                 amount: currentItem.amount,
                 discount: currentItem.discount
-            }
+            };
+            $(event.currentTarget).val(currentItem.discount);
         }
+
         itemsCollection.update({itemId: itemId}, selector)
     },
     "keypress .item-discount"(evt){
@@ -553,20 +555,21 @@ itemsTmpl.events({
         }
     },
     'change .item-transport-fee'(event, instance){
-        let currentTransportFee = event.currentTarget.value
-        let itemId = $(event.currentTarget).parents('tr').find('.itemId').text()
-        let currentItem = itemsCollection.findOne({itemId: itemId})
-        let selector = {}
+        let currentTransportFee = event.currentTarget.value;
+        let itemId = $(event.currentTarget).parents('tr').find('.itemId').text();
+        let currentItem = itemsCollection.findOne({itemId: itemId});
+        let selector = {};
         if (currentTransportFee != '') {
             selector.$set = {
-                amount: (currentTransportFee * currentItem.qty) + (currentItem.qty * currentItem.price) - currentItem.discount*currentItem.qty,
+                amount: (currentTransportFee * currentItem.qty) + (currentItem.qty * currentItem.price) - currentItem.discount * currentItem.qty,
                 transportFee: currentTransportFee
             }
         } else {
             selector.$set = {
                 amount: currentItem.amount,
                 transportFee: currentItem.transportFee
-            }
+            };
+            $(event.currentTarget).val(currentItem.transportFee);
         }
         itemsCollection.update({itemId: itemId}, selector)
     },
@@ -576,6 +579,7 @@ itemsTmpl.events({
             instance.discount.set(parseFloat(currentDiscount));
         } else {
             instance.discount.set(0);
+            $(event.currentTarget).val(0);
         }
     },
     'keypress [name="discount"]'(evt, instance){

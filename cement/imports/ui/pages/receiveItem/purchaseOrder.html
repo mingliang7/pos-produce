@@ -5,6 +5,7 @@
         <tr>
             <th>#</th>
             <th>Date</th>
+            <th>Vendor</th>
             <th>Customer</th>
             <th>Total</th>
             <th>Remain Qty</th>
@@ -16,8 +17,9 @@
             {{#each purchaseOrder in purchaseOrders}}
                 <tr class="prepaid-order-doc">
                     <td><a href="">{{purchaseOrder._id}}</a></td>
-                    <td>{{moFormat purchaseOrder.orderDate 'YYYY-MM-DD HH:mm'}}</td>
+                    <td>{{moFormat purchaseOrder.purchaseOrderDate 'YYYY-MM-DD HH:mm'}}</td>
                     <td>{{purchaseOrder._vendor.name}}</td>
+                    <td>{{purchaseOrder._customer.name}}</td>
                     <td>{{numFormat purchaseOrder.total '0,0.00'}}</td>
                     <td>{{purchaseOrder.sumRemainQty}}</td>
                     <td>{{purchaseOrder.status}}</td>
