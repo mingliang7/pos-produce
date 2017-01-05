@@ -73,7 +73,7 @@ Meteor.methods({
                         originalQty: calculateOriginalQty(),
                         discount: {$multiply: ["$items.qty", "$items.discount"]},
                         amount: 1,
-                        price: 1,
+                        price: {$add: ["$items.price", "$items.transportFee"]},
                         itemName: '$items.itemDoc.name',
                         remainQty: 1,
                         _unit: 1,
