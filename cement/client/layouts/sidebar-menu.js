@@ -28,7 +28,10 @@ Template.Cement_sidebarMenu.helpers({
         return `/cement/report/unpaidCustomerSummary?date=${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}&branchId=${Session.get('currentBranch')}`;
     },
     invoiceByCustomer() {
-        return `/cement/report/invoiceByCustomer?date=${moment().startOf('days').format('YYYY-MM-DD HH:mm:ss')},${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}`;
+        return `/cement/report/invoiceByCustomer?date=${moment().startOf('days').format('YYYY-MM-DD HH:mm:ss')},${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}&branchId=${Session.get('currentBranch')}`;
+    },
+    invoiceEnterBill() {
+        return `/cement/report/invoiceEnterBill?date=${moment().startOf('days').format('YYYY-MM-DD HH:mm:ss')},${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}&branchId=${Session.get('currentBranch')}`;
     },
     invoiceSummary() {
         return `/cement/report/invoice?date=${moment().startOf('days').format('YYYY-MM-DD HH:mm:ss')},${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}`;

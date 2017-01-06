@@ -442,3 +442,17 @@ CementRoutes.route('/report/customerListReport', {
         parent: 'cement.mainReport'
     }
 });
+import '../imports/ui/reports/invoiceEnterBill';
+CementRoutes.route('/report/invoiceEnterBill', {
+    name: 'cement.invoiceEnterBill',
+    title: 'Sale & EnterBill',
+    action: function (params, queryParams) {
+        Layout.customReportLayout('Cement_invoiceEnterBillReport');
+    },
+    breadcrumb:{
+        // params:['vendorId'],
+        title: 'Invoice EnterBill',
+        // icon: 'cart-plus',
+        parent: 'cement.mainReport'
+    }
+});

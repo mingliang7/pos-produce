@@ -81,6 +81,11 @@ export const billByVendorReport = new ValidatedMethod({
             /****** Title *****/
             data.title.company = Company.findOne();
             /****** Content *****/
+            if(params.bid) {
+                selector = {
+                    _id: params.bid
+                }
+            }
             let bills = EnterBills.aggregate([
                 {
                     $match: selector
