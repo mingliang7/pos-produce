@@ -21,6 +21,7 @@ tabularOpts.collection = EnterBills;
 tabularOpts.columns = [
     {title: '<i class="fa fa-bars"></i>', tmpl: Meteor.isClient && Template.Cement_enterBillAction},
     {data: "_id", title: "ID"},
+    {data: "voucherId", title: "Voucher"},
     {
         data: "enterBillDate",
         title: "Date",

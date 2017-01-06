@@ -43,7 +43,7 @@ export const invoiceByCustomerReport = new ValidatedMethod({
             let filterItems = {'items.itemId': {$ne: ''}};
             // console.log(user);
             // let date = _.trim(_.words(params.date, /[^To]+/g));
-            selector.invoiceType = {$ne: 'group'};
+            // selector.invoiceType = {$ne: 'group'};
             selector.status = {$in: ['active', 'partial', 'closed']};
             if (params.items) {
                 let arr = params.items.split(',');
@@ -149,6 +149,7 @@ export const invoiceByCustomerReport = new ValidatedMethod({
                                 status: '$status'
                             }
                         },
+                        totalQty: {$sum: '$items.qty'},
                         profit: {$sum: '$items.profit'},
                         repId: {$last: '$repId'},
                         staffId: {$last: '$staffId'},
@@ -174,6 +175,7 @@ export const invoiceByCustomerReport = new ValidatedMethod({
                         totalThb: coefficient.thb,
                         totalKhr: coefficient.khr,
                         customerId: 1,
+                        totalQty: 1,
                         total: 1,
                         _id: 1,
                         dueDate: 1,
@@ -211,6 +213,7 @@ export const invoiceByCustomerReport = new ValidatedMethod({
                         _id: '$customerId',
                         customer: {$addToSet: '$_customer'},
                         data: {$addToSet: project},
+                        totalQty: {$sum: '$totalQty'},
                         total: {$sum: '$totalUsd'},
                         totalKhr: {$sum: '$totalKhr'},
                         totalThb: {$sum: '$totalThb'}
@@ -224,6 +227,7 @@ export const invoiceByCustomerReport = new ValidatedMethod({
                         content: {
                             $addToSet: '$$ROOT'
                         },
+                        totalQty: {$sum: '$totalQty'},
                         total: {$sum: '$total'},
                         totalKhr: {$sum: '$totalKhr'},
                         totalThb: {$sum: '$totalThb'},
@@ -232,6 +236,7 @@ export const invoiceByCustomerReport = new ValidatedMethod({
             if (invoices.length > 0) {
                 data.content = invoices[0].content;
                 data.footer = {
+                    totalQty: invoices[0].totalQty,
                     total: invoices[0].total,
                     totalKhr: invoices[0].totalKhr,
                     totalThb: invoices[0].totalThb

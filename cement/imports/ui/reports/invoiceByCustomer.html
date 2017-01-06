@@ -114,8 +114,8 @@
                             </tr>
                         {{/each}}
                     {{/each}}
-                    <tr style="border-bottom: 1px dotted black;">
-                        {{{getTotal col.total col.customer.name}}}
+                    <tr>
+                        {{{getTotal col.totalQty col.total col.customer.name}}}
                     </tr>
 
 
@@ -123,7 +123,7 @@
                 </tbody>
                 <tbody class="sub-body">
                 <tr>
-                    {{{getTotalFooter footer.total footer.totalKhr footer.totalThb}}}
+                    {{{getTotalFooter footer.totalQty footer.total footer.totalKhr footer.totalThb}}}
                 </tr>
 
 

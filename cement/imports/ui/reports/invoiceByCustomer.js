@@ -123,22 +123,27 @@ invoiceDataTmpl.helpers({
         });
         return data;
     },
-    getTotal(total, customerName){
+    getTotal(totalQty,total, customerName){
         let string = '';
-        let fieldLength = this.displayFields.length - 2;
+        let fieldLength = this.displayFields.length - 6;
         for (let i = 0; i < fieldLength; i++) {
             string += '<td></td>'
         }
-        string += `<td class="text-center"><u>Total ${_.capitalize(customerName)}:</u></td><td style="border-top: 1px solid black;" class="text-right">${numeral(total).format('0,0.00')}</td>`;
+        string += `<td class="text-center"><u>Total ${_.capitalize(customerName)}:</u></td><td style="border-top: 1px solid black;" class="text-right">${numeral(totalQty).format('0,0.00')}</td><td style="border-top: 1px solid black;"></td ><td style="border-top: 1px solid black;"></td><td style="border-top: 1px solid black;"></td><td style="border-top: 1px solid black;" class="text-right">${numeral(total).format('0,0.00')}</td>`;
         return string;
     },
-    getTotalFooter(total, totalKhr, totalThb){
+    getTotalFooter(totalQty,total, totalKhr, totalThb){
         let string = '';
-        let fieldLength = this.displayFields.length - 2;
+        let fieldLength = this.displayFields.length - 6;
         for (let i = 0; i < fieldLength; i++) {
             string += '<td></td>'
         }
-        string += `<td><b>Grand Total:</td></b><td style="1px solid black;" class="text-right"><b>${numeral(total).format('0,0.00')}$</b></td>`;
+        string += `<td><b>Grand Total:</td></b>
+            <td style="1px solid black;" class="text-right"><b>${numeral(totalQty).format('0,0.00')}</b></td>;
+            <td style="1px solid black;" class="text-right"></td>;
+            <td style="1px solid black;" class="text-right"></td>;
+            <td style="1px solid black;" class="text-right"></td>;
+            <td style="1px solid black;" class="text-right"><b>${numeral(total).format('0,0.00')}$</b></td>`;
         return string;
     },
     capitalize(customerName){

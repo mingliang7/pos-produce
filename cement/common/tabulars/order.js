@@ -21,6 +21,7 @@ tabularOpts.collection = Order;
 tabularOpts.columns = [
     {title: '<i class="fa fa-bars"></i>', tmpl: Meteor.isClient && Template.Cement_orderAction},
     {data: "_id", title: "ID"},
+    {data: "voucherId", title: "Voucher"},
     {
         data: "orderDate",
         title: "Date",

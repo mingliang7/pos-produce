@@ -22,6 +22,7 @@ tabularOpts.collection = ReceivePayment;
 tabularOpts.columns = [
     {title: '<i class="fa fa-bars"></i>', tmpl: Meteor.isClient && Template.Cement_paymentTransactionAction},
     {data: "_id", title: '#ID'},
+    {data: "voucherId", title: 'Voucher'},
     {data: "invoiceId", title: "Invoice ID"},
     {
         data: "paymentDate",
