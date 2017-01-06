@@ -759,3 +759,17 @@ CementRoutes.route('/truck', {
         parent: 'cement.home'
     }
 });
+
+import '../imports/ui/pages/advanceDiscount'
+CementRoutes.route('/advanceDiscount', {
+    name: 'cement.advanceDiscount',
+    title: 'Advance Discount',
+    action: function (params,queryParams) {
+        Layout.main('Cement_advanceDiscount');
+    },
+    breadcrumb: {
+        title: 'Advance Discount',
+        icon: '',
+        parent: 'cement.home'
+    }
+});

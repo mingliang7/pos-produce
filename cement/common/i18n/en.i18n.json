@@ -40,6 +40,20 @@
         }
       }
     },
+    "advanceDiscount": {
+      "title": "Advance Discount",
+      "schema": {
+        "_id": {
+          "label": "ID"
+        },
+        "name": {
+          "label": "Name"
+        },
+        "advanceDiscount": {
+          "label": "Advance Discount"
+        }
+      }
+    },
     "customer": {
       "title": "Customer",
       "schema": {

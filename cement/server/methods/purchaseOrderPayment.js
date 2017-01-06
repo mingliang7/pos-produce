@@ -10,7 +10,7 @@ Meteor.methods({
     },
     removedPoPayment({doc}){
         let payments = PurchaseOrderPayment.find({billId: doc.billId, status: {$ne: 'removed'}});
-        let selector = {$set: {status: 'active'}};
+        let selector = {$set: {paymentStatus: 'active'}};
         let collections = PurchaseOrder;
         if (payments.count() == 1) {
             collections.direct.update(doc.billId, selector)
