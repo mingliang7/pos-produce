@@ -45,17 +45,6 @@ tabularOpts.columns = [
             });
             return val && val.join(', ');
         }
-    },
-    {data: "account", title: "Account"},
-    {
-        data: "isUsed",
-        title: "Used",
-        render: function (val) {
-            if (val) {
-                return `<span class="label label-success"><i class="fa fa-check"></i></span>`
-            }
-            return `<span class="label label-danger"><i class="fa fa-remove"></i></span>`
-        }
-    },
+    }
 ];
 export const AdvanceDiscountTabular = new Tabular.Table(tabularOpts);

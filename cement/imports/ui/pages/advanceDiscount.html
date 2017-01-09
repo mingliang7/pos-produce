@@ -19,7 +19,6 @@
     {{/columnAction}}
 </template>
 
-<!--Insert-->
 <template name="Cement_advanceDiscountNew">
     <div class="box-body">
         {{#autoForm collection=collection id="Cement_advanceDiscountNew" type="insert"}}
@@ -27,8 +26,6 @@
                 <div class="col-md-12">
                     {{> afQuickField name='name'}}
                     {{> afQuickField name='advanceDiscount'}}
-                    {{> afQuickField name='account'}}
-                    {{> afQuickField name='isUsed'}}
                 </div>
             </div>
             {{> formFooterWithButton}}
@@ -43,8 +40,7 @@
             <div class="row">
                 <div class="col-md-12">
                     {{> afQuickField name='name'  readonly=true}}
-                    {{> afQuickField name='account'}}
-                    {{> afQuickField name='isUsed'}}
+                    {{> afQuickField name='advanceDiscount'}}
                 </div>
             </div>
 

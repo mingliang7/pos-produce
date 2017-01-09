@@ -30,24 +30,6 @@ AdvanceDiscount.schema = new SimpleSchema({
                 ]
             }
         }
-    },
-    account: {
-        type: String,
-        max: 200,
-        optional: true,
-        label: "Chart Of Account",
-        autoform: {
-            type: "select2",
-            placeholder: "Chart Of Account",
-            options: function () {
-                return SelectOpts.chartAccount();
-            }
-        }
-
-    },
-    isUsed:{
-        type:Boolean,
-        label:"Used"
     }
 });
 Meteor.startup(function () {

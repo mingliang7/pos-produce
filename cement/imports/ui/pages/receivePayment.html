@@ -118,7 +118,7 @@
                                                                 <!--class="select-invoice">-->
                                                             {{/if}}
                                                         </td>
-                                                        <td class="text-center">{{{checkLate _id}}}{{_id}}</td>
+                                                        <td class="text-center"><a class="cursor-pointer showInvoice">{{{checkLate _id}}}{{_id}}</a></td>
                                                         <td class="text-center">{{isInvoiceDate}}{{{lastPaymentDate}}}</td>
                                                         <td class="text-center">{{voucherId}}</td>
                                                         <td class="text-right">{{originAmount}}</td>
@@ -133,8 +133,7 @@
                                                                                        for="pref-search">Discount</label>
                                                                                 <input style="font-size: 13px"
                                                                                        type="text"
-                                                                                       class="input-sm form-control {{#if
-                                                                                               disableInputIfLastPaymentDateGreaterThanCurrentSelectDateOrPaidSome}}border-none text-center{{/if}}discount"
+                                                                                       class="input-sm form-control discount"
                                                                                        value="{{discount}}"
                                                                                        readonly="{{disableInputIfLastPaymentDateGreaterThanCurrentSelectDateOrPaidSome}}">
                                                                             </div><!-- form group [search] -->
@@ -144,10 +143,9 @@
                                                                                        for="pref-search">COD</label>
                                                                                 <input style="font-size: 13px"
                                                                                        type="text"
-                                                                                       class="input-sm form-control {{#if
-                                                                                               disableInputIfLastPaymentDateGreaterThanCurrentSelectDateOrPaidSome}}border-none text-center{{/if}}cod"
-                                                                                       value="{{cod}}"
-                                                                                       readonly="{{disableInputIfLastPaymentDateGreaterThanCurrentSelectDateOrPaidSome}}">
+                                                                                       class="input-sm form-control cod"
+                                                                                       value="0"
+                                                                                       readonly="{{disableInputIfLastPaymentDateGreaterThanCurrentSelectDateOrPaidSomeOrNotContainCod}}">
                                                                             </div> <!-- form group [order by] -->
                                                                             <div class="form-group">
                                                                                 <label class="filter-col"
@@ -155,10 +153,9 @@
                                                                                        for="pref-search">Benefit</label>
                                                                                 <input style="font-size: 13px"
                                                                                        type="text"
-                                                                                       class="input-sm form-control {{#if
-                                                                                               disableInputIfLastPaymentDateGreaterThanCurrentSelectDateOrPaidSome}}border-none text-center{{/if}}benefit"
-                                                                                       value="{{benefit}}"
-                                                                                       readonly="{{disableInputIfLastPaymentDateGreaterThanCurrentSelectDateOrPaidSome}}">
+                                                                                       class="input-sm form-control benefit"
+                                                                                       value="0"
+                                                                                       readonly="{{disableInputIfLastPaymentDateGreaterThanCurrentSelectDateOrPaidSomeOrNotContainBenefit}}">
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -274,4 +271,93 @@
             {{/autoForm}}
         </div>
     </div>
+</template>
+
+<template name="Cement_invoiceShowInPayment">
+    <div class="box-body">
+        <div class="container-fluid">
+            <div class="col-md-2 pull-left">
+                <br>
+                <a class="print-invoice-show btn btn-primary"><i class="fa fa-print"></i>Print</a>
+            </div>
+        </div>
+        <div class="container" id="to-print">
+            {{#with company}}
+                <div class="col-xs-12">
+                    <h3 class="text-center">{{khName}}</h3>
+                    <h4 class="text-center">{{enName}}</h4>
+                    <h5 class="text-center">{{khAddress}}</h5>
+                    <h5 class="text-center"><i class="fa fa-phone-square"></i> {{telephone}}</h5>
+                    <br>
+                </div>
+            {{/with}}
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="row">
+                        <div class="col-xs-6 pull-left">
+                            <h2>INVOICE</h2>
+                        </div>
+                        <div class="col-xs-6 pull-left">
+                            <h3 class="pull-right">#{{_id}}</h3>
+                        </div>
+                    </div>
+                    <hr>
+
+                    <div class="row">
+                        <div class="col-md-4" style="padding: 10px;">
+                            <strong>Voucher ID: </strong> {{voucherId}}<br>
+                            <strong>Customer: </strong> {{customer}}<br>
+                            <span><strong>Invoice Date: </strong>{{moFormat invoiceDate 'YYYY-MM-DD HH:mm:ss'}}</span>,
+                            <span><strong>Due Date: </strong>{{moFormat dueDate 'YYYY-MM-DD HH:mm:ss'}}</span><br>
+                            <span><strong>Status: </strong>{{{colorizeStatus status}}}
+                                , <strong>Type: {{{colorizeType invoiceType}}}</strong></span><br>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="">
+                        <div class="">
+                            <h3><strong>ITEMS SUMMARY</strong></h3>
+                            <hr>
+                        </div>
+                        <div class="">
+                            <div class="table-responsive">
+                                <table class="table table-condensed">
+                                    <thead>
+                                    <tr>
+                                        <td><strong>Item</strong></td>
+                                        <td class="text-center"><strong>Qty</strong></td>
+                                        <td class="text-right"><strong>Price</strong></td>
+                                        <td class="text-right"><strong>Amount</strong></td>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <!-- foreach ($order->lineItems as $line) or some such thing here -->
+                                    {{#each item in items}}
+                                        <tr>
+                                            <td><a href="#">{{item.name}}</a></td>
+                                            <td class="text-center">{{item.qty}}</td>
+                                            <td class="text-right">${{item.price}}</td>
+                                            <td class="text-right">${{numFormat item.amount '0,0.00'}}</td>
+                                        </tr>
+                                    {{/each}}
+                                    <tr>
+                                        <td class="no-line"></td>
+                                        <td class="no-line"></td>
+                                        <td class="no-line text-right"><strong>Total</strong></td>
+                                        <td class="no-line text-right">${{numFormat total '0,0.00'}}</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </template>

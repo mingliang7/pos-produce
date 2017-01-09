@@ -45,18 +45,25 @@
                                 <td>: {{sale.typeOfInvoice}}</td>
                             </tr>
                             <tr>
-                                <td><b>លេខឡាន/Truck Num</b></td>
-                                <td>: {{sale.truckDoc.number}}</td>
+                                <td><b>លេខប័ណ្ណបញ្ចេញឃ្លាំង:</b></td>
+                                <td>: {{sale.boid}}</td>
                                 <td><b>ថ្ងៃផុតកំណត់/Due Date</b></td>
                                 <td>: {{moFormat sale.dueDate 'DD/MM/YYYY HH:mm:ss'}}</td>
                             </tr>
                             <tr>
-                                <td><b>អាស័យដ្ឋាន/Address</b></td>
-                                <td colspan="3">: {{sale._customer.address}}</td>
-                            </tr>
-                            <tr>
+                                <td><b>លេខឡាន/Truck Num</b></td>
+                                <td>: {{sale.truckDoc.number}}</td>
                                 <td><b>ទៅអាស័យដ្ឋាន/To Address</b></td>
                                 <td colspan="3">: {{{sale.shipTo}}}</td>
+                            </tr>
+                            <tr>
+                                <td><b>ឃ្លាំង:</b></td>
+                                <td>: {{sale.stockLocationDoc.name}}</td>
+
+                            </tr>
+                            <tr>
+                                <td><b>អាស័យដ្ឋាន/Address</b></td>
+                                <td colspan="3">: {{sale._customer.address}}</td>
                             </tr>
                         </table>
                         <div style="height: 7px;"></div>
@@ -80,9 +87,8 @@
                                     <td align="left">
                                         {{item.itemName}}
                                         {{#if existUnitConvert item.unitConvertDoc}}
-                                            &nbsp;&nbsp;{{item.originalQty}}{{{item.itemDoc.name}}}
-                                            {{item.unitConvertDoc.convertAmount}}
-                                            =&nbsp;{{item.qty}}
+                                            &nbsp;&nbsp;{{numFormat item.originalQty '0,0.00'}}{{{item.itemDoc.name}}}
+                                            {{numFormat item.unitConvertDoc.convertAmount '0,0.00'}}{{item.unitConvertDoc._unit.name}}
                                         {{/if}}
                                     </td>
                                     <td align="right">{{numFormat item.qty '0,0.00'}}{{item.itemDoc._unit.name}}</td>
@@ -165,16 +171,16 @@
    border-bottom-color:black;
    border-bottom-style: dashed;
    width: 100%;"></div>
-                        <div class="row">
-                            <div class="col-md-12"
-                                 style="text-align: center; font-family: 'Khmer OS Battambang'; font-size: 10px;">
-                                <span>អរគុណ សូមអញ្ចើញមកម្តងទៀត!</span>
-                                <br>
-                                <div style="margin-bottom: 1px;">
-                                    <p style="text-align: center;">Powered by Rabbit Technology</p>
-                                </div>
-                            </div>
-                        </div>
+                        <!--<div class="row">-->
+                            <!--<div class="col-md-12"-->
+                                 <!--style="text-align: center; font-family: 'Khmer OS Battambang'; font-size: 10px;">-->
+                                <!--<span>អរគុណ សូមអញ្ចើញមកម្តងទៀត!</span>-->
+                                <!--<br>-->
+                                <!--<div style="margin-bottom: 1px;">-->
+                                    <!--<p style="text-align: center;">Powered by Rabbit Technology</p>-->
+                                <!--</div>-->
+                            <!--</div>-->
+                        <!--</div>-->
                     </div>
                 </div>
 

@@ -12,6 +12,16 @@ ReceivePayment.schema = new SimpleSchema({
         decimal: true,
         optional: true
     },
+    cod: {
+        type: Number,
+        decimal: true,
+        optional: true
+    },
+    benefit: {
+        type: Number,
+        decimal: true,
+        optional: true
+    },
     paymentDate: {
         type: Date
     },

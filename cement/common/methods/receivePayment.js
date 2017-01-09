@@ -24,6 +24,7 @@ export const receivePayment = new ValidatedMethod({
         invoicesObj, paymentDate, branch, voucherId
     }) {
         if (!this.isSimulation) {
+            console.log(invoicesObj);
             for (let k in invoicesObj) {
                 let selector = {}
                 let obj = {
@@ -33,6 +34,8 @@ export const receivePayment = new ValidatedMethod({
                     paidAmount: invoicesObj[k].receivedPay,
                     penalty: invoicesObj[k].penalty,
                     discount: invoicesObj[k].discount || 0,
+                    cod: invoicesObj[k].cod || 0,
+                    benefit: invoicesObj[k].benefit || 0,
                     dueAmount: invoicesObj[k].dueAmount,
                     balanceAmount: invoicesObj[k].dueAmount - invoicesObj[k].receivedPay,
                     customerId: invoicesObj[k].customerId || invoicesObj[k].vendorOrCustomerId,

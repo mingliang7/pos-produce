@@ -18,6 +18,13 @@ Meteor.methods({
                     foreignField: "_id",
                     as: "_customer"
                 }
+            },{
+                $lookup: {
+                    from: "cement_stockLocations",
+                    localField: "stockLocationId",
+                    foreignField: "_id",
+                    as: "stockLocationDoc"
+                }
             },
             {
                 $lookup: {
@@ -31,6 +38,7 @@ Meteor.methods({
             { $unwind: { path: '$_customer', preserveNullAndEmptyArrays: true } },
             { $unwind: { path: '$_staff', preserveNullAndEmptyArrays: true } },
             { $unwind: { path: '$items', preserveNullAndEmptyArrays: true } },
+            { $unwind: { path: '$stockLocationDoc', preserveNullAndEmptyArrays: true } },
             {
                 $lookup: {
                     from: "cement_item",
@@ -67,6 +75,7 @@ Meteor.methods({
                     subTotal: 1,
                     discount: 1,
                     invoiceType: 1,
+                    stockLocationDoc: 1,
                     items: {
                         itemId: 1,
                         qty: 1,
@@ -79,7 +88,7 @@ Meteor.methods({
                         _unit: 1,
                         itemDoc: {
                             _unit: 1,
-                            name: { $ifNull: [{ $concat: ["$unitConvertDoc._unit.name", checkCoefficientType()] }, "$items.itemDoc.name"] }
+                            name: { $ifNull: [{ $concat: [checkCoefficientType()] }, "$items.itemDoc.name"] }
                         },
                         unitConvertDoc: '$unitConvertDoc'
                     }
@@ -99,6 +108,7 @@ Meteor.methods({
                     _staff: { $last: '$_staff' },
                     _rep: {$last: '$_rep'},
                     total: { $last: '$total' },
+                    stockLocationDoc: {$last: '$stockLocationDoc'},
                     invoiceType: {$last: '$invoiceType'},
                     subTotal: { $last: '$subTotal' },
                     discount: { $last: '$discount' },
@@ -124,6 +134,7 @@ Meteor.methods({
                         _rep: '$_rep',
                         saleDate: '$saleDate',
                         dueDate: '$dueDate',
+                        stockLocationDoc: '$stockLocationDoc',
                         total: '$total',
                         invoiceType: '$invoiceType',
                         typeOfInvoice: {

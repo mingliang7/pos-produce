@@ -276,6 +276,10 @@ Invoices.schema = new SimpleSchema({
         type: String,
         optional: true
     },
+    boid: {
+        type: String,
+        optional: true
+    },
     truckId: {
         type: String,
         optional: true,
@@ -301,7 +305,7 @@ Invoices.schema = new SimpleSchema({
             row: 2
         }
     },
-    totalDiscount:{
+    totalDiscount: {
         type: Number,
         decimal: true,
         optional: true,

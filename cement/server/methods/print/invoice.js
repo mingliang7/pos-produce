@@ -20,6 +20,14 @@ Meteor.methods({
                 }
             },
             {
+                $lookup: {
+                    from: "cement_stockLocations",
+                    localField: 'stockLocationId',
+                    foreignField: "_id",
+                    as: 'stockLocationDoc'
+                }
+            },
+            {
                 $unwind: {
                     path: '$truckDoc', preserveNullAndEmptyArrays: true
                 }
@@ -57,6 +65,7 @@ Meteor.methods({
             { $unwind: { path: '$_customer', preserveNullAndEmptyArrays: true } },
             { $unwind: { path: '$_staff', preserveNullAndEmptyArrays: true } },
             { $unwind: { path: '$items', preserveNullAndEmptyArrays: true } },
+            { $unwind: { path: '$stockLocationDoc', preserveNullAndEmptyArrays: true } },
             {
                 $lookup: {
                     from: "cement_item",
@@ -82,11 +91,13 @@ Meteor.methods({
             {
                 $project: {
                     _id: 1,
+                    boid: 1,
                     invoiceDate: 1,
                     voucherId: 1,
                     dueDate: 1,
                     shipTo: 1,
                     saleOrderDoc: 1,
+                    stockLocationDoc: 1,
                     truckDoc: 1,
                     _rep: 1,
                     _customer: 1,
@@ -107,7 +118,7 @@ Meteor.methods({
                         _unit: 1,
                         itemDoc: {
                             _unit: 1,
-                            name: { $ifNull: [{ $concat: ["$unitConvertDoc._unit.name", checkCoefficientType()] }, "$items.itemDoc.name"] }
+                            name: { $ifNull: [{ $concat: [checkCoefficientType()] }, "$items.itemDoc.name"] }
                         },
                         unitConvertDoc: '$unitConvertDoc'
                     }
@@ -123,7 +134,9 @@ Meteor.methods({
                     dueDate: {
                       $last: '$dueDate'
                     },
+                    boid: {$last: '$boid'},
                     _customer: { $last: '$_customer' },
+                    stockLocationDoc: {$last: '$stockLocationDoc'},
                     _staff: { $last: '$_staff' },
                     _rep: {$last: '$_rep'},
                     total: { $last: '$total' },
@@ -153,9 +166,11 @@ Meteor.methods({
                         _staff: '$_staff',
                         _rep: '$_rep',
                         shipTo: '$shipTo',
+                        boid: '$boid',
                         truckDoc: '$truckDoc',
                         saleDate: '$saleDate',
                         dueDate: '$dueDate',
+                        stockLocationDoc: '$stockLocationDoc',
                         total: '$total',
                         invoiceType: '$invoiceType',
                         typeOfInvoice: {

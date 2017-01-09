@@ -22,6 +22,7 @@ tabularOpts.columns = [
     { title: '<i class="fa fa-bars"></i>', tmpl: Meteor.isClient && Template.Cement_invoiceAction },
     { data: "_id", title: "ID" },
     { data: "voucherId", title: "Voucher" },
+    { data: "boid", title: "BOID" },
     {
         data: "invoiceDate",
         title: "Date",
@@ -67,5 +68,5 @@ tabularOpts.columns = [
     //    }
     //}
 ];
-tabularOpts.extraFields = ['truckId', 'shipTo','customerId', 'items', 'dueDate', 'stockLocationId', 'repId', 'voucherId', 'invoiceType', 'saleId', 'paymentGroupId'];
+tabularOpts.extraFields = ['boid','truckId', 'shipTo','customerId', 'items', 'dueDate', 'stockLocationId', 'repId', 'voucherId', 'invoiceType', 'saleId', 'paymentGroupId'];
 export const InvoiceTabular = new Tabular.Table(tabularOpts);
