@@ -9,7 +9,25 @@ Module.Cement = {
         'data-insert',
         'data-update',
         'data-remove',
-        'reporter'
+        'reporter',
+        'setting-advance-discount',
+        'setting-representative',
+        'setting-exchange',
+        'setting-category',
+        'setting-item',
+        'setting-truck',
+        'setting-item-price-for-customer',
+        'setting-quantity-range-mapping',
+        'setting-unit-convert',
+        'setting-term',
+        'setting-payment-group',
+        'setting-credit-validation',
+        'setting-white-list-customer',
+        'setting-penalty',
+        'setting-unit',
+        'setting-account-integration',
+        'setting-stock-location-mapping',
+        'setting-account-mapping'
     ],
     dump: {
         setting: [

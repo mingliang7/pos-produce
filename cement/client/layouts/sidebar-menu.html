@@ -5,17 +5,17 @@
         </a>
     </li>
     <li class="treeview {{isActiveRoute name='acc.payment'}}">
-            <a href="{{pathFor 'acc.payment'}}">
-                <i class="fa fa-plus"></i>
-                <span>{{_ "acc.sidebarMenu.payment"}}</span>
-            </a>
-        </li>
-        <li class="treeview {{isActiveRoute name='acc.received'}}">
-            <a href="{{pathFor 'acc.received'}}">
-                <i class="fa fa-plus"></i>
-                <span>{{_ "acc.sidebarMenu.received"}}</span>
-            </a>
-        </li>
+        <a href="{{pathFor 'acc.payment'}}">
+            <i class="fa fa-plus"></i>
+            <span>{{_ "acc.sidebarMenu.payment"}}</span>
+        </a>
+    </li>
+    <li class="treeview {{isActiveRoute name='acc.received'}}">
+        <a href="{{pathFor 'acc.received'}}">
+            <i class="fa fa-plus"></i>
+            <span>{{_ "acc.sidebarMenu.received"}}</span>
+        </a>
+    </li>
     <!--Data-->
     {{#if isInRole 'data-insert,data-update,data-remove' 'Cement'}}
         <li class="treeview active">
@@ -216,7 +216,7 @@
                         <span>MAIN</span>
                     </a>
                 </li>
-                 <li class="{{isActiveRoute name='acc.cashReport'}}">
+                <li class="{{isActiveRoute name='acc.cashReport'}}">
                     <a href="{{pathFor 'acc.cashReport'}}">
                         <i class="fa fa-angle-right"></i> <span>{{_ "acc.sidebarMenu.cashReport"}}</span>
                     </a>
@@ -421,102 +421,138 @@
                 <i class="fa fa-angle-left pull-right"></i>
             </a>
             <ul class="treeview-menu" style="display: none;">
-                <li class="{{isActiveRoute name='cement.advanceDiscount'}}">
-                    <a href="{{pathFor 'cement.advanceDiscount'}}">
-                        <i class="fa fa-level-down"></i> <span>Advance Discount</span>
-                    </a>
-                </li>
-                <li class="{{isActiveRoute name='cement.rep'}}">
-                    <a href="{{pathFor 'cement.rep'}}">
-                        <i class="fa fa-group"></i> <span>Reps</span>
-                    </a>
-                </li>
-                <li class="{{isActiveRoute name='core.exchange'}}">
-                    <a href="{{pathFor 'core.exchange'}}">
-                        <i class="fa fa-money"></i> <span>{{_ "core.sidebarMenu.exchange"}}</span>
-                    </a>
-                </li>
-                <li class="{{isActiveRoute name='cement.categroy'}}">
-                    <a href="{{pathFor 'cement.category'}}">
-                        <i class="fa fa-sitemap"></i> <span>{{_ "cement.sidebarMenu.category"}}</span>
-                    </a>
-                </li>
-                <li class="{{isActiveRoute name='cement.unit'}}">
-                    <a href="{{pathFor 'cement.unit'}}">
-                        <i class="fa fa-beer"></i> <span>Unit</span>
-                    </a>
-                </li>
-                <li class="{{isActiveRoute name='cement.item'}}">
-                    <a href="{{pathFor 'cement.item'}}">
-                        <i class="fa fa-list-ul"></i> <span>{{_ "cement.sidebarMenu.item"}}</span>
-                    </a>
-                </li>
-                <li class="{{isActiveRoute name='cement.truck'}}">
-                    <a href="{{pathFor 'cement.truck'}}">
-                        <i class="fa fa-list-ul"></i> <span>Truck</span>
-                    </a>
-                </li>
-                <li class="{{isActiveRoute name='cement.itemPriceForCustomer'}}">
-                    <a href="{{pathFor 'cement.itemPriceForCustomer'}}">
-                        <i class="fa fa-usd"></i> <span>{{_ "cement.sidebarMenu.itemPriceForCustomer"}}</span>
-                    </a>
-                </li>
-                <li class="{{isActiveRoute name='cement.quantityRangeMapping'}}">
-                    <a href="{{pathFor 'cement.quantityRangeMapping'}}">
-                        <i class="fa fa-usd"></i> <span>Quantity Range Mapping</span>
-                    </a>
-                </li>
-                <li class="{{isActiveRoute name='cement.unitConvert'}}">
-                    <a href="{{pathFor 'cement.unitConvert'}}">
-                        <i class="fa fa-exchange" aria-hidden="true"></i>
-                        <span>Unit Convert</span>
-                    </a>
-                </li>
-                <li class="{{isActiveRoute name='cement.term'}}">
-                    <a href="{{pathFor 'cement.term'}}">
-                        <i class="fa fa-angle-right"></i> <span>Term</span>
-                    </a>
-                </li>
-                <li class="{{isActiveRoute name='cement.paymentGroup'}}">
-                    <a href="{{pathFor 'cement.paymentGroup'}}">
-                        <i class="fa fa-angle-right"></i> <span>{{_ "cement.sidebarMenu.paymentGroup"}}</span>
-                    </a>
-                </li>
-                <li class="{{isActiveRoute name='cement.creditValidation'}}">
-                    <a href="{{pathFor 'cement.creditValidation'}}">
-                        <i class="fa fa-angle-right"></i> <span>Credit Validation</span>
-                    </a>
-                </li>
-                <li class="{{isActiveRoute name='cement.whiteListCustomer'}}">
-                    <a href="{{pathFor 'cement.whiteListCustomer'}}">
-                        <i class="fa fa-angle-right"></i> <span>White List Customer</span>
-                    </a>
-                </li>
-                <li class="{{isActiveRoute name='cement.penalty'}}">
-                    <a href="{{pathFor 'cement.penalty'}}">
-                        <i class="fa fa-angle-right"></i> <span>Penalty</span>
-                    </a>
-                </li>
-                <li class="{{isActiveRoute name='cement.accountIntegrationSetting'}}">
-                    <a href="{{pathFor 'cement.accountIntegrationSetting'}}">
-                        <i class="fa fa-angle-right"></i> <span>Account Integrated</span>
-                    </a>
-                </li>
+                {{#if isInRole 'setting-advance-discount' 'Cement'}}
+                    <li class="{{isActiveRoute name='cement.advanceDiscount'}}">
+                        <a href="{{pathFor 'cement.advanceDiscount'}}">
+                            <i class="fa fa-level-down"></i> <span>Advance Discount</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'setting-representative' 'Cement'}}
+                    <li class="{{isActiveRoute name='cement.rep'}}">
+                        <a href="{{pathFor 'cement.rep'}}">
+                            <i class="fa fa-group"></i> <span>Reps</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'setting-exchange' 'Cement'}}
+                    <li class="{{isActiveRoute name='core.exchange'}}">
+                        <a href="{{pathFor 'core.exchange'}}">
+                            <i class="fa fa-money"></i> <span>{{_ "core.sidebarMenu.exchange"}}</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'setting-category' 'Cement'}}
+                    <li class="{{isActiveRoute name='cement.categroy'}}">
+                        <a href="{{pathFor 'cement.category'}}">
+                            <i class="fa fa-sitemap"></i> <span>{{_ "cement.sidebarMenu.category"}}</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'setting-unit' 'Cement'}}
+                    <li class="{{isActiveRoute name='cement.unit'}}">
+                        <a href="{{pathFor 'cement.unit'}}">
+                            <i class="fa fa-beer"></i> <span>Unit</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'setting-item' 'Cement'}}
+                    <li class="{{isActiveRoute name='cement.item'}}">
+                        <a href="{{pathFor 'cement.item'}}">
+                            <i class="fa fa-list-ul"></i> <span>{{_ "cement.sidebarMenu.item"}}</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'setting-truck' 'Cement'}}
+                    <li class="{{isActiveRoute name='cement.truck'}}">
+                        <a href="{{pathFor 'cement.truck'}}">
+                            <i class="fa fa-car"></i> <span>Truck</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'setting-item-price-for-customer' 'Cement'}}
+                    <li class="{{isActiveRoute name='cement.itemPriceForCustomer'}}">
+                        <a href="{{pathFor 'cement.itemPriceForCustomer'}}">
+                            <i class="fa fa-usd"></i> <span>{{_ "cement.sidebarMenu.itemPriceForCustomer"}}</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'setting-quantity-range-mapping' 'Cement'}}
+                    <li class="{{isActiveRoute name='cement.quantityRangeMapping'}}">
+                        <a href="{{pathFor 'cement.quantityRangeMapping'}}">
+                            <i class="fa fa-usd"></i> <span>Quantity Range Mapping</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'setting-unit-convert' 'Cement'}}
+                    <li class="{{isActiveRoute name='cement.unitConvert'}}">
+                        <a href="{{pathFor 'cement.unitConvert'}}">
+                            <i class="fa fa-exchange" aria-hidden="true"></i>
+                            <span>Unit Convert</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'setting-term' 'Cement'}}
+                    <li class="{{isActiveRoute name='cement.term'}}">
+                        <a href="{{pathFor 'cement.term'}}">
+                            <i class="fa fa-angle-right"></i> <span>Term</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'setting-payment-group' 'Cement'}}
+                    <li class="{{isActiveRoute name='cement.paymentGroup'}}">
+                        <a href="{{pathFor 'cement.paymentGroup'}}">
+                            <i class="fa fa-angle-right"></i> <span>{{_ "cement.sidebarMenu.paymentGroup"}}</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'setting-credit-validation' 'Cement'}}
+                    <li class="{{isActiveRoute name='cement.creditValidation'}}">
+                        <a href="{{pathFor 'cement.creditValidation'}}">
+                            <i class="fa fa-angle-right"></i> <span>Credit Validation</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'setting-white-list-customer' 'Cement'}}
+                    <li class="{{isActiveRoute name='cement.whiteListCustomer'}}">
+                        <a href="{{pathFor 'cement.whiteListCustomer'}}">
+                            <i class="fa fa-angle-right"></i> <span>White List Customer</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'setting-penalty' 'Cement'}}
+                    <li class="{{isActiveRoute name='cement.penalty'}}">
+                        <a href="{{pathFor 'cement.penalty'}}">
+                            <i class="fa fa-angle-right"></i> <span>Penalty</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'setting-account-integration' 'Cement'}}
+                    <li class="{{isActiveRoute name='cement.accountIntegrationSetting'}}">
+                        <a href="{{pathFor 'cement.accountIntegrationSetting'}}">
+                            <i class="fa fa-angle-right"></i> <span>Account Integrated</span>
+                        </a>
+                    </li>
+                {{/if}}
                 <!--<li class="{{isActiveRoute name='cement.accountMapping'}}">-->
                 <!--<a href="{{pathFor 'cement.accountMapping'}}">-->
                 <!--<i class="fa fa-angle-right"></i> <span>Account Mapping</span>-->
                 <!--</a>-->
                 <!--</li>-->
-                <li class="{{isActiveRoute name='cement.stockAndAccountMapping'}}">
-                    <a href="{{pathFor 'cement.stockAndAccountMapping'}}">
-                        <i class="fa fa-angle-right"></i> <span>Stock Mapping</span>
-                    </a>
-                </li>
-                <li class="{{isActiveRoute name='cement.accountMapping'}}">
-                    <a href="{{pathFor 'cement.accountMapping'}}">
-                        <i class="fa fa-angle-right"></i> <span>Account Mapping</span>
-                    </a>
-                </li>
+                {{#if isInRole 'setting-stock-location-mapping' 'Cement'}}
+                    <li class="{{isActiveRoute name='cement.stockAndAccountMapping'}}">
+                        <a href="{{pathFor 'cement.stockAndAccountMapping'}}">
+                            <i class="fa fa-angle-right"></i> <span>Stock Mapping</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'setting-account-mapping' 'Cement'}}
+                    <li class="{{isActiveRoute name='cement.accountMapping'}}">
+                        <a href="{{pathFor 'cement.accountMapping'}}">
+                            <i class="fa fa-angle-right"></i> <span>Account Mapping</span>
+                        </a>
+                    </li>
+                {{/if}}
             </ul>
         </li>
     {{/if}}
