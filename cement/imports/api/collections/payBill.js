@@ -15,6 +15,16 @@ PayBills.schema = new SimpleSchema({
         decimal: true,
         optional: true
     },
+    cod: {
+        type: Number,
+        decimal: true,
+        optional: true
+    },
+    benefit: {
+        type: Number,
+        decimal: true,
+        optional: true
+    },
     dueAmount: {
         type: Number,
         decimal: true

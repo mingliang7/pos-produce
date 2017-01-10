@@ -181,7 +181,7 @@ indexTmpl.helpers({
         return false;
     },
     lastPaymentDate(){
-        var lastPaymentDate = getLastPaymentDate(this._id);
+        let lastPaymentDate = getLastPaymentDate(this._id);
         if (lastPaymentDate) {
             return `<br><span class="label label-success"><i class="fa fa-money"></i> Last Paid: ${moment(lastPaymentDate).format('YYYY-MM-DD HH:mm:ss')}</span>`;
         }
@@ -191,9 +191,9 @@ indexTmpl.helpers({
         try {
             let _id = Session.get('invoiceId');
             let discount = this.status == 'active' ? checkTerm(this) : 0;
-            var lastPayment = getLastPayment(this._id);
-            var currentSelectDate = currentPaymentDate.get();
-            var lastPaymentDate = getLastPaymentDate(_id);
+            let lastPayment = getLastPayment(this._id);
+            let currentSelectDate = currentPaymentDate.get();
+            let lastPaymentDate = getLastPaymentDate(_id);
             if (this.status == 'active' && (this._id == _id || this.voucherId == _id)) { //match _id with status active
                 let saleInvoices = {
                     count: 0
@@ -273,7 +273,7 @@ indexTmpl.helpers({
         let invoices = (customer && customer.termId) ? Invoices.find({}) : GroupInvoice.find({});
         if (invoices.count() > 0) {
             invoices.forEach(function (invoice) {
-                var discount = invoice.status == 'active' ? checkTerm(invoice) : 0;
+                let discount = invoice.status == 'active' ? checkTerm(invoice) : 0;
                 let receivePayments = ReceivePayment.find({invoiceId: invoice._id}, {sort: {_id: 1, paymentDate: 1}});
                 if (receivePayments.count() > 0) {
                     let lastPayment = _.last(receivePayments.fetch());
@@ -461,12 +461,12 @@ indexTmpl.events({
         }
     },
     'click .select-invoice' (event, instance) {
-        var selectedInvoices = Session.get('invoicesObj');
+        let selectedInvoices = Session.get('invoicesObj');
         let penalty = countLateInvoice.get().calculatePenalty[this._id] || 0;
         let lastPayment = getLastPayment(this._id);
-        var discount = $(event.currentTarget).parents('invoice-parents').find('.discount').val();
-        var cod = $(event.currentTarget).parents('invoice-parents').find('.cod').val();
-        var benefit = $(event.currentTarget).parents('invoice-parents').find('.benefit').val();
+        let discount = $(event.currentTarget).parents('invoice-parents').find('.discount').val();
+        let cod = $(event.currentTarget).parents('invoice-parents').find('.cod').val();
+        let benefit = $(event.currentTarget).parents('invoice-parents').find('.benefit').val();
         if ($(event.currentTarget).prop('checked')) {
             $(event.currentTarget).parents('.invoice-parents').find('.total').val(lastPayment == 0 ? this.total + penalty : lastPayment + penalty).change();
         } else {
@@ -584,7 +584,7 @@ indexTmpl.events({
         }
     },
     "keypress .discount,.cod,.benefit" (evt) {
-        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        let charCode = (evt.which) ? evt.which : evt.keyCode;
         if ($(evt.currentTarget).val().indexOf('.') != -1) {
             if (charCode == 46) {
                 return false;
@@ -593,12 +593,12 @@ indexTmpl.events({
         return !(charCode != 46 && charCode > 31 && (charCode < 48 || charCode > 57));
     },
     'change .total' (event, instance) {
-        var selectedInvoices = Session.get('invoicesObj');
-        var lastPayment = getLastPayment(this._id);
-        var discount = $(event.currentTarget).parents('.invoice-parents').find('.discount').val(); // get discount
-        var cod = $(event.currentTarget).parents('.invoice-parents').find('.cod').val(); // get discount
-        var benefit = $(event.currentTarget).parents('.invoice-parents').find('.benefit').val(); // get discount
-        var penalty = isPenalty.get() ? countLateInvoice.get().calculatePenalty[this._id] || 0 : 0;
+        let selectedInvoices = Session.get('invoicesObj');
+        let lastPayment = getLastPayment(this._id);
+        let discount = $(event.currentTarget).parents('.invoice-parents').find('.discount').val(); // get discount
+        let cod = $(event.currentTarget).parents('.invoice-parents').find('.cod').val(); // get discount
+        let benefit = $(event.currentTarget).parents('.invoice-parents').find('.benefit').val(); // get discount
+        let penalty = isPenalty.get() ? countLateInvoice.get().calculatePenalty[this._id] || 0 : 0;
         if (event.currentTarget.value == '' || event.currentTarget.value == '0') {
             if (_.has(selectedInvoices, this._id)) {
                 selectedInvoices.count -= 1;
@@ -630,7 +630,7 @@ indexTmpl.events({
         }
     },
     "keypress .total" (evt) {
-        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        let charCode = (evt.which) ? evt.which : evt.keyCode;
         if ($(evt.currentTarget).val().indexOf('.') != -1) {
             if (charCode == 46) {
                 return false;

@@ -42,7 +42,7 @@ tabularOpts.columns = [
         data: "dueAmount",
         title: "Actual Due Amount",
         render: function (val, type, doc) {
-            let recalDueAmountWithDiscount = val / (1 - (doc.discount / 100));
+            let recalDueAmountWithDiscount = val + doc.cod || 0 + doc.benefit || 0 + doc.discount || 0;
             return numeral(recalDueAmountWithDiscount).format('0,0.00');
         }
     },

@@ -36,7 +36,7 @@
         box-shadow: none;
         border: none;
     }
-    .table > tr, .table > thead > tr > th, .table > tbody > tr > td, .table > tbody > tr {
+    .table  > tr, .table > thead > tr > th, .table > tbody > tr > td, .table > tbody > tr {
         font-size: 9px !important;
         padding: 2px;
     }

@@ -79,7 +79,7 @@
                                             <td class="text-center"><strong>Voucher ID</strong></td>
                                             <td class="text-right"><strong>Org.Amount</strong></td>
                                             <td class="text-right"><strong>Amount Due</strong></td>
-                                            <td class="text-right"><strong>Discount(%)</strong></td>
+                                            <td class="text-right"><strong>Discount</strong></td>
                                             <td class="text-right"><strong>Actual Pay</strong></td>
                                             <td class="text-right"><strong>Paid</strong></td>
                                         </tr>
@@ -107,11 +107,50 @@
                                                         <td class="text-center">{{voucherId}}</td>
                                                         <td class="text-right">{{originAmount}}</td>
                                                         <td class="text-right">{{dueAmount}}</td>
-                                                        <td class="text-right"><input type="text"
-                                                                                      class="input-sm form-control {{#if disableInputIfLastPaymentDateGreaterThanCurrentSelectDateOrPaidSome}}border-none text-center{{/if}} discount"
-                                                                                      style="font-size: 13px;"
-                                                                                      value="{{discount}}"
-                                                                                      readonly="{{disableInputIfLastPaymentDateGreaterThanCurrentSelectDateOrPaidSome}}">
+                                                        <td class="text-right">
+                                                            <div id="filter-panel{{_id}}" class="collapse filter-panel">
+                                                                <div class="panel panel-default">
+                                                                    <div class="panel-body">
+                                                                        <div class="form-group">
+                                                                            <label class="filter-col"
+                                                                                   style="margin-right:0;"
+                                                                                   for="pref-search">Discount</label>
+                                                                            <input style="font-size: 13px"
+                                                                                   type="text"
+                                                                                   class="input-sm form-control discount"
+                                                                                   value="{{discount}}"
+                                                                                   readonly="{{disableInputIfLastPaymentDateGreaterThanCurrentSelectDateOrPaidSome}}">
+                                                                        </div><!-- form group [search] -->
+                                                                        <div class="form-group">
+                                                                            <label class="filter-col"
+                                                                                   style="margin-right:0;"
+                                                                                   for="pref-search">COD</label>
+                                                                            <input style="font-size: 13px"
+                                                                                   type="text"
+                                                                                   class="input-sm form-control cod"
+                                                                                   value="0"
+                                                                                   readonly="{{disableInputIfLastPaymentDateGreaterThanCurrentSelectDateOrPaidSomeOrNotContainCod}}">
+                                                                        </div> <!-- form group [order by] -->
+                                                                        <div class="form-group">
+                                                                            <label class="filter-col"
+                                                                                   style="margin-right:0;"
+                                                                                   for="pref-search">Benefit</label>
+                                                                            <input style="font-size: 13px"
+                                                                                   type="text"
+                                                                                   class="input-sm form-control benefit"
+                                                                                   value="0"
+                                                                                   readonly="{{disableInputIfLastPaymentDateGreaterThanCurrentSelectDateOrPaidSomeOrNotContainBenefit}}">
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <button type="button" class="btn btn-xs btn-warning text-white"
+                                                                    data-toggle="collapse"
+                                                                    data-target="#filter-panel{{_id}}">
+                                                                <span class="glyphicon glyphicon-cog"></span>
+                                                                Advanced Discount
+                                                            </button>
+
                                                         </td>
                                                         <td class="text-right"><input
                                                                 class="input-sm form-control text-right actual-pay"

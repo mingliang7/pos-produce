@@ -30,8 +30,10 @@ tabularOpts.columns = [
                 return 'Receive Payment';
             }else if (val == 'saleOrderReceivePayment') {
                 return 'SO Receive Payment';
-            }else if (val == 'purchaseOrderReceivePayment') {
+            }else if (val == 'purchaseOrderPayment') {
                 return 'PO receive Payment';
+            }else if(val == 'payBill') {
+                return 'Pay Bill'
             }
             return '';
         }

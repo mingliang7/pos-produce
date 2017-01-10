@@ -4,6 +4,7 @@ import {renderTemplate} from '../../../../core/client/libs/render-template.js';
 //collections
 import {Order} from '../../api/collections/order';
 import {SaleOrderReceivePayment} from '../../api/collections/saleOrderReceivePayment';
+import {AdvanceDiscount} from '../../api/collections/advanceDiscount';
 import {Customers} from '../../api/collections/customer';
 //schema
 import {saleOrderReceivePaymentSchema} from '../../api/collections/saleOrderReceivePaymentSchema.js';
@@ -40,6 +41,7 @@ indexTmpl.onCreated(function () {
     });
     Session.set('balance', 0)
     this.autorun(() => {
+        Meteor.subscribe('cement.advanceDiscount', {name: 'saleOrderReceivePayment'});
         if (Session.get('customerId')) {
             Meteor.subscribe('cement.customer', {
                 _id: Session.get('customerId')
@@ -169,7 +171,7 @@ indexTmpl.helpers({
         return false;
     },
     lastPaymentDate(){
-        var lastPaymentDate = getLastPaymentDate(this._id);
+        let lastPaymentDate = getLastPaymentDate(this._id);
         if (lastPaymentDate) {
             return `<br><span class="label label-success"><i class="fa fa-money"></i> Last Paid: ${moment(lastPaymentDate).format('YYYY-MM-DD HH:mm:ss')}</span>`;
         }
@@ -179,9 +181,9 @@ indexTmpl.helpers({
         try {
             let _id = Session.get('invoiceId');
             let discount = this.paymentStatus == 'active' ? checkTerm(this) : 0;
-            var lastPayment = getLastPayment(this._id);
-            var currentSelectDate = currentPaymentDate.get();
-            var lastPaymentDate = getLastPaymentDate(_id);
+            let lastPayment = getLastPayment(this._id);
+            let currentSelectDate = currentPaymentDate.get();
+            let lastPaymentDate = getLastPaymentDate(_id);
             if (this.paymentStatus == 'active' && (this._id == _id || this.voucherId == _id)) { //match _id with status active
                 let saleOrder = {
                     count: 0
@@ -266,7 +268,7 @@ indexTmpl.helpers({
         let invoices = (customer && customer.termId) ? Order.find({}) : Order.find({});
         if (invoices.count() > 0) {
             invoices.forEach(function (invoice) {
-                var discount = invoice.paymentStatus == 'active' ? checkTerm(invoice) : 0;
+                let discount = invoice.paymentStatus == 'active' ? checkTerm(invoice) : 0;
                 let saleOrderReceivePayments = SaleOrderReceivePayment.find({invoiceId: invoice._id}, {
                     sort: {
                         _id: 1,
@@ -323,12 +325,50 @@ indexTmpl.helpers({
         let lastPaymentDate = getLastPaymentDate(this._id);
         let lastPayment = getLastPayment(this._id);
         let currentSelectDate = currentPaymentDate.get();
+        let advanceDiscountCollection = AdvanceDiscount.findOne({name: 'saleOrderReceivePayment'});
+        let notContainAdvanceDiscount = !_.includes(advanceDiscountCollection && advanceDiscountCollection.advanceDiscount, 'discount');
         if (lastPaymentDate) {
-            if (moment(currentSelectDate).isBefore(lastPaymentDate) || lastPayment > 0) {
+            if (moment(currentSelectDate).isBefore(lastPaymentDate) || lastPayment > 0 || notContainAdvanceDiscount) {
                 return true;
             } else {
                 return false;
             }
+        } else if (notContainAdvanceDiscount) {
+            return true;
+        }
+        return false;
+    },
+    disableInputIfLastPaymentDateGreaterThanCurrentSelectDateOrPaidSomeOrNotContainCod(){
+        let lastPaymentDate = getLastPaymentDate(this._id);
+        let lastPayment = getLastPayment(this._id);
+        let currentSelectDate = currentPaymentDate.get();
+        let advanceDiscountCollection = AdvanceDiscount.findOne({name: 'saleOrderReceivePayment'});
+        let notContainAdvanceDiscount = !_.includes(advanceDiscountCollection && advanceDiscountCollection.advanceDiscount, 'cod');
+        if (lastPaymentDate) {
+            if (moment(currentSelectDate).isBefore(lastPaymentDate) || lastPayment > 0 || notContainAdvanceDiscount) {
+                return true;
+            } else {
+                return false;
+            }
+        } else if (notContainAdvanceDiscount) {
+            return true;
+        }
+        return false;
+    },
+    disableInputIfLastPaymentDateGreaterThanCurrentSelectDateOrPaidSomeOrNotContainBenefit(){
+        let lastPaymentDate = getLastPaymentDate(this._id);
+        let lastPayment = getLastPayment(this._id);
+        let currentSelectDate = currentPaymentDate.get();
+        let advanceDiscountCollection = AdvanceDiscount.findOne({name: 'saleOrderReceivePayment'});
+        let notContainAdvanceDiscount = !_.includes(advanceDiscountCollection && advanceDiscountCollection.advanceDiscount, 'benefit');
+        if (lastPaymentDate) {
+            if (moment(currentSelectDate).isBefore(lastPaymentDate) || lastPayment > 0 || notContainAdvanceDiscount) {
+                return true;
+            } else {
+                return false;
+            }
+        } else if (notContainAdvanceDiscount) {
+            return true;
         }
         return false;
     },
@@ -388,10 +428,10 @@ indexTmpl.events({
         }
     },
     'click .select-invoice' (event, instance) {
-        var selectedOrder = Session.get('invoicesObj');
+        let selectedOrder = Session.get('invoicesObj');
         let penalty = countLateInvoice.get().calculatePenalty[this._id] || 0;
         let lastPayment = getLastPayment(this._id);
-        var discount = $(event.currentTarget).parents('invoice-parents').find('.discount').val();
+        let discount = $(event.currentTarget).parents('invoice-parents').find('.discount').val();
         if ($(event.currentTarget).prop('checked')) {
             $(event.currentTarget).parents('.invoice-parents').find('.total').val(lastPayment == 0 ? this.total + penalty : lastPayment + penalty).change();
             debugger
@@ -449,22 +489,68 @@ indexTmpl.events({
     'change .discount'(event, instance){
         let total = this.total;
         let discount = 0;
+        let cod = $(event.currentTarget).parents('.invoice-parents').find('.cod').val();
+        let benefit = $(event.currentTarget).parents('.invoice-parents').find('.benefit').val();
+        cod = cod == "" ? 0 : parseFloat(cod);
+        benefit = benefit == "" ? 0 : parseFloat(benefit);
         let penalty = isPenalty.get() ? countLateInvoice.get().calculatePenalty[this._id] || 0 : 0;
         if (event.currentTarget.value == '') {
-            //trigger change on total
-            $(event.currentTarget).parents('.invoice-parents').find('.total').val(total + penalty).change();
-            $(event.currentTarget).parents('.invoice-parents').find('.actual-pay').val(numeral(total + penalty).format('0,0.00')).change();
+            //trigger change on total+
+            $(event.currentTarget).parents('.invoice-parents').find('.total').val(total - (cod + benefit) + penalty).change();
+            $(event.currentTarget).parents('.invoice-parents').find('.actual-pay').val(numeral(total - (cod + benefit) + penalty).format('0,0.00')).change();
             $(event.currentTarget).val('0');
 
         } else {
             //trigger change on total
-            let valueAfterDiscount = (total * (1 - (parseFloat(event.currentTarget.value) / 100))) + penalty;
+            let valueAfterDiscount = (total - (cod + benefit + parseFloat(event.currentTarget.value)) ) + penalty;
             $(event.currentTarget).parents('.invoice-parents').find('.total').val(valueAfterDiscount).change();
             $(event.currentTarget).parents('.invoice-parents').find('.actual-pay').val(numeral(valueAfterDiscount).format('0,0.00')).change();
         }
     },
-    "keypress .discount" (evt) {
-        var charCode = (evt.which) ? evt.which : evt.keyCode;
+    'change .cod'(event, instance){
+        let total = this.total;
+        let cod = 0;
+        let discount = $(event.currentTarget).parents('.invoice-parents').find('.discount').val();
+        let benefit = $(event.currentTarget).parents('.invoice-parents').find('.benefit').val();
+        discount = discount == "" ? 0 : parseFloat(discount);
+        benefit = benefit == "" ? 0 : parseFloat(benefit);
+        let penalty = isPenalty.get() ? countLateInvoice.get().calculatePenalty[this._id] || 0 : 0;
+        if (event.currentTarget.value == '') {
+            //trigger change on total+
+            $(event.currentTarget).parents('.invoice-parents').find('.total').val(total - (discount + benefit) + penalty).change();
+            $(event.currentTarget).parents('.invoice-parents').find('.actual-pay').val(numeral(total - (discount + benefit) + penalty).format('0,0.00')).change();
+            $(event.currentTarget).val('0');
+
+        } else {
+            //trigger change on total
+            let valueAfterCod = (total - (discount + benefit + parseFloat(event.currentTarget.value))) + penalty;
+            $(event.currentTarget).parents('.invoice-parents').find('.total').val(valueAfterCod).change();
+            $(event.currentTarget).parents('.invoice-parents').find('.actual-pay').val(numeral(valueAfterCod).format('0,0.00')).change();
+        }
+    },
+    'change .benefit'(event, instance){
+        let total = this.total;
+        let benefit = 0;
+        let discount = $(event.currentTarget).parents('.invoice-parents').find('.discount').val();
+        let cod = $(event.currentTarget).parents('.invoice-parents').find('.cod').val();
+        discount = discount == "" ? 0 : parseFloat(discount);
+        cod = cod == "" ? 0 : parseFloat(cod);
+        let penalty = isPenalty.get() ? countLateInvoice.get().calculatePenalty[this._id] || 0 : 0;
+        if (event.currentTarget.value == '') {
+            //trigger change on total+
+            $(event.currentTarget).parents('.invoice-parents').find('.total').val(total-(discount+cod) + penalty).change();
+            $(event.currentTarget).parents('.invoice-parents').find('.actual-pay').val(numeral(total-(discount+cod) + penalty).format('0,0.00')).change();
+            $(event.currentTarget).val('0');
+
+        } else {
+            //trigger change on total
+            let valueAfterbenefit = (total - (discount + cod + parseFloat(event.currentTarget.value))) + penalty;
+            $(event.currentTarget).parents('.invoice-parents').find('.total').val(valueAfterbenefit).change();
+            $(event.currentTarget).parents('.invoice-parents').find('.actual-pay').val(numeral(valueAfterbenefit).format('0,0.00')).change();
+        }
+    },
+    "keypress .discount,.cod,.benefit" (evt) {
+        let charCode = (evt.which) ? evt.which : evt.keyCode;
         if ($(evt.currentTarget).val().indexOf('.') != -1) {
             if (charCode == 46) {
                 return false;
@@ -473,10 +559,12 @@ indexTmpl.events({
         return !(charCode != 46 && charCode > 31 && (charCode < 48 || charCode > 57));
     },
     'change .total' (event, instance) {
-        var selectedOrder = Session.get('invoicesObj');
-        var lastPayment = getLastPayment(this._id);
-        var discount = $(event.currentTarget).parents('.invoice-parents').find('.discount').val(); // get discount
-        var penalty = isPenalty.get() ? countLateInvoice.get().calculatePenalty[this._id] || 0 : 0;
+        let selectedOrder = Session.get('invoicesObj');
+        let lastPayment = getLastPayment(this._id);
+        let discount = $(event.currentTarget).parents('.invoice-parents').find('.discount').val(); // get discount
+        let cod = $(event.currentTarget).parents('.invoice-parents').find('.cod').val(); // get discount
+        let benefit = $(event.currentTarget).parents('.invoice-parents').find('.benefit').val(); // get discount
+        let penalty = isPenalty.get() ? countLateInvoice.get().calculatePenalty[this._id] || 0 : 0;
         if (event.currentTarget.value == '' || event.currentTarget.value == '0') {
             if (_.has(selectedOrder, this._id)) {
                 selectedOrder.count -= 1;
@@ -491,9 +579,13 @@ indexTmpl.events({
             }
             selectedOrder[this._id] = this;
             selectedOrder[this._id].discount = parseFloat(discount);
+            selectedOrder[this._id].cod = parseFloat(cod);
+            selectedOrder[this._id].benefit = parseFloat(benefit);
             selectedOrder[this._id].penalty = penalty;
             selectedOrder[this._id].receivedPay = parseFloat(event.currentTarget.value);
-            selectedOrder[this._id].dueAmount = lastPayment == 0 ? this.total * (1 - parseFloat(discount / 100)) : lastPayment;
+            selectedOrder[this._id].dueAmount = lastPayment == 0 ? this.total - discount : lastPayment;
+            selectedOrder[this._id].dueAmount = lastPayment == 0 ? selectedOrder[this._id].dueAmount - cod : selectedOrder[this._id].dueAmount;
+            selectedOrder[this._id].dueAmount = lastPayment == 0 ? selectedOrder[this._id].dueAmount - benefit : selectedOrder[this._id].dueAmount;
             $(event.currentTarget).parents('.invoice-parents').find('.select-invoice').prop('checked', true);
             if (parseFloat(event.currentTarget.value) > selectedOrder[this._id].dueAmount) { //check if entering payment greater than dueamount
                 selectedOrder[this._id].receivedPay = selectedOrder[this._id].dueAmount;
@@ -504,7 +596,7 @@ indexTmpl.events({
         }
     },
     "keypress .total" (evt) {
-        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        let charCode = (evt.which) ? evt.which : evt.keyCode;
         if ($(evt.currentTarget).val().indexOf('.') != -1) {
             if (charCode == 46) {
                 return false;

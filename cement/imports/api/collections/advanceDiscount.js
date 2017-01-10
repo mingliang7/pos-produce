@@ -10,6 +10,7 @@ AdvanceDiscount.schema = new SimpleSchema({
                 return [
                     {label: '(Select One)', value: ''},
                     {label: 'Receive Payment', value: 'receivePayment'},
+                    {label: 'Pay Bill', value: 'payBill'},
                     {label: 'PO receive payment', value: 'purchaseOrderPayment'},
                     {label: 'SO receive payment', value: 'saleOrderReceivePayment'}
                 ]

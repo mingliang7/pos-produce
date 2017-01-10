@@ -33,6 +33,8 @@ export const payBill = new ValidatedMethod({
                     paidAmount: enterBillsObj[k].receivedPay,
                     dueAmount: enterBillsObj[k].dueAmount,
                     discount: enterBillsObj[k].discount || 0,
+                    cod: enterBillsObj[k].cod || 0,
+                    benefit: enterBillsObj[k].benefit || 0,
                     balanceAmount: enterBillsObj[k].dueAmount - enterBillsObj[k].receivedPay,
                     vendorId: enterBillsObj[k].vendorId || enterBillsObj[k].vendorOrCustomerId,
                     status: enterBillsObj[k].dueAmount - enterBillsObj[k].receivedPay == 0 ? 'closed' : 'partial',

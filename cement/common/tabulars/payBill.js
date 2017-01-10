@@ -42,11 +42,13 @@ tabularOpts.columns = [
         data: "dueAmount",
         title: "Actual Due Amount",
         render: function (val, type, doc) {
-            let recalDueAmountWithDiscount = val / (1 - (doc.discount / 100));
+            let recalDueAmountWithDiscount = val + (doc.cod || 0) + ( doc.benefit || 0) + (doc.discount || 0);
             return numeral(recalDueAmountWithDiscount).format('0,0.00');
         }
     },
-    {data: "discount", title: "Discount(%)"},
+    {data: "discount", title: "Discount"},
+    {data: "cod", title: "COD"},
+    {data: "benefit", title: "Benefit"},
     {
         data: "dueAmount",
         title: 'Due Amount',
@@ -97,5 +99,5 @@ tabularOpts.columns = [
 // {data: "description", title: "Description"}
 ]
 ;
-tabularOpts.extraFields=['paymentType'];
+tabularOpts.extraFields = ['paymentType'];
 export const PayBillTransactionListTabular = new Tabular.Table(tabularOpts);
