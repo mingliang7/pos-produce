@@ -25,8 +25,14 @@ PayBills.after.insert(function (userId, doc) {
             let apChartAccount = AccountMapping.findOne({name: 'A/P'});
             let cashChartAccount = AccountMapping.findOne({name: 'Cash on Hand'});
             let purchaseDiscountChartAccount = AccountMapping.findOne({name: 'Purchase Discount'});
-            let discountAmount = doc.dueAmount * doc.discount / 100;
-            data.total = doc.paidAmount + discountAmount;
+            let codPOChartAccount = AccountMapping.findOne({name: 'Vendor COD'});
+            let benefitPOChartAccount = AccountMapping.findOne({name: 'Vendor Benefit'});
+            //let discountAmount = doc.dueAmount * doc.discount / 100;
+
+            let discount = doc.discount == null ? 0 : doc.discount;
+            let cod = doc.cod == null ? 0 : doc.cod;
+            let benefit = doc.benefit == null ? 0 : doc.benefit;
+            data.total = doc.paidAmount + discount + cod + benefit;
 
             let vendorDoc = Vendors.findOne({_id: doc.vendorId});
             if (vendorDoc) {
@@ -36,21 +42,37 @@ PayBills.after.insert(function (userId, doc) {
 
             transaction.push({
                 account: apChartAccount.account,
-                dr: doc.paidAmount + discountAmount,
+                dr: data.total,
                 cr: 0,
-                drcr: doc.paidAmount + discountAmount
+                drcr: data.total
             }, {
                 account: cashChartAccount.account,
                 dr: 0,
                 cr: doc.paidAmount,
                 drcr: -doc.paidAmount
             });
-            if (discountAmount > 0) {
+            if (discount > 0) {
                 transaction.push({
                     account: purchaseDiscountChartAccount.account,
                     dr: 0,
-                    cr: discountAmount,
-                    drcr: -discountAmount
+                    cr: discount,
+                    drcr: -discount
+                });
+            }
+            if (cod > 0) {
+                transaction.push({
+                    account: codPOChartAccount.account,
+                    dr: 0,
+                    cr: cod,
+                    drcr: -cod
+                });
+            }
+            if (benefit > 0) {
+                transaction.push({
+                    account: benefitPOChartAccount.account,
+                    dr: 0,
+                    cr: benefit,
+                    drcr: -benefit
                 });
             }
             /*  let invoice = Invoices.findOne(doc.invoiceId);
@@ -93,8 +115,14 @@ PayBills.after.update(function (userId, doc) {
             let apChartAccount = AccountMapping.findOne({name: 'A/P'});
             let cashChartAccount = AccountMapping.findOne({name: 'Cash on Hand'});
             let purchaseDiscountChartAccount = AccountMapping.findOne({name: 'Purchase Discount'});
-            let discountAmount = doc.dueAmount * doc.discount / 100;
-            data.total = doc.paidAmount + discountAmount;
+            let codPOChartAccount = AccountMapping.findOne({name: 'Vendor COD'});
+            let benefitPOChartAccount = AccountMapping.findOne({name: 'Vendor Benefit'});
+            //let discountAmount = doc.dueAmount * doc.discount / 100;
+
+            let discount = doc.discount == null ? 0 : doc.discount;
+            let cod = doc.cod == null ? 0 : doc.cod;
+            let benefit = doc.benefit == null ? 0 : doc.benefit;
+            data.total = doc.paidAmount + discount + cod + benefit;
 
             let vendorDoc = Vendors.findOne({_id: doc.vendorId});
             if (vendorDoc) {
@@ -104,21 +132,37 @@ PayBills.after.update(function (userId, doc) {
 
             transaction.push({
                 account: apChartAccount.account,
-                dr: doc.paidAmount + discountAmount,
+                dr: data.total,
                 cr: 0,
-                drcr: doc.paidAmount + discountAmount
+                drcr: data.total
             }, {
                 account: cashChartAccount.account,
                 dr: 0,
                 cr: doc.paidAmount,
                 drcr: -doc.paidAmount
             });
-            if (discountAmount > 0) {
+            if (discount > 0) {
                 transaction.push({
                     account: purchaseDiscountChartAccount.account,
                     dr: 0,
-                    cr: +discountAmount,
-                    drcr: -+discountAmount
+                    cr: discount,
+                    drcr: -discount
+                });
+            }
+            if (cod > 0) {
+                transaction.push({
+                    account: codPOChartAccount.account,
+                    dr: 0,
+                    cr: cod,
+                    drcr: -cod
+                });
+            }
+            if (benefit > 0) {
+                transaction.push({
+                    account: benefitPOChartAccount.account,
+                    dr: 0,
+                    cr: benefit,
+                    drcr: -benefit
                 });
             }
             /*  let invoice = Invoices.findOne(doc.invoiceId);
