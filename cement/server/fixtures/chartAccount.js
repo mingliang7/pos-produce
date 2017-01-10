@@ -106,24 +106,24 @@ Meteor.startup(function () {
             },
             /* 17 */
             {
-                "_id":"017",
-                "name":"Transport Revenue",
-                isUsed:true
+                "_id": "017",
+                "name": "Transport Revenue",
+                isUsed: true
             },
             {
-                "_id":"018",
-                "name":"Transport Expense",
-                isUsed:true
+                "_id": "018",
+                "name": "Transport Expense",
+                isUsed: true
             },
             {
-                "_id":"019",
-                "name":"SO Discount",
-                isUsed:true
+                "_id": "019",
+                "name": "SO Discount",
+                isUsed: true
             },
             {
-                "_id":"020",
-                "name":"PO Discount",
-                isUsed:true
+                "_id": "020",
+                "name": "PO Discount",
+                isUsed: true
             },
             {
                 "_id": "021",
@@ -195,7 +195,61 @@ Meteor.startup(function () {
                 "name": "COGS SO",
                 isUsed: true,
                 //"account": "120003 | Inventory"
+            },
+            {
+                "_id": "033",
+                "name": "Customer COD",
+                isUsed: true,
+                //"account": "120003 | Inventory"
+            },
+            {
+                "_id": "034",
+                "name": "Customer Benefit",
+                isUsed: true,
+                //"account": "120003 | Inventory"
+            },
+            {
+                "_id": "035",
+                "name": "Customer COD SO",
+                isUsed: true,
+                //"account": "120003 | Inventory"
             }
+            ,
+            {
+                "_id": "036",
+                "name": "Customer Benefit SO",
+                isUsed: true,
+                //"account": "120003 | Inventory"
+            }
+            ,
+            {
+                "_id": "037",
+                "name": "Vendor COD",
+                isUsed: true,
+                //"account": "120003 | Inventory"
+            }
+            ,
+            {
+                "_id": "038",
+                "name": "Vendor Benefit",
+                isUsed: true,
+                //"account": "120003 | Inventory"
+            }
+            ,
+            {
+                "_id": "039",
+                "name": "Vendor COD PO",
+                isUsed: true,
+                //"account": "120003 | Inventory"
+            }
+            ,
+            {
+                "_id": "040",
+                "name": "Vendor Benefit PO",
+                isUsed: true,
+                //"account": "120003 | Inventory"
+            }
+
 
         ];
         chartAccount.forEach(function (obj) {
