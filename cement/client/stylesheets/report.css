@@ -41,3 +41,15 @@
         padding: 2px;
     }
 }
+
+/*fixed header*/
+.fixed{
+    top:0;
+    position:fixed;
+    width:auto;
+    display:none;
+}
+
+.end{
+    margin-top:800px;
+}
