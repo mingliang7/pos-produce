@@ -42,7 +42,13 @@ export const purchaseOrderPaymentMethod = new ValidatedMethod({
                 };
                 let vendor = Vendors.findOne(obj.vendorId);
                 PurchaseOrderPayment.insert(obj);
-                obj.status == 'closed' ? selector.$set = {paymentStatus: 'closed'} : selector.$set = {paymentStatus: 'partial'};
+                if(obj.status == 'closed'){
+                    selector.$set = {paymentStatus: 'closed', closedAt: obj.paymentDate}
+                }else{
+                    selector.$set = {
+                        paymentStatus: 'partial',
+                    };
+                }
                 PurchaseOrder.direct.update(k, selector)
             }
             return true;

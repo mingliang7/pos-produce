@@ -109,13 +109,21 @@ indexTmpl.events({
 
     },
     'click .js-display' (event, instance) {
-        alertify.purchaseOrderShow(fa('eye', TAPi18n.__('cement.purchaseOrder.title')), renderTemplate(showTmpl, this));
+        swal({
+            title: "Pleas Wait",
+            text: "Getting Invoices....", showConfirmButton: false
+        });
+        this.customer = _.capitalize(this._customer.name);
+        this.vendor = _.capitalize(this._vendor.name);
+        Meteor.call('invoiceShowItems', {doc: this}, function (err, result) {
+            swal.close();
+            alertify.purchaseOrderShow(fa('eye', TAPi18n.__('cement.invoice.title')), renderTemplate(showTmpl, result)).maximize();
+        });
     },
     'click .js-invoice' (event, instance) {
         let params = {};
         let queryParams = {purchaseOrderId: this._id};
         let path = FlowRouter.path("cement.purchaseOrderReportGen", params, queryParams);
-
         window.open(path, '_blank');
     }
 });
@@ -208,32 +216,28 @@ editTmpl.onDestroyed(function () {
 });
 
 // Show
-showTmpl.onCreated(function () {
-    this.purchaseOrder = new ReactiveVar();
-    this.autorun(()=> {
-        PurchaseOrderInfo.callPromise({_id: this.data._id})
-            .then((result) => {
-                this.purchaseOrder.set(result);
-            }).catch(function (err) {
-                console.log(err.message);
-            }
-        );
-    });
-});
-
 showTmpl.helpers({
-    i18nLabel(label){
-        let key = `cement.purchaseOrder.schema.${label}.label`;
+    company(){
+        let doc = Session.get('currentUserStockAndAccountMappingDoc');
+        return doc.company;
+    },
+    i18nLabel(label) {
+        let key = `cement.invoice.schema.${label}.label`;
         return TAPi18n.__(key);
     },
-    PurchaseOrderInfo () {
-
-        let purchaseOrderInfo = Template.instance().purchaseOrder.get();
-
-        // Use jsonview
-        purchaseOrderInfo.jsonViewOpts = {collapsed: true};
-        //
-        return purchaseOrderInfo;
+    colorizeType(type) {
+        if (type == 'term') {
+            return `<label class="label label-info">T</label>`
+        }
+        return `<label class="label label-success">G</label>`
+    },
+    colorizeStatus(status) {
+        if (status == 'active') {
+            return `<label class="label label-info">A</label>`
+        } else if (status == 'partial') {
+            return `<label class="label label-danger">P</label>`
+        }
+        return `<label class="label label-success">C</label>`
     }
 });
 

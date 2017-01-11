@@ -309,6 +309,10 @@ Invoices.schema = new SimpleSchema({
         type: Number,
         decimal: true,
         optional: true,
+    },
+    closedAt: {
+        type: Date,
+        optional: true
     }
 });
 

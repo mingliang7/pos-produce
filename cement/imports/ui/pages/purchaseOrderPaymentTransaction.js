@@ -34,13 +34,14 @@ import {tmpCollection} from '../../api/collections/tmpCollection';
 let indexTmpl = Template.Cement_purchaseOrderPaymentTransaction,
     actionTmpl = Template.Cement_purchaseOrderPaymentTransactionAction,
     editTmpl = Template.Cement_purchaseOrderPaymentTransactionEdit,
-    showTmpl = Template.Cement_purchaseOrderPaymentTransactionShow;
+    showTmpl = Template.Cement_purchaseOrderShowInPoPayment;
 
 
 // Index
 indexTmpl.onCreated(function () {
     // Create new  alertify
     createNewAlertify('purchaseOrderPaymentTransaction', {size: 'lg'});
+    createNewAlertify('purchaseOrderPaymentTransactionShow', {size: 'lg'});
     // Reactive table filter
 
 });
@@ -78,7 +79,20 @@ indexTmpl.events({
             swal("Deleted!", `វិក័យប័ត្របង់ប្រាក់លេខ ${doc._id} បានលុបដោយជោគជ័យ`, "success");
         });
     },
-    'click .js-display' (event, instance) {
+    'dblclick tbody > tr' (event, instance) {
+        let dataTalbe = $(event.currentTarget).closest('table').DataTable();
+        let rowData = dataTalbe.row(event.currentTarget).data();
+        swal({
+            title: "Pleas Wait",
+            text: "Getting Invoices....", showConfirmButton: false
+        });
+        Meteor.call('getPurchaseOrderDetail', {_id: rowData.billId},function (err,result) {
+            swal.close();
+            result.customer = _.capitalize(result._customer.name);
+            result.vendor = _.capitalize(result._vendor.name);
+            alertify.purchaseOrderPaymentTransactionShow(fa('eye', 'Purchase Order'), renderTemplate(showTmpl, result)).maximize();
+
+        })
     }
 });
 
@@ -98,12 +112,35 @@ editTmpl.helpers({
 
 // Show
 showTmpl.onCreated(function () {
-    this.autorun(()=> {
+    this.autorun(() => {
         this.subscribe('cement.penalty', {_id: this.data._id});
     });
 });
 
-showTmpl.helpers({});
+showTmpl.helpers({
+    company(){
+        let doc = Session.get('currentUserStockAndAccountMappingDoc');
+        return doc.company;
+    },
+    i18nLabel(label) {
+        let key = `cement.invoice.schema.${label}.label`;
+        return TAPi18n.__(key);
+    },
+    colorizeType(type) {
+        if (type == 'term') {
+            return `<label class="label label-info">T</label>`
+        }
+        return `<label class="label label-success">G</label>`
+    },
+    colorizeStatus(status) {
+        if (status == 'active') {
+            return `<label class="label label-info">A</label>`
+        } else if (status == 'partial') {
+            return `<label class="label label-danger">P</label>`
+        }
+        return `<label class="label label-success">C</label>`
+    }
+});
 
 // Hook
 let hooksObject = {

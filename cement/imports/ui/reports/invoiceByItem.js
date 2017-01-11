@@ -121,7 +121,11 @@ invoiceDataTmpl.helpers({
         this.displayFields.forEach(function (obj) {
             if (obj.field == 'date') {
                 data += `<td>${moment(col[obj.field]).format('YYYY-MM-DD')}</td>`
-            } else if (obj.field == 'customerId') {
+            }else if(obj.field == 'invoiceId'){
+                let invId = col[obj.field].substr(col[obj.field].length - 10, col[obj.field].length - 1);
+                data +=`<td>${invId}</td>`
+            }
+            else if (obj.field == 'customerId') {
                 data += `<td>${col._customer.name}</td>`
             } else if (obj.field == 'qty' || obj.field == 'price' || obj.field == 'total' || obj.field == 'amount') {
                 data += `<td class="text-right">${numeral(col[obj.field]).format('0,0.00')}</td>`

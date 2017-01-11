@@ -163,6 +163,10 @@ PurchaseOrder.schema = new SimpleSchema({
     sumRemainQty: {
         type: Number,
         decimal: true
+    },
+    closedAt: {
+        type: Date,
+        optional: true
     }
 });
 

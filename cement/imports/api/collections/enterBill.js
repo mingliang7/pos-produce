@@ -205,6 +205,10 @@ EnterBills.schema = new SimpleSchema({
     billType: {
         type: String,
         optional: true
+    },
+    closedAt: {
+        type: Date,
+        optional: true
     }
 });
 

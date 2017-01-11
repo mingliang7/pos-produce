@@ -1,28 +1,33 @@
-import { Meteor } from 'meteor/meteor';
-import { Templet } from 'meteor/templating';
-import { Tabular } from 'meteor/aldeed:tabular';
-import { EJSON } from 'meteor/ejson';
-import { moment } from 'meteor/momentjs:moment';
-import { _ } from 'meteor/erasaur:meteor-lodash';
-import { numeral } from 'meteor/numeral:numeral';
-import { lightbox } from 'meteor/theara:lightbox-helpers';
+import {Meteor} from 'meteor/meteor';
+import {Templet} from 'meteor/templating';
+import {Tabular} from 'meteor/aldeed:tabular';
+import {EJSON} from 'meteor/ejson';
+import {moment} from 'meteor/momentjs:moment';
+import {_} from 'meteor/erasaur:meteor-lodash';
+import {numeral} from 'meteor/numeral:numeral';
+import {lightbox} from 'meteor/theara:lightbox-helpers';
 
 // Lib
-import { tabularOpts } from '../../../core/common/libs/tabular-opts.js';
+import {tabularOpts} from '../../../core/common/libs/tabular-opts.js';
 
 // Collection
-import { Invoices } from '../../imports/api/collections/invoice.js';
-import { customerInvoiceCollection } from '../../imports/api/collections/tmpCollection';
+import {Invoices} from '../../imports/api/collections/invoice.js';
+import {customerInvoiceCollection} from '../../imports/api/collections/tmpCollection';
 // Page
 Meteor.isClient && require('../../imports/ui/pages/invoice.html');
 
 tabularOpts.name = 'cement.invoice';
 tabularOpts.collection = Invoices;
 tabularOpts.columns = [
-    { title: '<i class="fa fa-bars"></i>', tmpl: Meteor.isClient && Template.Cement_invoiceAction },
-    { data: "_id", title: "ID" },
-    { data: "voucherId", title: "Voucher" },
-    { data: "boid", title: "BOID" },
+    {title: '<i class="fa fa-bars"></i>', tmpl: Meteor.isClient && Template.Cement_invoiceAction},
+    {
+        data: "_id", title: "ID",
+        render: function (val) {
+            return val.substr(val.length - 10, val.length - 1);
+        }
+    },
+    {data: "voucherId", title: "Voucher"},
+    {data: "boid", title: "BOID"},
     {
         data: "invoiceDate",
         title: "Date",
@@ -49,7 +54,7 @@ tabularOpts.columns = [
             return numeral(val).format('0,0.00');
         }
     },
-    { data: "des", title: "Description" },
+    {data: "des", title: "Description"},
     {
         data: "_customer.name",
         title: "Customer"
@@ -58,8 +63,8 @@ tabularOpts.columns = [
         data: "_staff.username",
         title: "Staff"
     },
-    { data: "invoiceType", title: "Type" },
-    { data: "status", title: "Status" },
+    {data: "invoiceType", title: "Type"},
+    {data: "status", title: "Status"},
     //{
     //    data: "_customer",
     //    title: "Customer Info",
@@ -68,5 +73,5 @@ tabularOpts.columns = [
     //    }
     //}
 ];
-tabularOpts.extraFields = ['boid','truckId', 'shipTo','customerId', 'items', 'dueDate', 'stockLocationId', 'repId', 'voucherId', 'invoiceType', 'saleId', 'paymentGroupId'];
+tabularOpts.extraFields = ['_id', 'boid', 'truckId', 'shipTo', 'customerId', 'items', 'dueDate', 'stockLocationId', 'repId', 'voucherId', 'invoiceType', 'saleId', 'paymentGroupId'];
 export const InvoiceTabular = new Tabular.Table(tabularOpts);

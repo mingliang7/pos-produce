@@ -63,5 +63,5 @@ tabularOpts.columns = [
     //    }
     //}
 ];
-tabularOpts.extraFields = ['vendorId', 'items', 'customerId', 'voucherId'];
+tabularOpts.extraFields = ['vendorId', 'items', 'customerId', 'voucherId', 'sumRemainQty'];
 export const PurchaseOrderTabular = new Tabular.Table(tabularOpts);

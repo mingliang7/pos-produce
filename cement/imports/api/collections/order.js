@@ -61,7 +61,7 @@ Order.itemsSchema = new SimpleSchema({
     discount: {
         type: Number,
         decimal: true,
-        optional :true,
+        optional: true,
         autoform: {
             type: 'inputmask',
             inputmaskOptions: function () {
@@ -210,7 +210,7 @@ Order.schema = new SimpleSchema({
     discount: {
         type: Number,
         decimal: true,
-        optional :true,
+        optional: true,
         autoform: {
             type: 'inputmask',
             inputmaskOptions: function () {
@@ -222,10 +222,14 @@ Order.schema = new SimpleSchema({
         type: String,
         optional: true
     },
-    totalDiscount:{
+    totalDiscount: {
         type: Number,
         decimal: true,
         optional: true,
+    },
+    closedAt: {
+        type: Date,
+        optional: true
     }
 });
 

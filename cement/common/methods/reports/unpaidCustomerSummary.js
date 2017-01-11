@@ -30,7 +30,7 @@ export const unpaidCustomerSummary = new ValidatedMethod({
                 footer: {}
             };
             let branchId = [];
-            if(params.branchId) {
+            if (params.branchId) {
                 branchId = params.branchId.split(',');
                 selector.branchId = {
                     $in: branchId
@@ -44,13 +44,15 @@ export const unpaidCustomerSummary = new ValidatedMethod({
             // console.log(user);
             // let date = _.trim(_.words(params.date, /[^To]+/g));
             selector.invoiceType = {$ne: 'group'};
-            selector.status = {$in: ['active']};
-
+            let toDate;
             if (params.date) {
-                let toDate = moment(params.date).endOf('days').toDate();
+                toDate = moment(params.date).endOf('days').toDate();
                 data.title.date = moment(toDate).format('YYYY-MMM-DD hh:mm a');
                 data.title.exchange = `USD = ${coefficient.usd.$multiply[1]} $, KHR = ${coefficient.khr.$multiply[1]}<small> ៛</small>, THB = ${coefficient.thb.$multiply[1]} B`;
-                selector.invoiceDate = {$lte: toDate};
+                selector.$or = [
+                    {status: {$in: ['active', 'partial']}, invoiceDate: {$lte: toDate}},
+                    {invoiceDate: {$lte: toDate}, status: 'closed', closedAt: {$gt: toDate}}
+                ];
             }
             if (params.customer && params.customer != '') {
                 selector.customerId = params.customer;
@@ -63,6 +65,36 @@ export const unpaidCustomerSummary = new ValidatedMethod({
             let invoices = Invoices.aggregate([
                 {
                     $match: selector
+                },
+                {
+                    $lookup: {
+                        from: 'cement_receivePayment',
+                        localField: '_id',
+                        foreignField: 'invoiceId',
+                        as: 'receivePaymentDoc'
+                    }
+                },
+                {
+                    $unwind: {
+                        path: '$receivePaymentDoc',
+                        preserveNullAndEmptyArrays: true
+                    }
+                },
+                {
+                    $project: {
+                        _id: 1,
+                        customerId: 1,
+                        invoiceId: 1,
+                        total: 1,
+                        receivePaymentDoc: {
+                            paidAmount: {
+                                $cond: [
+                                    {$lte: ["$receivePaymentDoc.paymentDate", toDate]}
+                                    , '$receivePaymentDoc.paidAmount', 0
+                                ]
+                            }
+                        }
+                    }
                 },
                 {
                     $lookup: {
@@ -82,14 +114,24 @@ export const unpaidCustomerSummary = new ValidatedMethod({
                         invoices: {
                             $push: '$$ROOT'
                         },
+                        paidAmount: {$sum: '$receivePaymentDoc.paidAmount'},
                         total: {$sum: '$total'}
                     }
                 },
                 {
-                  $sort: {'customerDoc.name': 1}
+                    $project: {
+                        _id: 1,
+                        customerDoc: 1,
+                        invoices: 1,
+                        paidAmount: 1,
+                        total: {$subtract: ["$total", "$paidAmount"]}
+                    }
                 },
                 {
-                    $group:{
+                    $sort: {'customerDoc.name': 1}
+                },
+                {
+                    $group: {
                         _id: null,
                         data: {
                             $push: '$$ROOT'
@@ -97,7 +139,7 @@ export const unpaidCustomerSummary = new ValidatedMethod({
                         grandTotal: {$sum: '$total'}
                     }
                 }
-                ]);
+            ]);
             if (invoices.length > 0) {
                 data.content = invoices[0].data;
                 data.footer = {

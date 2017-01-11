@@ -30,7 +30,7 @@ export const termCustomerBalanceReport = new ValidatedMethod({
                 footer: {}
             };
             let branchId = [];
-            if(params.branchId) {
+            if (params.branchId) {
                 branchId = params.branchId.split(',');
                 selector.branchId = {
                     $in: branchId
@@ -48,7 +48,10 @@ export const termCustomerBalanceReport = new ValidatedMethod({
             if (params.date) {
                 data.title.date = moment(params.date).format('YYYY-MMM-DD');
                 data.title.exchange = `USD = ${coefficient.usd.$multiply[1]} $, KHR = ${coefficient.khr.$multiply[1]}<small> ៛</small>, THB = ${coefficient.thb.$multiply[1]} B`;
-                selector.invoiceDate = {$lt: date};
+                selector.$or = [
+                    {status: {$in: ['active', 'partial']}, invoiceDate: {$lte: date}},
+                    {invoiceDate: {$lte: date}, status: 'closed', closedAt: {$gt: date}}
+                ];
             }
             if (params.customer && params.customer != '') {
                 selector.customerId = params.customer;
@@ -80,8 +83,8 @@ export const termCustomerBalanceReport = new ValidatedMethod({
                     'dueDate': '$dueDate',
                     'total': '$total'
                 };
-                data.fields = [{field: 'Type'}, {field: 'ID'}, {field: 'Invoice Date'}, {field: 'Aging'},{field: 'Last Payment'}, {field: 'DueAmount'}, {field: 'PaidAmount'}, {field: 'Balance'}];
-                data.displayFields = [{field: 'invoice'}, {field: '_id'}, {field: 'invoiceDate'},{field: 'dueDate'}, {field: 'lastPaymentDate'}, {field: 'dueAmount'}, {field: 'paidAmount'}, {field: 'balance'}];
+                data.fields = [{field: 'Type'}, {field: 'ID'}, {field: 'Invoice Date'}, {field: 'Aging'}, {field: 'Last Payment'}, {field: 'DueAmount'}, {field: 'PaidAmount'}, {field: 'Balance'}];
+                data.displayFields = [{field: 'invoice'}, {field: '_id'}, {field: 'invoiceDate'}, {field: 'dueDate'}, {field: 'lastPaymentDate'}, {field: 'dueAmount'}, {field: 'paidAmount'}, {field: 'balance'}];
             }
             // project['$invoice'] = 'Invoice';
             /****** Title *****/
