@@ -19,8 +19,13 @@ SaleOrderReceivePayment.after.insert(function (userId, doc) {
             let arChartAccount = AccountMapping.findOne({name: 'A/R SO'});
             let cashChartAccount = AccountMapping.findOne({name: 'Cash on Hand'});
             let saleDiscountChartAccount = AccountMapping.findOne({name: 'SO Discount'});
-            let discountAmount = doc.dueAmount * doc.discount / 100;
-            data.total = doc.paidAmount + discountAmount;
+            let codChartAccount = AccountMapping.findOne({name: 'Customer COD SO'});
+            let benefitChartAccount = AccountMapping.findOne({name: 'Customer Benefit SO'});
+
+            let discount = doc.discount == null ? 0 : doc.discount;
+            let cod = doc.cod == null ? 0 : doc.cod;
+            let benefit = doc.benefit == null ? 0 : doc.benefit;
+            data.total = doc.paidAmount + discount + cod + benefit;
 
             let customerDoc = Customers.findOne({_id: doc.customerId});
             if (customerDoc) {
@@ -34,19 +39,35 @@ SaleOrderReceivePayment.after.insert(function (userId, doc) {
                 cr: 0,
                 drcr: doc.paidAmount
             });
-            if (discountAmount > 0) {
+            if (discount > 0) {
                 transaction.push({
                     account: saleDiscountChartAccount.account,
-                    dr: discountAmount,
+                    dr: discount,
                     cr: 0,
-                    drcr: discountAmount
+                    drcr: discount
+                });
+            }
+            if (cod > 0) {
+                transaction.push({
+                    account: codChartAccount.account,
+                    dr: cod,
+                    cr: 0,
+                    drcr: cod
+                });
+            }
+            if (benefit > 0) {
+                transaction.push({
+                    account: benefitChartAccount.account,
+                    dr: benefit,
+                    cr: 0,
+                    drcr: benefit
                 });
             }
             transaction.push({
                 account: arChartAccount.account,
                 dr: 0,
-                cr: doc.paidAmount + discountAmount,
-                drcr: -doc.paidAmount + discountAmount
+                cr: data.total,
+                drcr: -data.total
             });
             data.transaction = transaction;
             data.journalDate = data.paymentDate;
@@ -83,8 +104,13 @@ SaleOrderReceivePayment.after.update(function (userId, doc) {
             let arChartAccount = AccountMapping.findOne({name: 'A/R SO'});
             let cashChartAccount = AccountMapping.findOne({name: 'Cash on Hand'});
             let saleDiscountChartAccount = AccountMapping.findOne({name: 'SO Discount'});
-            let discountAmount = doc.dueAmount * doc.discount / 100;
-            data.total = doc.paidAmount + discountAmount;
+            let codChartAccount = AccountMapping.findOne({name: 'Customer COD SO'});
+            let benefitChartAccount = AccountMapping.findOne({name: 'Customer Benefit SO'});
+
+            let discount = doc.discount == null ? 0 : doc.discount;
+            let cod = doc.cod == null ? 0 : doc.cod;
+            let benefit = doc.benefit == null ? 0 : doc.benefit;
+            data.total = doc.paidAmount + discount + cod + benefit;
 
             let customerDoc = Customers.findOne({_id: doc.customerId});
             if (customerDoc) {
@@ -98,19 +124,35 @@ SaleOrderReceivePayment.after.update(function (userId, doc) {
                 cr: 0,
                 drcr: doc.paidAmount
             });
-            if (discountAmount > 0) {
+            if (discount > 0) {
                 transaction.push({
                     account: saleDiscountChartAccount.account,
-                    dr: discountAmount,
+                    dr: discount,
                     cr: 0,
-                    drcr: discountAmount
+                    drcr: discount
+                });
+            }
+            if (cod > 0) {
+                transaction.push({
+                    account: codChartAccount.account,
+                    dr: cod,
+                    cr: 0,
+                    drcr: cod
+                });
+            }
+            if (benefit > 0) {
+                transaction.push({
+                    account: benefitChartAccount.account,
+                    dr: benefit,
+                    cr: 0,
+                    drcr: benefit
                 });
             }
             transaction.push({
                 account: arChartAccount.account,
                 dr: 0,
-                cr: doc.paidAmount + discountAmount,
-                drcr: -doc.paidAmount + discountAmount
+                cr: data.total,
+                drcr: -data.total
             });
             data.transaction = transaction;
             data.journalDate = data.paymentDate;
