@@ -456,3 +456,17 @@ CementRoutes.route('/report/invoiceEnterBill', {
         parent: 'cement.mainReport'
     }
 });
+
+import '../imports/ui/reports/customerHistory';
+CementRoutes.route('/report/customerHistory', {
+    name: 'pos.customerHistory',
+    title: 'Customer History',
+    action: function (params, queryParams) {
+        Layout.customReportLayout('Cement_customerHistory');
+    },
+    breadcrumb: {
+        title: 'Customer History',
+        icon: '',
+        parent: 'pos.home'
+    }
+});
