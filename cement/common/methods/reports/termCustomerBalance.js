@@ -21,7 +21,11 @@ export const termCustomerBalanceReport = new ValidatedMethod({
         if (!this.isSimulation) {
             Meteor._sleepForMs(200);
             let selector = {};
-            let project = {};
+            let project = {
+                totalDue: 0,
+                totalPaid: 0,
+                totalBalance: 0
+            };
             let data = {
                 title: {},
                 fields: [],
@@ -37,7 +41,7 @@ export const termCustomerBalanceReport = new ValidatedMethod({
                 };
                 selector = ReportFn.checkIfUserHasRights({currentUser: Meteor.userId(), selector});
             }
-            let date = moment(params.date).add(1, 'days').toDate();
+            let date = moment(params.date).endOf('days').toDate();
             let user = Meteor.users.findOne(Meteor.userId());
             let exchange = Exchange.findOne({}, {sort: {_id: -1}});
             let coefficient = exchangeCoefficient({exchange, fieldToCalculate: '$total'})
@@ -100,22 +104,66 @@ export const termCustomerBalanceReport = new ValidatedMethod({
                         as: "paymentDoc"
                     }
                 },
+                {
+                    $project: {
+                        _id: 1,
+                        status: 1,
+                        invoiceDate: 1,
+                        dueDate: 1,
+                        customerId: 1,
+                        total: 1,
+                        paymentDoc: {
+                            $filter: {
+                                input: '$paymentDoc',
+                                as: 'payment',
+                                cond: {$lte: ['$$payment.paymentDate', date]}
+                            }
+                        },
+                    }
+                },
                 {$unwind: {path: '$paymentDoc', preserveNullAndEmptyArrays: true}},
                 {$sort: {'paymentDoc.paymentDate': 1}},
-                {$match: {$or: [{"paymentDoc.paymentDate": {$lt: date}}, {paymentDoc: {$exists: false}}]}},
-
+                {
+                  $project: {
+                      _id: 1,
+                      status: 1,
+                      invoiceDate: 1,
+                      dueDate: 1,
+                      customerId: 1,
+                      total: 1,
+                      lastPaymentDate: {
+                          $cond: [
+                              {$lte: ['$paymentDoc.paymentDate', date]},
+                              '$paymentDoc.paymentDate', 'None'
+                              ]
+                      },
+                      dueAmount: {
+                          $cond: [
+                              {$lte: ['$paymentDoc.paymentDate', date]},
+                              '$paymentDoc.dueAmount', null
+                          ]
+                      },
+                      paidAmount: {
+                          $cond: [
+                              {$lte: ['$paymentDoc.paymentDate', date]},
+                              '$paymentDoc.paidAmount', null
+                          ]
+                      },
+                      paymentDoc: 1,
+                  }
+                },
                 {
                     $group: {
                         _id: '$_id',
                         status: {$last: '$status'},
                         dueDate: {$last: '$dueDate'},
                         invoiceDoc: {$last: '$$ROOT'},
-                        lastPaymentDate: {$last: '$paymentDoc.paymentDate'},
+                        lastPaymentDate: {$last: '$lastPaymentDate'},
                         dueAmount: {
-                            $last: '$paymentDoc.dueAmount'
+                            $last: '$dueAmount'
                         },
                         paidAmount: {
-                            $last: '$paymentDoc.paidAmount'
+                            $last: '$paidAmount'
                         },
                         paymentDoc: {$last: '$paymentDoc'},
                         total: {$last: '$total'},
@@ -136,16 +184,28 @@ export const termCustomerBalanceReport = new ValidatedMethod({
                         paidAmount: {
                             $ifNull: ["$paidAmount", 0]
                         },
-                        balance: {
-                            $ifNull: ["$paymentDoc.balanceAmount", "$total"]
-                        },
                         invoiceDate: 1,
                         dueDate: 1,
                         lastPaymentDate: {
-                            $ifNull: ["$paymentDoc.paymentDate", "None"]
+                            $ifNull: ["$lastPaymentDate", "None"]
                         },
                         status: 1,
                         total: '$total'
+                    }
+                },
+                {
+                    $project: {
+                        _id: 1,
+                        invoice: 1,
+                        invoiceDoc: 1,
+                        dueAmount: 1,
+                        paidAmount: 1,
+                        balance: {$subtract: ["$dueAmount", "$paidAmount"]},
+                        invoiceDate: 1,
+                        dueDate: 1,
+                        lastPaymentDate: 1,
+                        status: 1,
+                        total: .1
                     }
                 },
                 {
@@ -183,17 +243,20 @@ export const termCustomerBalanceReport = new ValidatedMethod({
                         _id: null,
                         data: {
                             $addToSet: '$$ROOT'
-                        }
+                        },
+                        grandDueAmount: {$sum: '$dueAmountSubTotal'},
+                        grandPaidAmount: {$sum: '$paidAmount'},
+                        grandBalance: {$sum: '$balance'}
                     }
                 }
             ]);
             if (invoices.length > 0) {
                 data.content = invoices[0].data;
-                // data.footer = {
-                //     total: invoices[0].total,
-                //     totalKhr: invoices[0].totalKhr,
-                //     totalThb: invoices[0].totalThb
-                // }
+                data.footer = {
+                    totalDue: invoices[0].grandDueAmount,
+                    totalPaid: invoices[0].grandPaidAmount,
+                    totalBalance: invoices[0].grandBalance,
+                }
             }
             return data
         }

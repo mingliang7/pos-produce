@@ -30,7 +30,7 @@ export const invoiceByItemReport = new ValidatedMethod({
                 footer: {}
             };
             let branchId = [];
-            if(params.branchId) {
+            if (params.branchId) {
                 branchId = params.branchId.split(',');
                 selector.branchId = {
                     $in: branchId
@@ -55,8 +55,8 @@ export const invoiceByItemReport = new ValidatedMethod({
             if (params.customer && params.customer != '') {
                 selector.customerId = params.customer;
             }
-            data.fields = [{field: '<th>Date</th>'}, {field: '<th>INVN</th>'}, {field: '<th>Name</th>'}, {field: '<th>Addr</th>'}, {field: '<th>Tel</th>'}, {field: '<th>Item</th>'}, {field: '<th class="text-center">Qty</th>'},{field: '<th class="text-center">Amount</th>'}];
-            data.displayFields = [{field: 'date'}, {field: 'invoiceId'}, {field: 'customer'}, {field: 'address'}, {field: 'tel'}, {field: 'itemName'}, {field: 'qty'}, {field: 'amount'}];
+            data.fields = [{field: '<th>Date</th>'}, {field: '<th>INVN</th>'}, {field: '<th>Name</th>'}, {field: '<th>Addr</th>'}, {field: '<th>Tel</th>'}, {field: '<th>Item</th>'}, {field: '<th class="text-center">Qty</th>'}, {field: '<th class="text-center">Price</th>'}, {field: '<th class="text-center">TSFee</th>'}, {field: '<th class="text-center">Amount</th>'}];
+            data.displayFields = [{field: 'date'}, {field: 'invoiceId'}, {field: 'customer'}, {field: 'address'}, {field: 'tel'}, {field: 'itemName'}, {field: 'qty'}, {field: 'price'}, {field: 'tsFee'}, {field: 'amount'}];
 
             // project['$invoice'] = 'Invoice';
             /****** Title *****/
@@ -126,7 +126,8 @@ export const invoiceByItemReport = new ValidatedMethod({
                         itemId: {$addToSet: '$data.items.itemId'},
                         itemName: {$addToSet: '$data.itemDoc.name'},
                         qty: {$sum: '$data.items.qty'},
-                        price: {$avg: '$data.items.price'},
+                        price: {$addToSet: '$data.items.price'},
+                        tsFee: {$addToSet: '$data.items.transportFee'},
                         amount: {$sum: '$data.items.amount'},
                         total: {$addToSet: '$total'},
                         totalThb: {$addToSet: '$totalThb'},
@@ -134,6 +135,8 @@ export const invoiceByItemReport = new ValidatedMethod({
                     }
                 },
                 {$unwind: {path: '$itemId', preserveNullAndEmptyArrays: true}},
+                {$unwind: {path: '$price', preserveNullAndEmptyArrays: true}},
+                {$unwind: {path: '$tsFee', preserveNullAndEmptyArrays: true}},
                 {$unwind: {path: '$itemName', preserveNullAndEmptyArrays: true}},
                 {$unwind: {path: '$total', preserveNullAndEmptyArrays: true}},
                 {$unwind: {path: '$totalThb', preserveNullAndEmptyArrays: true}},
@@ -162,6 +165,7 @@ export const invoiceByItemReport = new ValidatedMethod({
                                 itemName: '$itemName',
                                 qty: '$qty',
                                 price: '$price',
+                                tsFee: '$tsFee',
                                 amount: '$amount'
                             }
                         },
@@ -207,6 +211,7 @@ export const invoiceByItemReport = new ValidatedMethod({
                             $addToSet: '$itemDoc.name'
                         },
                         qty: {$sum: '$items.qty'},
+                        tsFee: {$avg: '$items.transportFee'},
                         price: {$avg: '$items.price'},
                         amount: {$sum: '$items.amount'}
                     }

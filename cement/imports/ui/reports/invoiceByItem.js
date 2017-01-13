@@ -20,36 +20,38 @@ let indexTmpl = Template.Cement_invoiceByItemReport,
     invoiceDataTmpl = Template.invoiceByItemReportData;
 let showItemsSummary = new ReactiveVar(true);
 let showInvoicesSummary = new ReactiveVar(true);
-Tracker.autorun(function () {
-    if (paramsState.get()) {
-        swal({
-            title: "Pleas Wait",
-            text: "Fetching Data....", showConfirmButton: false
-        });
-        invoiceByItemReport.callPromise(paramsState.get())
-            .then(function (result) {
-                invoiceData.set(result);
-                setTimeout(function () {
-                    swal.close()
-                }, 200);
-            }).catch(function (err) {
-            swal.close();
-            console.log(err.message);
-        })
-    }
-});
 
 indexTmpl.onCreated(function () {
     this.fromDate = new ReactiveVar(moment().startOf('days').toDate());
     this.endDate = new ReactiveVar(moment().endOf('days').toDate());
     createNewAlertify('invoiceByItemReport');
     paramsState.set(FlowRouter.query.params());
+    this.autorun(() => {
+        if (paramsState.get()) {
+            swal({
+                title: "Pleas Wait",
+                text: "Fetching Data....", showConfirmButton: false
+            });
+            invoiceByItemReport.callPromise(paramsState.get())
+                .then(function (result) {
+                    invoiceData.set(result);
+                    setTimeout(function () {
+                        swal.close()
+                    }, 200);
+                }).catch(function (err) {
+                swal.close();
+                console.log(err.message);
+            });
+
+        }
+
+    });
 
 });
 indexTmpl.onRendered(function () {
     Meteor.setTimeout(function () {
-        $("table").fixMe();
-    },2000)
+        $("table.fixed-table").fixMe();
+    }, 1000)
 });
 
 indexTmpl.helpers({
@@ -66,7 +68,7 @@ indexTmpl.helpers({
     }
 });
 indexTmpl.events({
-    'click .printReport'(event,instance){
+    'click .printReport'(event, instance){
         window.print();
     },
     'change #date-range-filter'(event, instance){
@@ -94,7 +96,7 @@ indexTmpl.events({
     'click .fullScreen'(event, instance){
         $('.rpt-body').addClass('rpt');
         $('.rpt-header').addClass('rpt');
-        alertify.invoiceByItemReport(fa('',''), renderTemplate(invoiceDataTmpl)).maximize();
+        alertify.invoiceByItemReport(fa('', ''), renderTemplate(invoiceDataTmpl)).maximize();
     }
 });
 invoiceDataTmpl.events({
@@ -119,6 +121,7 @@ invoiceDataTmpl.helpers({
     },
     data(){
         if (invoiceData.get()) {
+
             return invoiceData.get();
         }
     },
@@ -128,13 +131,13 @@ invoiceDataTmpl.helpers({
         this.displayFields.forEach(function (obj) {
             if (obj.field == 'date') {
                 data += `<td>${moment(col[obj.field]).format('YYYY-MM-DD')}</td>`
-            }else if(obj.field == 'invoiceId'){
+            } else if (obj.field == 'invoiceId') {
                 let invId = col[obj.field].substr(col[obj.field].length - 10, col[obj.field].length - 1);
-                data +=`<td>${invId}</td>`
+                data += `<td>${invId}</td>`
             }
             else if (obj.field == 'customerId') {
                 data += `<td>${col._customer.name}</td>`
-            } else if (obj.field == 'qty' || obj.field == 'price' || obj.field == 'total' || obj.field == 'amount') {
+            } else if (obj.field == 'qty' || obj.field == 'tsFee' || obj.field == 'price' || obj.field == 'total' || obj.field == 'amount') {
                 data += `<td class="text-right">${numeral(col[obj.field]).format('0,0.00')}</td>`
             }
             else {
@@ -165,6 +168,8 @@ invoiceDataTmpl.helpers({
     },
     capitalize(customerName){
         return _.capitalize(customerName);
+    },
+    initializeFixedTable(){
     }
 });
 
@@ -187,7 +192,7 @@ AutoForm.hooks({
             if (doc.filter) {
                 params.filter = doc.filter.join(',');
             }
-            if(doc.branchId) {
+            if (doc.branchId) {
                 params.branchId = doc.branchId.join(',');
             }
             FlowRouter.query.set(params);
@@ -197,30 +202,34 @@ AutoForm.hooks({
     }
 });
 //Copyright by kevin
-$.fn.fixMe= function() {
-    return this.each(function() {
+$.fn.fixMe = function () {
+    return this.each(function () {
         var $this = $(this),
             $t_fixed;
+
         function init() {
             $this.wrap('<div class="container-fix-header" />');
             $t_fixed = $this.clone();
             $t_fixed.find("tbody").remove().end().addClass("fixed").insertBefore($this);
             resizeFixed();
         }
+
         function resizeFixed() {
-            $t_fixed.find("th").each(function(index) {
-                $(this).css("width",$this.find("th").eq(index).outerWidth()+"px");
+            $t_fixed.find("th").each(function (index) {
+                $(this).css("width", $this.find("th").eq(index).outerWidth() + "px");
             });
         }
+
         function scrollFixed() {
             var offset = $(this).scrollTop(),
                 tableOffsetTop = $this.offset().top,
                 tableOffsetBottom = tableOffsetTop + $this.height() - $this.find("thead").height();
-            if(offset < tableOffsetTop || offset > tableOffsetBottom)
+            if (offset < tableOffsetTop || offset > tableOffsetBottom)
                 $t_fixed.hide();
-            else if(offset >= tableOffsetTop && offset <= tableOffsetBottom && $t_fixed.is(":hidden"))
+            else if (offset >= tableOffsetTop && offset <= tableOffsetBottom && $t_fixed.is(":hidden"))
                 $t_fixed.show();
         }
+
         $(window).resize(resizeFixed);
         $(window).scroll(scrollFixed);
         init();

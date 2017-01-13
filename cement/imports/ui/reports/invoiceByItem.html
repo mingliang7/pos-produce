@@ -69,7 +69,7 @@
             </h5>
             <p class="text-center"><b>Date: </b>{{data.title.date}}</p>
         </div>
-        <table class="table table-responsive table-striped">
+        <table class="table table-responsive table-striped fixed-table">
             {{#with data}}
                 {{#if showInvoicesSummary}}
                     <thead class="rpt-header bg-aqua">
@@ -105,7 +105,8 @@
                                                                        aria-hidden="true"></i> ITEMS SUMMARY</span>
                         </td>
                         <td style="background-color: #d0d0d0" class="text-center">Qty</td>
-                        <!--<td style="background-color: #d0d0d0" class="text-right">Price</td>-->
+                        <td style="background-color: #d0d0d0" class="text-center">Avg Price</td>
+                        <td style="background-color: #d0d0d0" class="text-center">Avg TSFee</td>
                         <td colspan="" style="background-color: #d0d0d0" class="text-center">Amount</td>
                         <td colspan="5" style="background-color: #d0d0d0"></td>
                     </tr>
@@ -113,7 +114,8 @@
                         <tr>
                             <td>{{itemName}}</td>
                             <td class="text-right">{{numFormat qty '0,0.00'}}</td>
-                            <!--<td class="text-right">{{numFormat price '0,0.00'}}</td>-->
+                            <td class="text-right">{{numFormat price '0,0.00'}}</td>
+                            <td class="text-right">{{numFormat tsFee '0,0.00'}}</td>
                             <td class="text-right"><u>{{numFormat amount '0,0.00'}}</u></td>
                         </tr>
                     {{/each}}
@@ -123,7 +125,7 @@
                     </tr>
                 {{/if}}
                 </tbody>
-
+                {{initializeFixedTable}}
 
             {{/with}}
         </table>

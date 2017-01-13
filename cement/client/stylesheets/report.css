@@ -25,31 +25,36 @@
     padding: 2px;
     text-align: center;
 }
+
 .visible-on-print {
     display: none;
 }
+
 @media print {
     .visible-on-print {
         display: block;
     }
+
     .report-body-shadow {
         box-shadow: none;
         border: none;
     }
-    .table  > tr, .table > thead > tr > th, .table > tbody > tr > td, .table > tbody > tr {
+
+    .table > tr, .table > thead > tr > th, .table > tbody > tr > td, .table > tbody > tr {
         font-size: 9px !important;
         padding: 2px;
     }
 }
 
 /*fixed header*/
-.fixed{
-    top:0;
-    position:fixed;
-    width:auto;
-    display:none;
+
+.fixed {
+    top: 0;
+    position: fixed;
+    width: auto;
+    display: none;
 }
 
-.end{
-    margin-top:800px;
+.end {
+    margin-top: 800px;
 }

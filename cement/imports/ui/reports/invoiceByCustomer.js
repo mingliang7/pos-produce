@@ -35,6 +35,7 @@ Tracker.autorun(function () {
             swal.close();
             console.log(err.message);
         })
+
     }
 });
 
@@ -43,6 +44,9 @@ indexTmpl.onCreated(function () {
     paramsState.set(FlowRouter.query.params());
     this.fromDate = new ReactiveVar(moment().startOf('days').toDate());
     this.endDate = new ReactiveVar(moment().endOf('days').toDate());
+    Meteor.setTimeout(function () {
+        $("table.fixed-table").fixMe();
+    },1000)
 });
 indexTmpl.helpers({
     schema(){
@@ -182,3 +186,33 @@ AutoForm.hooks({
         }
     }
 });
+
+$.fn.fixMe= function() {
+    return this.each(function() {
+        var $this = $(this),
+            $t_fixed;
+        function init() {
+            $this.wrap('<div class="container-fix-header" />');
+            $t_fixed = $this.clone();
+            $t_fixed.find("tbody").remove().end().addClass("fixed").insertBefore($this);
+            resizeFixed();
+        }
+        function resizeFixed() {
+            $t_fixed.find("th").each(function(index) {
+                $(this).css("width",$this.find("th").eq(index).outerWidth()+"px");
+            });
+        }
+        function scrollFixed() {
+            var offset = $(this).scrollTop(),
+                tableOffsetTop = $this.offset().top,
+                tableOffsetBottom = tableOffsetTop + $this.height() - $this.find("thead").height();
+            if(offset < tableOffsetTop || offset > tableOffsetBottom)
+                $t_fixed.hide();
+            else if(offset >= tableOffsetTop && offset <= tableOffsetBottom && $t_fixed.is(":hidden"))
+                $t_fixed.show();
+        }
+        $(window).resize(resizeFixed);
+        $(window).scroll(scrollFixed);
+        init();
+    });
+}

@@ -50,6 +50,11 @@ indexTmpl.events({
         window.print();
     }
 });
+invoiceDataTmpl.onRendered(function () {
+    Meteor.setTimeout(function () {
+        $("table.fixed-table").fixMe();
+    }, 1000)
+});
 invoiceDataTmpl.helpers({
     company(){
         let doc = Session.get('currentUserStockAndAccountMappingDoc');
@@ -73,7 +78,7 @@ invoiceDataTmpl.helpers({
             } else if (obj.field == 'customerId') {
                 data += `<td>${col._customer.name}</td>`
             } else if (obj.field == 'dueAmount' || obj.field == 'paidAmount' || obj.field == 'balance') {
-                data += `<td>${numeral(col[obj.field]).format('0,0.00')}</td>`
+                data += `<td class="text-right">${numeral(col[obj.field]).format('0,0.00')}</td>`
             }
             else if (obj.field == 'dueDate') {
                 let currentDate = moment(FlowRouter.query.get('date') || "");
@@ -99,16 +104,16 @@ invoiceDataTmpl.helpers({
         for (let i = 0; i < fieldLength; i++) {
             string += '<td></td>'
         }
-        string += `<td><u>Total ${_.capitalize(customerName)}:</u></td><td><u>${numeral(dueAmount).format('0,0.00')}</u></td><td><u>${numeral(paidAmount).format('0,0.00')}</u></td><td><u>${numeral(total).format('0,0.00')}</u></td>`;
+        string += `<td><u>Total ${_.capitalize(customerName)}:</u></td><td class="text-right"><u>${numeral(dueAmount).format('0,0.00')}</u></td><td class="text-right"><u>${numeral(paidAmount).format('0,0.00')}</u></td><td class="text-right"><u>${numeral(total).format('0,0.00')}</u></td>`;
         return string;
     },
-    getTotalFooter(total, totalKhr, totalThb){
+    getTotalFooter(totalDue, totalPaid, totalBalance){
         let string = '';
         let fieldLength = this.displayFields.length - 4;
         for (let i = 0; i < fieldLength; i++) {
             string += '<td></td>'
         }
-        string += `<td><b>Total:</td></b><td><b>${numeral(totalKhr).format('0,0')}<small>៛</small></b></td><td><b>${numeral(totalThb).format('0,0')}B</b></td><td><b>${numeral(total).format('0,0.00')}$</b></td>`;
+        string += `<td><b>Total:</td></b><td class="text-right"><b>${numeral(totalDue).format('0,0.00')}</b></td><td class="text-right"><b>${numeral(totalPaid).format('0,0.00')}</b></td><td class="text-right"><b>${numeral(totalBalance).format('0,0.00')}</b></td>`;
         return string;
     },
     capitalize(customerName){
@@ -143,3 +148,36 @@ AutoForm.hooks({
         }
     }
 });
+$.fn.fixMe = function () {
+    return this.each(function () {
+        var $this = $(this),
+            $t_fixed;
+
+        function init() {
+            $this.wrap('<div class="container-fix-header" />');
+            $t_fixed = $this.clone();
+            $t_fixed.find("tbody").remove().end().addClass("fixed").insertBefore($this);
+            resizeFixed();
+        }
+
+        function resizeFixed() {
+            $t_fixed.find("th").each(function (index) {
+                $(this).css("width", $this.find("th").eq(index).outerWidth() + "px");
+            });
+        }
+
+        function scrollFixed() {
+            var offset = $(this).scrollTop(),
+                tableOffsetTop = $this.offset().top,
+                tableOffsetBottom = tableOffsetTop + $this.height() - $this.find("thead").height();
+            if (offset < tableOffsetTop || offset > tableOffsetBottom)
+                $t_fixed.hide();
+            else if (offset >= tableOffsetTop && offset <= tableOffsetBottom && $t_fixed.is(":hidden"))
+                $t_fixed.show();
+        }
+
+        $(window).resize(resizeFixed);
+        $(window).scroll(scrollFixed);
+        init();
+    });
+}
