@@ -229,7 +229,7 @@ Meteor.methods({
                     } else if (val.currency == "KHR") {
                         grandTotalIncomeRiel += val.value;
                     } else if (val.currency == "THB") {
-                        grandTotalIncomeBath += val.value;
+                        grandTotalIncomeBath += val.value;Accounting
                     }
 
                 } else if (val.accountType >= 50 && val.accountType <= 59) {

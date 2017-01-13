@@ -174,8 +174,8 @@ journalDetailTpl.events({
         }
     },
     'click .js-update-item': function (e, t) {
-        var self = this;
-        var doc = journalDetailCollection.findOne(self._id);
+        let self = this;
+        let doc = journalDetailCollection.findOne(self._id);
         Session.set('accountUpdate',doc.account);
         alertify.journalDetail(fa("pencil", "Journal Detail"), renderTemplate(updateTpl, doc));
     }
