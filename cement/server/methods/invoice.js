@@ -4,6 +4,9 @@ import {Penalty} from '../../imports/api/collections/penalty';
 import {RemovedInvoice} from '../../imports/api/collections/removedCollection';
 import {Invoices} from '../../imports/api/collections/invoice';
 Meteor.methods({
+    getInvoice({_id}){
+        return Invoices.findOne(_id);
+    },
     insertRemovedInvoice(doc){
         if (doc.invoiceType == 'term' && (doc.status == 'partial' || doc.status == 'closed')) {
             ReceivePayment.remove({invoiceId: doc._id});

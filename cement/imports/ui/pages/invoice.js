@@ -67,6 +67,7 @@ let indexTmpl = Template.Cement_invoice,
     listSaleOrder = Template.listSaleOrder;
 // Local collection
 let itemsCollection = nullCollection;
+let dateState = new ReactiveVar();
 // Index
 indexTmpl.onCreated(function () {
     // Create new  alertify
@@ -156,6 +157,9 @@ newTmpl.onCreated(function () {
     });
 });
 // New
+newTmpl.onRendered(function () {
+    dpChange($('[name="invoiceDate"]'));
+});
 newTmpl.events({
     'click .add-new-customer'(event, instance) {
         alertify.customer(fa('plus', 'New Customer'), renderTemplate(Template.Cement_customerNew));
@@ -312,7 +316,7 @@ newTmpl.helpers({
     },
     dueDate() {
         try {
-            let date = AutoForm.getFieldValue('invoiceDate');
+            let date = dateState.get() || AutoForm.getFieldValue('invoiceDate');
             let {customerInfo} = Session.get('customerInfo');
             if (customerInfo) {
                 if (customerInfo._term) {
@@ -386,7 +390,9 @@ editTmpl.onCreated(function () {
     });
 });
 
-
+editTmpl.onRendered(function () {
+    dpChange($('[name="invoiceDate"]'));
+});
 editTmpl.events({
     'click .add-new-customer'(event, instance) {
         alertify.customer(fa('plus', 'New Customer'), renderTemplate(Template.Cement_customerNew));
@@ -538,7 +544,7 @@ editTmpl.helpers({
     },
     dueDate() {
         try {
-            let date = AutoForm.getFieldValue('invoiceDate');
+            let date = dateState.get() || AutoForm.getFieldValue('invoiceDate');
             let {customerInfo} = Session.get('customerInfo');
             if (customerInfo) {
                 if (customerInfo._term) {
@@ -836,7 +842,11 @@ let hooksObject = {
         // FlowRouter.query.unset('p');
     }
 };
-
+function dpChange(elem) {
+    elem.on('dp.change', function (e) {
+        dateState.set(e.date.toDate());
+    });
+}
 AutoForm.addHooks([
     'Cement_invoiceNew',
     'Cement_invoiceUpdate'

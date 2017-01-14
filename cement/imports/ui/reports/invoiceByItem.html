@@ -41,6 +41,7 @@
                                 </div>
                                 <input type="checkbox" class="show-items-summary" checked>SHOW ITEMS SUMMARY
                                 <input type="checkbox" class="show-invoices-summary" checked>SHOW INV SUMMARY
+                                <input type="checkbox" class="select-sale-order">SALE ORDER
                                 <br>
                                 <button class="btn btn-primary"><i class="fa fa-play" aria-hidden="true"></i> Run
                                 </button>
@@ -92,7 +93,7 @@
 
                     {{/each}}
                     <tr>
-                        {{{getTotalFooter footer.totalQty footer.total 3}}}
+                        {{{getTotalFooter footer.totalQty footer.total 5}}}
                     </tr>
                     </tbody>
 
@@ -121,7 +122,7 @@
                     {{/each}}
                     <br>
                     <tr>
-                        {{{getTotalFooter footer.totalQty footer.total 9}}}
+                        {{{getTotalFooter footer.totalQty footer.total 10}}}
                     </tr>
                 {{/if}}
                 </tbody>

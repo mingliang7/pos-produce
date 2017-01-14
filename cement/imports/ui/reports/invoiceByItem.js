@@ -20,6 +20,7 @@ let indexTmpl = Template.Cement_invoiceByItemReport,
     invoiceDataTmpl = Template.invoiceByItemReportData;
 let showItemsSummary = new ReactiveVar(true);
 let showInvoicesSummary = new ReactiveVar(true);
+let enableSaleOrder = new ReactiveVar(false);
 
 indexTmpl.onCreated(function () {
     this.fromDate = new ReactiveVar(moment().startOf('days').toDate());
@@ -86,6 +87,13 @@ indexTmpl.events({
             showItemsSummary.set(false);
         }
     },
+    'change .select-sale-order'(event, instance){
+        if ($(event.currentTarget).prop('checked')) {
+            enableSaleOrder.set(true);
+        } else {
+            enableSaleOrder.set(false);
+        }
+    },
     'change .show-invoices-summary'(event, instance){
         if ($(event.currentTarget).prop('checked')) {
             showInvoicesSummary.set(true);
@@ -107,6 +115,7 @@ invoiceDataTmpl.events({
 invoiceDataTmpl.onDestroyed(function () {
     $('.rpt-body').removeClass('rpt');
     $('.rpt-header').removeClass('rpt');
+    enableSaleOrder.set(false);
 });
 invoiceDataTmpl.helpers({
     showItemsSummary(){
@@ -133,7 +142,7 @@ invoiceDataTmpl.helpers({
                 data += `<td>${moment(col[obj.field]).format('YYYY-MM-DD')}</td>`
             } else if (obj.field == 'invoiceId') {
                 let invId = col[obj.field].substr(col[obj.field].length - 10, col[obj.field].length - 1);
-                data += `<td>${invId}</td>`
+                data += `<td><a class="inv cursor-pointer">${invId}</a></td>`
             }
             else if (obj.field == 'customerId') {
                 data += `<td>${col._customer.name}</td>`
@@ -163,7 +172,7 @@ invoiceDataTmpl.helpers({
         for (let i = 0; i < fieldLength; i++) {
             string += '<td></td>'
         }
-        string += `<td><b>Total:</b></td><td class="text-right"><b>${numeral(qty).format('0,0.00')}</b></td><td class="text-right"><b>${numeral(total).format('0,0.00')}$</b></td>`;
+        string += `<td><b>Total:</b></td><td class="text-right"><b>${numeral(qty).format('0,0.00')}</b></td><td></td><td></td><td class="text-right"><b>${numeral(total).format('0,0.00')}$</b></td>`;
         return string;
     },
     capitalize(customerName){
@@ -181,6 +190,9 @@ AutoForm.hooks({
             FlowRouter.query.unset();
             let params = {};
             params.branchId = Session.get('currentBranch');
+            if (enableSaleOrder.get()) {
+                params.so = true;
+            }
             if (doc.fromDate && doc.toDate) {
                 let fromDate = moment(doc.fromDate).startOf('days').format('YYYY-MM-DD HH:mm:ss');
                 let toDate = moment(doc.toDate).endOf('days').format('YYYY-MM-DD HH:mm:ss');

@@ -38,11 +38,14 @@ export const invoiceByItemReport = new ValidatedMethod({
                 selector = ReportFn.checkIfUserHasRights({currentUser: Meteor.userId(), selector});
             }
             let exchange = Exchange.findOne({}, {sort: {_id: -1}});
-            let coefficient = exchangeCoefficient({exchange, fieldToCalculate: '$total'})
+            let coefficient = exchangeCoefficient({exchange, fieldToCalculate: {$sum: ["$items.amount"]}})
 
             // console.log(user);
             // let date = _.trim(_.words(params.date, /[^To]+/g));
-            // selector.invoiceType = {$ne: 'group'};
+            selector.invoiceType = {$ne: 'saleOrder'};
+            if(params.so) {
+                selector.invoiceType = {$eq: 'saleOrder'}
+            }
             selector.status = {$in: ['active', 'partial', 'closed']};
             if (params.date) {
                 let dateAsArray = params.date.split(',')
