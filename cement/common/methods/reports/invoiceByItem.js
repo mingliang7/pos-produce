@@ -43,7 +43,7 @@ export const invoiceByItemReport = new ValidatedMethod({
             // console.log(user);
             // let date = _.trim(_.words(params.date, /[^To]+/g));
             selector.invoiceType = {$ne: 'saleOrder'};
-            if(params.so) {
+            if (params.so) {
                 selector.invoiceType = {$eq: 'saleOrder'}
             }
             selector.status = {$in: ['active', 'partial', 'closed']};
@@ -58,8 +58,32 @@ export const invoiceByItemReport = new ValidatedMethod({
             if (params.customer && params.customer != '') {
                 selector.customerId = params.customer;
             }
-            data.fields = [{field: '<th>Date</th>'}, {field: '<th>INVN</th>'}, {field: '<th>Name</th>'}, {field: '<th>Addr</th>'}, {field: '<th>Tel</th>'}, {field: '<th>Item</th>'}, {field: '<th class="text-center">Qty</th>'}, {field: '<th class="text-center">Price</th>'}, {field: '<th class="text-center">TSFee</th>'}, {field: '<th class="text-center">Amount</th>'}];
-            data.displayFields = [{field: 'date'}, {field: 'invoiceId'}, {field: 'customer'}, {field: 'address'}, {field: 'tel'}, {field: 'itemName'}, {field: 'qty'}, {field: 'price'}, {field: 'tsFee'}, {field: 'amount'}];
+            data.fields = [
+                {field: '<th>Date</th>'},
+                {field: '<th>INVN</th>'},
+                {field: '<th>Name</th>'},
+                {field: '<th>Addr</th>'},
+                {field: '<th>Tel</th>'},
+                {field: '<th>Item</th>'},
+                {field: '<th class="text-center">Qty</th>'},
+                {field: '<th class="text-center">Price</th>'},
+                {field: '<th class="text-center">TSFee</th>'},
+                {field: '<th class="text-center">SubAmount</th>'},
+                {field: '<th class="text-center">TSAMount</th>'},
+                {field: '<th class="text-center">Amount</th>'}];
+            data.displayFields = [
+                {field: 'date'},
+                {field: 'invoiceId'},
+                {field: 'customer'},
+                {field: 'address'},
+                {field: 'tel'},
+                {field: 'itemName'},
+                {field: 'qty'},
+                {field: 'price'},
+                {field: 'tsFee'},
+                {field: 'subAmount'},
+                {field: 'tsFeeAmount'},
+                {field: 'amount'}];
 
             // project['$invoice'] = 'Invoice';
             /****** Title *****/
@@ -131,6 +155,8 @@ export const invoiceByItemReport = new ValidatedMethod({
                         qty: {$sum: '$data.items.qty'},
                         price: {$addToSet: '$data.items.price'},
                         tsFee: {$addToSet: '$data.items.transportFee'},
+                        tsFeeAmount: {$sum: {$multiply: ["$data.items.qty", "$data.items.transportFee"]}},
+                        subAmount: {$sum: {$multiply: ["$data.items.qty", "$data.items.price"]}},
                         amount: {$sum: '$data.items.amount'},
                         total: {$addToSet: '$total'},
                         totalThb: {$addToSet: '$totalThb'},
@@ -169,9 +195,13 @@ export const invoiceByItemReport = new ValidatedMethod({
                                 qty: '$qty',
                                 price: '$price',
                                 tsFee: '$tsFee',
+                                tsFeeAmount: '$tsFeeAmount',
+                                subAmount: '$subAmount',
                                 amount: '$amount'
                             }
                         },
+                        tsFeeAmount: {$sum: '$tsFeeAmount'},
+                        subAmount: {$sum: '$subAmount'},
                         totalQty: {$sum: '$qty'},
                         total: {$addToSet: {totalUsd: '$total', totalThb: '$totalThb', totalKhr: '$totalKhr'}}
                     }
@@ -184,6 +214,8 @@ export const invoiceByItemReport = new ValidatedMethod({
                             $addToSet: '$$ROOT'
                         },
                         totalQty: {$sum: '$totalQty'},
+                        totalTsFeeAmount: {$sum: '$tsFeeAmount'},
+                        totalSubAmount: {$sum: '$subAmount'},
                         total: {$sum: '$total.totalUsd'},
                         totalKhr: {$sum: '$total.totalKhr'},
                         totalThb: {$sum: '$total.totalThb'}
@@ -214,10 +246,34 @@ export const invoiceByItemReport = new ValidatedMethod({
                             $addToSet: '$itemDoc.name'
                         },
                         qty: {$sum: '$items.qty'},
-                        tsFee: {$avg: '$items.transportFee'},
-                        price: {$avg: '$items.price'},
+                        subAmount: {
+                            $sum: {
+                                $multiply: [
+                                    '$items.price',
+                                    '$items.qty']
+                            }
+                        },
+                        tsFeeAmount: {
+                            $sum: {
+                                $multiply: [
+                                    '$items.transportFee',
+                                    '$items.qty']
+                            }
+                        },
                         amount: {$sum: '$items.amount'}
                     }
+                },
+                {
+                  $project: {
+                      _id: 1,
+                      itemName: 1,
+                      qty: 1,
+                      subAmount: 1,
+                      tsFeeAmount: 1,
+                      amount: 1,
+                      tsFee: {$divide: ["$tsFeeAmount", "$qty"]},
+                      price: {$divide: ["$subAmount", "$qty"]}
+                  }
                 },
                 {$unwind: {path: '$itemName', preserveNullAndEmptyArrays: true}},
                 {$sort: {itemName: 1}}
@@ -226,6 +282,8 @@ export const invoiceByItemReport = new ValidatedMethod({
                 data.content = invoices[0].data;
                 data.footer = {
                     itemsSummary: invoiceItemSummary,
+                    totalTsFeeAmount: invoices[0].totalTsFeeAmount,
+                    totalSubAmount: invoices[0].totalSubAmount,
                     totalQty: invoices[0].totalQty,
                     total: invoices[0].total,
                     totalKhr: invoices[0].totalKhr,

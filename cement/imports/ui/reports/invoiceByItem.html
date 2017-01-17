@@ -93,7 +93,7 @@
 
                     {{/each}}
                     <tr>
-                        {{{getTotalFooter footer.totalQty footer.total 5}}}
+                        {{{getTotalFooter footer.totalSubAmount footer.totalTsFeeAmount footer.totalQty footer.total 7}}}
                     </tr>
                     </tbody>
 
@@ -108,6 +108,8 @@
                         <td style="background-color: #d0d0d0" class="text-center">Qty</td>
                         <td style="background-color: #d0d0d0" class="text-center">Avg Price</td>
                         <td style="background-color: #d0d0d0" class="text-center">Avg TSFee</td>
+                        <td style="background-color: #d0d0d0" class="text-center">SubAmount</td>
+                        <td style="background-color: #d0d0d0" class="text-center">TSAmount</td>
                         <td colspan="" style="background-color: #d0d0d0" class="text-center">Amount</td>
                         <td colspan="5" style="background-color: #d0d0d0"></td>
                     </tr>
@@ -117,12 +119,14 @@
                             <td class="text-right">{{numFormat qty '0,0.00'}}</td>
                             <td class="text-right">{{numFormat price '0,0.00'}}</td>
                             <td class="text-right">{{numFormat tsFee '0,0.00'}}</td>
+                            <td class="text-right">{{numFormat subAmount '0,0.00'}}</td>
+                            <td class="text-right">{{numFormat tsFeeAmount '0,0.00'}}</td>
                             <td class="text-right"><u>{{numFormat amount '0,0.00'}}</u></td>
                         </tr>
                     {{/each}}
                     <br>
                     <tr>
-                        {{{getTotalFooter footer.totalQty footer.total 10}}}
+                        {{{getTotalFooter footer.totalSubAmount footer.totalTsFeeAmount footer.totalQty footer.total 12}}}
                     </tr>
                 {{/if}}
                 </tbody>

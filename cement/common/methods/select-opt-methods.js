@@ -15,6 +15,7 @@ import {Vendors} from '../../imports/api/collections/vendor';
 import {PaymentGroups} from '../../imports/api/collections/paymentGroup';
 import {Terms} from '../../imports/api/collections/terms';
 import {Truck} from '../../imports/api/collections/truck';
+import {Invoices} from '../../imports/api/collections/invoice';
 export let SelectOptMethods = {};
 
 SelectOptMethods.stockLocation = new ValidatedMethod({
@@ -81,6 +82,39 @@ SelectOptMethods.stockLocationMapping = new ValidatedMethod({
                 list.push({label: label, value: value._id});
             });
 
+            return list;
+        }
+    }
+});
+SelectOptMethods.lookupInvoice = new ValidatedMethod({
+    name: 'cement.selectOptMethods.lookupInvoice',
+    validate: null,
+    run(options) {
+        if (!this.isSimulation) {
+            this.unblock();
+
+            let list = [], selector = {};
+            let searchText = options.searchText;
+            let values = options.values;
+            let params = options.params || {};
+            selector.refBillId = {$exists: false};
+            if(params.branchId) {
+                selector.branchId = params.branchId;
+            }
+            if (searchText) {
+                selector['$or'] = [
+                    {_id: {$regex: searchText, $options: 'i'}},
+                    {'_customer.name': {$regex: searchText, $options: 'i'}},
+                    {'voucherId': {$regex: searchText, $options: 'i'}}
+                ]
+            }
+            let data = Invoices.find(selector, {limit: 50, sort: {voucherId: -1}});
+            data.forEach((invoice) => {
+                list.push({
+                    label: `INV: ${invoice.voucherId || invoice._id} | ${invoice._customer.name} | $${numeral(invoice.total).format('0,0.00')}`,
+                    value: invoice._id
+                });
+            });
             return list;
         }
     }

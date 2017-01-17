@@ -454,35 +454,30 @@ showTmpl.events({
 });
 
 invoiceBillTmpl.onCreated(function () {
-    this.selectInvoiceBillOptions = new ReactiveVar([]);
-    this.autorun(() => {
-        Meteor.call('noRefBillIdInvoice',
-            {
-                selector: {
-                    refBillId: {$exists: false},
-                    status: {$ne: 'closed'}
-                }
-            }, (err, result) => {
-                if (result.length > 0) {
-                    let list = [];
-                    result.forEach((invoice) => {
-                        list.push({
-                            label: `INV: ${invoice.voucherId || invoice._id} | ${invoice._customer.name} | $${numeral(invoice.total).format('0,0.00')}`,
-                            value: invoice._id
-                        });
-                    });
-                    this.selectInvoiceBillOptions.set(list);
-                }
-            });
-    });
+    // this.selectInvoiceBillOptions = new ReactiveVar([]);
+    // this.autorun(() => {
+    //     Meteor.call('noRefBillIdInvoice',
+    //         {
+    //             selector: {
+    //                 refBillId: {$exists: false},
+    //             }
+    //         }, (err, result) => {
+    //             if (result.length > 0) {
+    //                 let list = [];
+    //                 result.forEach((invoice) => {
+    //                     list.push({
+    //                         label: `INV: ${invoice.voucherId || invoice._id} | ${invoice._customer.name} | $${numeral(invoice.total).format('0,0.00')}`,
+    //                         value: invoice._id
+    //                     });
+    //                 });
+    //                 this.selectInvoiceBillOptions.set(list);
+    //             }
+    //         });
+    // });
 });
 invoiceBillTmpl.helpers({
     schema(){
         return InvoiceBillSchema;
-    },
-    options(){
-        let instance = Template.instance();
-        return instance.selectInvoiceBillOptions.get();
     }
 });
 invoiceBillTmpl.events({

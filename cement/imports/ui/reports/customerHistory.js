@@ -79,8 +79,52 @@ invoiceDataTmpl.helpers({
     },
     data(){
         if (invoiceData.get()) {
-            return invoiceData.get();
+            let customerHistory = invoiceData.get();
+            let data = {content: [], footer: customerHistory.footer};
+            let content = customerHistory.content;
+            if (content.length > 0) {
+                content.forEach(function (invoice) {
+                    let invoiceData = invoice.data;
+                    if (invoiceData.length > 0) {
+                        invoiceData.forEach(function (dataDoc) {
+                            let itemDoc = dataDoc.items;
+                            dataDoc.firstItem = [];
+                            dataDoc.secondItem = [];
+                            for (let i = 0; i < itemDoc.length; i++) {
+                                if (i == 0) {
+                                    dataDoc.firstItem.push(itemDoc[i]);
+                                } else {
+                                    dataDoc.secondItem.push(itemDoc[i]);
+                                }
+                            }
+                        });
+                    }
+                    data.content.push(invoice);
+                });
+
+            }
+            return data;
         }
+    },
+    getBeginningBalance(index, balance = 0){
+        let customerHistory = invoiceData.get();
+        let currentMapDate = customerHistory.invoiceDateArr && customerHistory.invoiceDateArr[index];
+        let subtractCurrentMapDateByOneMonth = moment(currentMapDate).subtract(1, 'months').format('YYYY-MM');
+        let beginningBalance = 0;
+        if (customerHistory.groupByDate.length > 0) {
+            customerHistory.groupByDate.forEach(function (o) {
+                let formatMonth = moment(o.invoiceDate).format('YYYY-MM');
+                if(moment(formatMonth).isSame(moment(subtractCurrentMapDateByOneMonth)) || moment(formatMonth).isBefore(moment(subtractCurrentMapDateByOneMonth))) {
+                    beginningBalance += o.balance;
+                }
+            });
+        }
+        return {
+            balance: numeral(balance).format('0,0.00'),
+            sumBalance: numeral(beginningBalance + balance).format('0,0.00'),
+            beginningBalance: numeral(beginningBalance).format('0,0.00')
+        };
+
     },
     company(){
         let doc = Session.get('currentUserStockAndAccountMappingDoc');
@@ -96,8 +140,8 @@ AutoForm.hooks({
             FlowRouter.query.unset();
             let params = {};
             params.branchId = Session.get('currentBranch');
-            if (doc.fromDate && doc.toDate) {
-                params.date = `${moment(doc.fromDate).startOf('days').format('YYYY-MM-DD HH:mm:ss')},${moment(doc.toDate).endOf('days').format('YYYY-MM-DD HH:mm:ss')}`;
+            if (doc.date) {
+                params.date = `${moment(doc.date).endOf('days').format('YYYY-MM-DD HH:mm:ss')}`;
             }
             if (doc.customer) {
                 params.customer = doc.customer

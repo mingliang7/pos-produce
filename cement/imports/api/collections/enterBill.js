@@ -53,7 +53,17 @@ EnterBills.schema = new SimpleSchema({
         autoform: {
             type: 'universe-select',
             uniPlaceholder: 'All',
-            multiple: true
+            multiple: true,
+            afFieldInput: {
+                uniPlaceholder: 'Select One',
+                optionsMethod: 'cement.selectOptMethods.lookupInvoice',
+                optionsMethodParams: function () {
+                    if (Meteor.isClient) {
+                        let currentBranch = Session.get('currentBranch');
+                        return {branchId: currentBranch};
+                    }
+                }
+            }
         }
     },
     voucherId: {

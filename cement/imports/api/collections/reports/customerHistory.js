@@ -5,20 +5,7 @@ import {SelectOpts} from '../../../../../core/imports/ui/libs/select-opts.js';
 
 
 export const customerHistorySchema = new SimpleSchema({
-    fromDate: {
-        type: Date,
-        defaultValue: moment().toDate(),
-        autoform: {
-            afFieldInput: {
-                type: "bootstrap-datetimepicker",
-                dateTimePickerOptions: {
-                    format: 'DD/MM/YYYY',
-
-                }
-            }
-        }
-    },
-    toDate: {
+    date: {
         type: Date,
         defaultValue: moment().toDate(),
         autoform: {
@@ -33,11 +20,10 @@ export const customerHistorySchema = new SimpleSchema({
     },
     customer: {
         type: String,
-        optional: true,
         autoform: {
             type: 'universe-select',
             afFieldInput: {
-                uniPlaceholder: 'All',
+                uniPlaceholder: '(Select One)',
                 optionsMethod: 'cement.selectOptMethods.customer',
                 optionsMethodParams: function () {
                     if (Meteor.isClient) {

@@ -27,7 +27,7 @@ tabularOpts.columns = [
         }
     },
     {data: "voucherId", title: "Voucher"},
-    {data: "boid", title: "BOID"},
+    {data: "boid", title: "D"},
     {
         data: "invoiceDate",
         title: "Date",
