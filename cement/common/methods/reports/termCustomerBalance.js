@@ -13,7 +13,7 @@ import {Exchange} from '../../../../core/imports/api/collections/exchange';
 import {correctFieldLabel} from '../../../imports/api/libs/correctFieldLabel';
 import {exchangeCoefficient} from '../../../imports/api/libs/exchangeCoefficient';
 import ReportFn from "../../../imports/api/libs/report";
-export const termCustomerBalanceReport = new ValidatedMethod({
+export const  termCustomerBalanceReport = new ValidatedMethod({
     name: 'cement.termCustomerBalanceReport',
     mixins: [CallPromiseMixin],
     validate: null,

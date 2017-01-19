@@ -19,26 +19,6 @@ let invoiceData = new ReactiveVar();
 //declare template
 let indexTmpl = Template.Cement_invoiceByCustomerReport,
     invoiceDataTmpl = Template.invoiceByCustomerReportData;
-Tracker.autorun(function () {
-    if (paramsState.get()) {
-        swal({
-            title: "Pleas Wait",
-            text: "Fetching Data....", showConfirmButton: false
-        });
-        invoiceByCustomerReport.callPromise(paramsState.get())
-            .then(function (result) {
-                invoiceData.set(result);
-                setTimeout(function () {
-                    swal.close()
-                }, 200);
-            }).catch(function (err) {
-            swal.close();
-            console.log(err.message);
-        })
-
-    }
-});
-
 indexTmpl.onCreated(function () {
     createNewAlertify('invoiceByCustomer');
     paramsState.set(FlowRouter.query.params());
@@ -47,6 +27,25 @@ indexTmpl.onCreated(function () {
     Meteor.setTimeout(function () {
         $("table.fixed-table").fixMe();
     },1000)
+    this.autorun(function () {
+        if (paramsState.get()) {
+            swal({
+                title: "Pleas Wait",
+                text: "Fetching Data....", showConfirmButton: false
+            });
+            invoiceByCustomerReport.callPromise(paramsState.get())
+                .then(function (result) {
+                    invoiceData.set(result);
+                    setTimeout(function () {
+                        swal.close()
+                    }, 200);
+                }).catch(function (err) {
+                swal.close();
+                console.log(err.message);
+            })
+
+        }
+    });
 });
 indexTmpl.helpers({
     schema(){

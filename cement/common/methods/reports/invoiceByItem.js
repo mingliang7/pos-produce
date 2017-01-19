@@ -93,83 +93,36 @@ export const invoiceByItemReport = new ValidatedMethod({
                 {
                     $match: selector
                 },
-                {
-                    $project: {
-                        totalUsd: coefficient.usd,
-                        totalThb: coefficient.thb,
-                        totalKhr: coefficient.khr,
-                        customerId: 1,
-                        total: 1,
-                        _id: 1,
-                        dueDate: 1,
-                        invoiceDate: 1,
-                        branchId: 1,
-                        createdAt: 1,
-                        createdBy: 1,
-                        invoiceType: 1,
-                        items: 1,
-                        profit: 1,
-                        repId: 1,
-                        staffId: 1,
-                        stockLocationId: 1,
-                        totalCost: 1,
-                        status: 1
-                    }
-                },
-                {
-                    $group: {
-                        _id: '$customerId',
-                        invoiceId: {$last: '$_id'},
-                        date: {$last: '$invoiceDate'},
-                        data: {
-                            $addToSet: '$$ROOT'
-                        },
-                        total: {$sum: '$totalUsd'},
-                        totalKhr: {$sum: '$totalKhr'},
-                        totalThb: {$sum: '$totalThb'}
-                    }
-                },
-
-                {$unwind: {path: '$data', preserveNullAndEmptyArrays: true}},
-                {$unwind: {path: '$data.items', preserveNullAndEmptyArrays: true}},
+                {$unwind: {path: '$items', preserveNullAndEmptyArrays: true}},
                 {
                     $lookup: {
                         from: "cement_item",
-                        localField: "data.items.itemId",
+                        localField: "items.itemId",
                         foreignField: "_id",
-                        as: "data.itemDoc"
+                        as: "itemDoc"
                     }
                 },
-                {$unwind: {path: '$data.itemDoc', preserveNullAndEmptyArrays: true}},
                 {
                     $group: {
                         _id: {
-                            customerId: '$data.customerId',
-                            itemId: '$data.items.itemId'
+                            customerId: '$customerId',
+                            itemId: '$items.itemId',
+                            invoiceId: '$_id',
                         },
-                        invoiceId: {$last: '$invoiceId'},
-                        date: {$last: '$date'},
-                        customerId: {$last: '$data.customerId'},
-                        itemId: {$addToSet: '$data.items.itemId'},
-                        itemName: {$addToSet: '$data.itemDoc.name'},
-                        qty: {$sum: '$data.items.qty'},
-                        price: {$addToSet: '$data.items.price'},
-                        tsFee: {$addToSet: '$data.items.transportFee'},
-                        tsFeeAmount: {$sum: {$multiply: ["$data.items.qty", "$data.items.transportFee"]}},
-                        subAmount: {$sum: {$multiply: ["$data.items.qty", "$data.items.price"]}},
-                        amount: {$sum: '$data.items.amount'},
-                        total: {$addToSet: '$total'},
-                        totalThb: {$addToSet: '$totalThb'},
-                        totalKhr: {$addToSet: '$totalKhr'}
+                        invoiceId: {$last: '$_id'},
+                        date: {$last: '$invoiceDate'},
+                        customerId: {$last: '$customerId'},
+                        itemName: {$last: '$itemDoc.name'},
+                        qty: {$sum: '$items.qty'},
+                        price: {$sum: '$items.price'},
+                        tsFee: {$sum: '$items.transportFee'},
+                        tsFeeAmount: {$sum: {$multiply: ["$items.qty", "$items.transportFee"]}},
+                        subAmount: {$sum: {$multiply: ["$items.qty", "$items.price"]}},
+                        amount: {$sum: '$items.amount'},
+                        total: {$last: '$total'},
+
                     }
                 },
-                {$unwind: {path: '$itemId', preserveNullAndEmptyArrays: true}},
-                {$unwind: {path: '$price', preserveNullAndEmptyArrays: true}},
-                {$unwind: {path: '$tsFee', preserveNullAndEmptyArrays: true}},
-                {$unwind: {path: '$itemName', preserveNullAndEmptyArrays: true}},
-                {$unwind: {path: '$total', preserveNullAndEmptyArrays: true}},
-                {$unwind: {path: '$totalThb', preserveNullAndEmptyArrays: true}},
-                {$unwind: {path: '$totalKhr', preserveNullAndEmptyArrays: true}},
                 {
                     $lookup: {
                         from: "cement_customers",
@@ -203,10 +156,8 @@ export const invoiceByItemReport = new ValidatedMethod({
                         tsFeeAmount: {$sum: '$tsFeeAmount'},
                         subAmount: {$sum: '$subAmount'},
                         totalQty: {$sum: '$qty'},
-                        total: {$addToSet: {totalUsd: '$total', totalThb: '$totalThb', totalKhr: '$totalKhr'}}
                     }
                 },
-                {$unwind: {path: '$total', preserveNullAndEmptyArrays: true}},
                 {
                     $group: {
                         _id: null,
@@ -214,11 +165,9 @@ export const invoiceByItemReport = new ValidatedMethod({
                             $addToSet: '$$ROOT'
                         },
                         totalQty: {$sum: '$totalQty'},
-                        totalTsFeeAmount: {$sum: '$tsFeeAmount'},
-                        totalSubAmount: {$sum: '$subAmount'},
-                        total: {$sum: '$total.totalUsd'},
-                        totalKhr: {$sum: '$total.totalKhr'},
-                        totalThb: {$sum: '$total.totalThb'}
+                        totalTsFeeAmount: {$last: '$tsFeeAmount'},
+                        totalSubAmount: {$last: '$subAmount'},
+                        total: {$sum:{$add: ['$tsFeeAmount', '$subAmount']}},
                     }
                 }
 

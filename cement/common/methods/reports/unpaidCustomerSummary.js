@@ -43,7 +43,7 @@ export const unpaidCustomerSummary = new ValidatedMethod({
             let filterItems = {'items.itemId': {$ne: ''}};
             // console.log(user);
             // let date = _.trim(_.words(params.date, /[^To]+/g));
-            selector.invoiceType = {$ne: 'group'};
+            selector.invoiceType = {$eq: 'term'};
             let toDate;
             if (params.date) {
                 toDate = moment(params.date).endOf('days').toDate();
@@ -108,23 +108,20 @@ export const unpaidCustomerSummary = new ValidatedMethod({
                     $unwind: {path: '$customerDoc', preserveNullAndEmptyArrays: true}
                 },
                 {
+                  $group: {
+                      _id: '$_id',
+                      customerId: {$last: '$customerId'},
+                      customerDoc: {$last: '$customerDoc'},
+                      total: {$last: '$total'},
+                      paidAmount: {$sum: '$paidAmount'},
+                  }
+                },
+
+                {
                     $group: {
                         _id: '$customerId',
                         customerDoc: {$last: '$customerDoc'},
-                        invoices: {
-                            $push: '$$ROOT'
-                        },
-                        paidAmount: {$sum: '$receivePaymentDoc.paidAmount'},
-                        total: {$sum: '$total'}
-                    }
-                },
-                {
-                    $project: {
-                        _id: 1,
-                        customerDoc: 1,
-                        invoices: 1,
-                        paidAmount: 1,
-                        total: {$subtract: ["$total", "$paidAmount"]}
+                        total: {$sum: {$subtract: ["$total", "$paidAmount"]}}
                     }
                 },
                 {
@@ -136,9 +133,10 @@ export const unpaidCustomerSummary = new ValidatedMethod({
                         data: {
                             $push: '$$ROOT'
                         },
-                        grandTotal: {$sum: '$total'}
+                        grandTotal: {$sum: '$total'},
                     }
                 }
+
             ]);
             if (invoices.length > 0) {
                 data.content = invoices[0].data;
