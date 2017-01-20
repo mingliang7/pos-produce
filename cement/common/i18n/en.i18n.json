@@ -412,6 +412,9 @@
         "amount": {
           "label": "Amount"
         },
+        "isBill":{
+          "label":"isBill"
+        },
         "enterBillDate": {
           "label": "Date"
         },

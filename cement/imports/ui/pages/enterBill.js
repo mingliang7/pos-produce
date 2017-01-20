@@ -493,6 +493,7 @@ invoiceBillTmpl.events({
            if(result.items.length > 0) {
                result.items.forEach(function (item) {
                    item.originalPrice = item.price;
+                   item.isBill=true;
                    itemsCollection.insert(item);
                });
            }

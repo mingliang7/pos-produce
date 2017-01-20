@@ -30,13 +30,13 @@ import {EnterBillItemsSchema} from '../../api/collections/order-items.js';
 import {EnterBills} from '../../api/collections/enterBill.js';
 
 // Declare template
-var itemsTmpl = Template.Cement_enterBillItems,
+let itemsTmpl = Template.Cement_enterBillItems,
     actionItemsTmpl = Template.Cement_enterBillItemsAction,
     editItemsTmpl = Template.Cement_enterBillItemsEdit;
 
 
 // Local collection
-var itemsCollection;
+let itemsCollection;
 // Page
 import './enterBill-items.html';
 
@@ -96,7 +96,19 @@ itemsTmpl.helpers({
             fn(value, object, key) {
                 return numeral(value).format('0,0.00');
             }
-        }, {
+        },{
+            key: 'isBill',
+            label: __(`${i18nPrefix}.isBill.label`),
+            fn(value, object, key) {
+                debugger;
+                if(value){
+                    return Spacebars.SafeString(`<input type="checkbox" checked class="is-bill">`)
+                }else{
+                    return Spacebars.SafeString(`<input type="checkbox" class="is-bill">`)
+                }
+
+            }
+        },  {
             key: '_id',
             label() {
                 return fa('bars', '', true);
@@ -162,6 +174,7 @@ itemsTmpl.events({
         instance.state('amount', amount);
     },
     'click .js-add-item': function (event, instance) {
+        debugger;
         let itemId = instance.$('[name="itemId"]').val();
         if (itemId == "") {
             sAlert.warning("Please select Item");
@@ -195,7 +208,8 @@ itemsTmpl.events({
                 originalPrice: price,
                 price: price,
                 amount: amount,
-                name: instance.name
+                name: instance.name,
+                isBill:true
             });
         }
     },
@@ -264,7 +278,6 @@ itemsTmpl.events({
         let itemId = $(event.currentTarget).parents('tr').find('.itemId').text();
         let currentItem = itemsCollection.findOne({itemId: itemId});
         let selector = {};
-        console.log(currentItem);
         if (currentPrice != '') {
             selector.$set = {
                 amount: currentPrice * currentItem.qty,
@@ -278,8 +291,17 @@ itemsTmpl.events({
         }
         itemsCollection.update({itemId: itemId}, selector);
     },
+    'change .is-bill'(event,instance){
+        debugger;
+        let itemId = $(event.currentTarget).parents('tr').find('.itemId').text();
+        let price = $(event.currentTarget).parents('tr').find('.item-price').val();
+        price=parseFloat(price);
+        let currentItem = itemsCollection.findOne({itemId: itemId,price:price});
+        let isBill=!currentItem.isBill;
+        itemsCollection.update({itemId: itemId,price:price}, {$set:{isBill:isBill}});
+    },
     "keypress .item-qty .price" (evt) {
-        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        let charCode = (evt.which) ? evt.which : evt.keyCode;
         if ($(evt.currentTarget).val().indexOf('.') != -1) {
             if (charCode == 46) {
                 return false;
@@ -377,16 +399,16 @@ let hooksObject = {
 AutoForm.addHooks(['Cement_enterBillItemsEdit'], hooksObject);
 
 
-var calculateTotal = function () {
+let calculateTotal = function () {
     debugger;
     let subTotal = 0;
     let getItems = itemsCollection.find();
     getItems.forEach((obj) => {
         subTotal += obj.amount;
     });
-    var discount = $('#discount').val();
+    let discount = $('#discount').val();
     discount = discount == "" ? 0 : parseFloat(discount);
-    var total = subTotal * (1 - discount / 100);
+    let total = subTotal * (1 - discount / 100);
     Session.set('total', total);
     // Session.set('subTotal',subTotal);
 

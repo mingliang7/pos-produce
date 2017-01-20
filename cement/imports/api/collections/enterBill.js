@@ -42,6 +42,10 @@ EnterBills.itemsSchema = new SimpleSchema({
                 return inputmaskOptions.currency();
             }
         }
+    },
+    isBill:{
+        type:Boolean,
+        optional:true
     }
 });
 
