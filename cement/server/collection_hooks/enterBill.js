@@ -16,6 +16,18 @@ import {PayBills} from '../../imports/api/collections/payBill.js';
 import {Vendors} from '../../imports/api/collections/vendor.js';
 import {AccountIntegrationSetting} from '../../imports/api/collections/accountIntegrationSetting.js';
 EnterBills.before.insert(function (userId, doc) {
+    let checkItems=[];
+    doc.items.forEach(function (item) {
+        if(item.isBill==false){
+            checkItems.push(item);
+        }
+    });
+
+    let result = StockFunction.checkStockByLocation(doc.stockLocationId, checkItems);
+    if (!result.isEnoughStock) {
+        throw new Meteor.Error(result.message);
+    }
+
     if (doc.termId) {
         doc.status = 'partial';
         doc.billType = 'term';
@@ -31,10 +43,35 @@ EnterBills.before.insert(function (userId, doc) {
 
 });
 
+EnterBills.before.update(function (userId, doc, fieldNames, modifier, options) {
+    let postDoc = {itemList: []};
+    if(modifier.$set.items){
+        modifier.$set.items.forEach(function (item) {
+            if(item.isBill==false){
+                postDoc.itemList.push(item);
+            }
+        })
+    }
+
+    let checkItems=[];
+    doc.items.forEach(function (item) {
+        if(item.isBill==false){
+            checkItems.push(item);
+        }
+    });
+    let stockLocationId = modifier.$set.stockLocationId;
+    let data = {stockLocationId: doc.stockLocationId, items: checkItems};
+
+    let result = StockFunction.checkStockByLocationWhenUpdate(stockLocationId, postDoc.itemList, data);
+    if (!result.isEnoughStock) {
+        throw new Meteor.Error(result.message);
+    }
+});
+
+
 EnterBills.after.insert(function (userId, doc) {
     Meteor.defer(function () {
         Meteor._sleepForMs(200);
-        let inventoryIdList = [];
         if (doc.billType == 'group') {
             Meteor.call('cement.generateInvoiceGroup', {doc});
         }
@@ -43,7 +80,7 @@ EnterBills.after.insert(function (userId, doc) {
             EnterBillMutation.updateInvoiceRefBillId({doc});
             let newEnterBillItems=[];
             doc.items.forEach(function (item) {
-                if(item.isBill){
+                if(item.isBill==false){
                     item.price= StockFunction.minusAverageInventoryInsertAndReturnCostPrice(doc.branchId,item,doc.stockLocationId,'invoice-bill',doc._id);
                     newEnterBillItems.push(item);
                 }
@@ -112,7 +149,24 @@ EnterBills.after.update(function (userId, doc, fieldNames, modifier, options) {
     }
     Meteor.defer(function () {
         if(doc.invoiceId){
+            //EnterBillMutation.updateInvoiceBack({doc});
             EnterBillMutation.updateInvoiceRefBillId({doc});
+
+            preDoc.items.forEach(function (preItem) {
+                if(preItem.isBill==false){
+                    preItem.price= StockFunction.averageInventoryInsert(preDoc.branchId, preItem, preDoc.stockLocationId, 'enterBill', preDoc._id);
+                }
+            });
+
+            let newEnterBillItems=[];
+            doc.items.forEach(function (item) {
+                if(item.isBill==false){
+                    item.price= StockFunction.minusAverageInventoryInsertAndReturnCostPrice(doc.branchId,item,doc.stockLocationId,'invoice-bill',doc._id);
+                    newEnterBillItems.push(item);
+                }
+            });
+            EnterBills.direct.update(doc._id,{$set:{items:newEnterBillItems}});
+
         }else {
             Meteor._sleepForMs(200);
             let inventoryIdList = [];
@@ -186,12 +240,16 @@ EnterBills.after.remove(function (userId, doc) {
         let inventoryIdList = [];
         if (type.group) {
             if(doc.invoiceId) {
-                EnterBillMutation.updateInvoiceRefBillId({doc});
+                EnterBillMutation.updateInvoiceBack({doc});
+                doc.items.forEach(function (item) {
+                    if(item.isBill==false){
+                        StockFunction.averageInventoryInsert(doc.branchId, item, doc.stockLocationId, 'enterBill', doc._id);
+                    }
+                });
             }else{
                 //reduceFromInventory(doc);
                 doc.items.forEach(function (item) {
-                    let id = StockFunction.minusAverageInventoryInsert(doc.branchId, item, doc.stockLocationId, 'reduce-from-bill', doc._id);
-                    inventoryIdList.push(id);
+                   StockFunction.minusAverageInventoryInsert(doc.branchId, item, doc.stockLocationId, 'reduce-from-bill', doc._id);
                 });
             }
             removeBillFromGroup(doc);
@@ -203,7 +261,12 @@ EnterBills.after.remove(function (userId, doc) {
             }
         } else {
             if(doc.invoiceId) {
-                EnterBillMutation.updateInvoiceRefBillId({doc});
+                EnterBillMutation.updateInvoiceBack({doc});
+                doc.items.forEach(function (item) {
+                    if(item.isBill==false){
+                        StockFunction.averageInventoryInsert(doc.branchId, item, doc.stockLocationId, 'enterBill', doc._id);
+                    }
+                });
             }else{
                 //  reduceFromInventory(doc);
                 doc.items.forEach(function (item) {
