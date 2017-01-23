@@ -223,6 +223,7 @@ Meteor.methods({
                     /*var resultData = ReactiveMethod.call("getJournalTran", selector);*/
                     // var resultData = Journal.find(selector).fetch();
 
+
                     var resultData = Journal.aggregate([{
                         $unwind: "$transaction"
                     },
@@ -256,66 +257,15 @@ Meteor.methods({
                         },
                         {
                             $sort: {
-                                "_id.code": 1
+                                "_id.code": 1,
+                                "_id.voucherId": 1
                             }
                         }
                     ]);
 
-                    /*resultData.forEach(function (ob) {
-                     var detailObj = {};
-                     detailObj._id = ob._id;
-                     detailObj.journalDate = ob.journalDate;
-                     detailObj.memo = ob.memo;
-                     detailObj.cusAndVenname = ob.cusAndVenname;
-                     detailObj.voucherId = (ob.voucherId).substr(8, 13);
 
-                     //Loop for Detail Transaction
+                    let contentExpense = [];
 
-                     ob.transaction.forEach(function (o) {
-                     if (o.accountDoc._id == obj._id) {
-                     i += 1;
-                     detailObj.order = i;
-                     var convertDrcr = Meteor.call('exchange', ob.currencyId,
-                     baseCurrency, o.drcr, exchangeDate);
-                     var convertDr = Meteor.call('exchange', ob.currencyId,
-                     baseCurrency, o.dr, exchangeDate);
-                     var convertCr = Meteor.call('exchange', ob.currencyId,
-                     baseCurrency, o.cr, exchangeDate);
-                     detailObj.currencyid = baseCurrency;
-                     detailObj.drcr = convertDrcr;
-                     balance += convertDrcr;
-
-                     detailObj.dr = convertDr;
-                     detailObj.cr = convertCr;
-
-                     totalDr += convertDr;
-                     totalCr += convertCr;
-                     totalDrCr += convertDrcr;
-
-                     endingAmount += convertDrcr;
-                     endingDr += convertDr;
-                     endingCr += convertCr;
-
-
-                     } else {
-                     if (ob.splitAccount == "0") {
-                     detailObj.name = o.accountDoc.code + ":" + o.accountDoc
-                     .name;
-                     } else {
-                     detailObj.name = "-split-";
-                     }
-                     }
-                     });
-
-                     detailObj.totalDr = totalDr;
-                     detailObj.totalCr = totalCr;
-                     detailObj.balance = balance;
-                     detailObj.isHeader = false;
-                     detailObj.isFooter = false;
-                     content.push(detailObj);
-
-
-                     });*/
                     resultData.forEach(function (ob) {
                         var detailObj = {};
                         // detailObj._id = ob._id;
@@ -336,6 +286,7 @@ Meteor.methods({
                                 baseCurrency, ob.dr, exchangeDate);
                             var convertCr = Meteor.call('exchange', ob._id.currencyId,
                                 baseCurrency, ob.cr, exchangeDate);
+
                             detailObj.currencyid = baseCurrency;
                             detailObj.drcr = convertDrcr;
                             balance += convertDrcr;
@@ -359,10 +310,17 @@ Meteor.methods({
                         detailObj.balance = balance;
                         detailObj.isHeader = false;
                         detailObj.isFooter = false;
-                        content.push(detailObj);
+
+                        if (ob.dr > 0) {
+                            content.push(detailObj);
+                        } else {
+                            contentExpense.push(detailObj);
+                        }
 
 
                     });
+
+                    content = content.concat(contentExpense);
 
 
                     endingBalance += balance;

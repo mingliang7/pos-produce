@@ -96,6 +96,33 @@ tmplPrintData.helpers({
     }
 });
 
+tmplPrintData.events({
+    'dblclick .transactionDetail'(e,t){
+
+        let self=this;
+        let pa={};
+        let datePick=$("[name='date']").val();
+        let startDate=moment(moment(datePick,"DD/MM/YYYY").startOf('months').toDate()).format("DD/MM/YYYY");
+        let dateRange=startDate+" - "+moment(datePick,"DD/MM/YYYY").format("DD/MM/YYYY");
+
+        pa.branchId=$("[name='branchId']").val();
+        pa.currencyId=$("[name='currencyId']").val();
+        pa.exchangeDate=$("[name='exchangeDate']").val();
+        pa.dateRange=dateRange;
+
+        pa.chartAccount=self.account;
+        pa.accountType=['10','11','12','20','21','30','40','41','50','51','60'];
+
+        var path='/acc/transactionDetailReport?branchId='+pa.branchId+'&accountType='+
+            pa.accountType+'&chartAccount='+pa.chartAccount
+            +'&date='+pa.dateRange+'&exchangeDate='+pa.exchangeDate
+            +'&currencyId='+pa.currencyId;
+
+        window.open(path,'_blank');
+
+    }
+});
+
 
 reportTpl.events({
     'click .run ': function (e, t) {

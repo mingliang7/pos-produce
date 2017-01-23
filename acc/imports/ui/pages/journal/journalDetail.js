@@ -103,12 +103,6 @@ journalDetailTpl.helpers({
 updateTpl.helpers({
     schema(){
         return Journal.journalDetal;
-    },
-    tmpDr(){
-        return state.get('drUpdate');
-    },
-    tmpCr(){
-        return state.get('crUpdate');
     }
 });
 

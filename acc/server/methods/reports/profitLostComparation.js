@@ -54,7 +54,6 @@ Meteor.methods({
             var self = params;
             var selector = {};
 
-            let cogs = MapClosing.findOne({ chartAccountCompare: "Cost Of Goods Sold" });
 
             if (!_.isEmpty(self.date)) {
                 selector.journalDate = {
@@ -416,6 +415,10 @@ Meteor.methods({
                 + '                 <td colspan="14"><b>Income</b></td>'
                 + '              </tr>'
 
+            let cogsData = '      <tr>'
+                + '                 <td colspan="14"><b>Cost Of Goods Sold</b></td>'
+                + '              </tr>'
+
             let expenseData = '      <tr>'
                 + '                 <td colspan="14"><b>Expense</b></td>'
                 + '              </tr>'
@@ -429,10 +432,12 @@ Meteor.methods({
             let subArr = [];
             let arrIncome = [];
             let arrExpense = [];
+            let arrCOGS = [];
             let temp = { code: "" };
 
             let totalIncomeData = "";
             let totalExpenseData = "";
+            let totalCOGSData = "";
 
             let netProfitData = "";
 
@@ -443,14 +448,8 @@ Meteor.methods({
             let level = 0;
             let dataOld = {};
 
-            let arrCOGS = [];
 
             contentProfitList.forEach(function (obj) {
-                if (obj.code == cogs.accountDoc.code) {
-                    // Cost Of Goods Sold
-                    arrCOGS.push({ month: obj.month, value: obj.value });
-
-                } else {
                     let style = "";
                     if (obj.level > 0) {
                         style = "align='left'";
@@ -475,6 +474,8 @@ Meteor.methods({
                                     incomeData += '<td ' + styleBefore + '>' + formatMoney(0) + '</td>';
                                 } else if (accountType == "50" || accountType == "51") {
                                     expenseData += '<td ' + styleBefore + '>' + formatMoney(0) + '</td>';
+                                }else {
+                                    cogsData += '<td ' + styleBefore + '>' + formatMoney(0) + '</td>';
                                 }
                                 arr.push(0);
 
@@ -504,6 +505,14 @@ Meteor.methods({
                                 });
                                 expenseData += '<td ' + styleBefore + '>' + formatMoney(amount) + '</td></tr>';
 
+                            }else {
+                                arrCOGS.push(arr);
+                                let subTotalRowList = sumRow(arrCOGS);
+                                let amount = 0;
+                                subTotalRowList.forEach(function (val) {
+                                    amount = val;
+                                });
+                                cogsData += '<td ' + styleBefore + '>' + formatMoney(amount) + '</td></tr>';
                             }
 
                             if (level > 0) {
@@ -540,6 +549,15 @@ Meteor.methods({
                             })
 
                             expenseData += "<td align='right'>" + formatMoney(totalSubAmount) + "</td></tr>";
+                        }else {
+                            cogsData += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Total : ' + SpaceChar.space(6 * dataOld.level) + dataOld.code + " | " + dataOld.name + '</td>';
+                            let totalSubAmount = 0;
+                            subTotalColumnList.forEach(function (val) {
+                                cogsData += "<td align='right'>" + formatMoney(val) + "</td>";
+                                totalSubAmount += val;
+                            })
+
+                            cogsData += "<td align='right'>" + formatMoney(totalSubAmount) + "</td></tr>";
                         }
 
                         isPush = false;
@@ -557,6 +575,8 @@ Meteor.methods({
                                 incomeData += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;' + SpaceChar.space(6 * dataOld.level) + dataOld.code + " | " + dataOld.name + '<td colspan="' + numMonth + '"></td></tr>';
                             } else if (obj.accountTypeId == "50" || obj.accountTypeId == "51") {
                                 expenseData += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;' + SpaceChar.space(6 * dataOld.level) + dataOld.code + " | " + dataOld.name + '<td colspan="' + numMonth + '"></td></tr>';
+                            }else {
+                                cogsData += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;' + SpaceChar.space(6 * dataOld.level) + dataOld.code + " | " + dataOld.name + '<td colspan="' + numMonth + '"></td></tr>';
                             }
                             isPush = true;
                         }
@@ -567,6 +587,8 @@ Meteor.methods({
                             incomeData += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;' + SpaceChar.space(6 * obj.level) + obj.code + " | " + obj.name;
                         } else if (obj.accountTypeId == "50" || obj.accountTypeId == "51") {
                             expenseData += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;' + SpaceChar.space(6 * obj.level) + obj.code + " | " + obj.name;
+                        }else {
+                            cogsData += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;' + SpaceChar.space(6 * obj.level) + obj.code + " | " + obj.name;
                         }
                     }
 
@@ -583,6 +605,8 @@ Meteor.methods({
                                 incomeData += "<td " + style + ">" + formatMoney(-obj.value) + "</td>";
                             } else if (obj.accountTypeId == "50" || obj.accountTypeId == "51") {
                                 expenseData += "<td " + style + ">" + formatMoney(obj.value) + "</td>";
+                            }else {
+                                cogsData += "<td " + style + ">" + formatMoney(obj.value) + "</td>";
                             }
 
 
@@ -598,6 +622,8 @@ Meteor.methods({
                                 incomeData += "<td " + style + ">" + formatMoney(0) + "</td>";
                             } else if (obj.accountTypeId == "50" || obj.accountTypeId == "51") {
                                 expenseData += "<td " + style + ">" + formatMoney(0) + "</td>";
+                            }else {
+                                cogsData += "<td " + style + ">" + formatMoney(0) + "</td>";
                             }
                             arr.push(0);
 
@@ -613,7 +639,7 @@ Meteor.methods({
                     tempParent = obj.parentId;
                     accountType = obj.accountTypeId;
                     level = obj.level;
-                }
+
             })
 
 
@@ -632,6 +658,8 @@ Meteor.methods({
                         incomeData += "<td " + styleBefore + ">" + formatMoney(0) + "</td>";
                     } else if (accountType == "50" || accountType == "51") {
                         expenseData += "<td " + styleBefore + ">" + formatMoney(0) + "</td>";
+                    }else {
+                        cogsData += "<td " + styleBefore + ">" + formatMoney(0) + "</td>";
                     }
 
                     arr.push(0);
@@ -660,6 +688,15 @@ Meteor.methods({
                         amount = val;
                     });
                     expenseData += '<td ' + styleBefore + '>' + formatMoney(amount) + '</td></tr>';
+
+                }else {
+                    arrCOGS.push(arr);
+                    let subTotalRowList = sumRow(arrCOGS);
+                    let amount = 0;
+                    subTotalRowList.forEach(function (val) {
+                        amount = val;
+                    });
+                    cogsData += '<td ' + styleBefore + '>' + formatMoney(amount) + '</td></tr>';
 
                 }
 
@@ -692,12 +729,19 @@ Meteor.methods({
                     })
 
                     expenseData += "<td align='right'>" + formatMoney(totalSubAmount) + "</td></tr>";
+                }else {
+                    cogsData += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Total : ' + SpaceChar.space(6 * dataOld.level) + dataOld.code + " | " + dataOld.name + '</td>';
+                    let totalSubAmount = 0;
+                    subTotalColumnList.forEach(function (val) {
+                        cogsData += "<td align='right'>" + formatMoney(val)+ "</td>";
+                        totalSubAmount += val;
+                    })
+
+                    cogsData += "<td align='right'>" + formatMoney(totalSubAmount) + "</td></tr>";
                 }
 
                 isPush = false;
                 totalSubArr = [];
-
-                isPush = false;
             }
 
             // // Total Row and Column
@@ -723,7 +767,7 @@ Meteor.methods({
 
 
 
-            // cogs
+           /* // cogs
             let numMonthAddOne = numMonth + 1;
             let cogsDataMain = "<tr  style='font-weight: bold'><td colspan='" + numMonthAddOne + "'>Cost Of Goods Sold Expense</td></tr><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;" + cogs.accountDoc.code + " | " + cogs.accountDoc.name + "</td>";
             let cogsData = "";
@@ -754,10 +798,12 @@ Meteor.methods({
 
             cogsData += "<td align='right'>" + formatMoney(totalCogs) + "</td></tr>";
             cogsDataMain += cogsData;
-            cogsDataMain += "<tr  style='font-weight: bold'><td>Total Cost Of Goods Sold</td>" + cogsData;
+            cogsDataMain += "<tr  style='font-weight: bold'><td>Total Cost Of Goods Sold</td>" + cogsData;*/
 
+
+            let numMonthColumn=numMonth-1;
             // Gross Profit
-            let grossProfitList = arrIncome.concat(arrCOGSMain);
+            let grossProfitList = arrIncome.concat(arrCOGS);
             let grossProfitData = "<tr style='font-weight: bold'><td>Gross Profit</td>";
             let k = startMonth;
             let totalGrossProfit = 0;
@@ -769,7 +815,21 @@ Meteor.methods({
                     totalGrossProfit += val;
                 })
             }
+
+            if(grossProfitSum.length==0){
+                grossProfitData+="<td></td>";
+                if(numMonthColumn>0){
+                    for(let a=1;a<numMonthColumn;a++){
+                        grossProfitData+="<td></td>";
+                    }
+                }
+            }
             grossProfitData += "<td align='right'>"+formatMoney(-totalGrossProfit)+"</td></tr>";
+
+
+
+
+
 
 
             // Total Income
@@ -784,6 +844,30 @@ Meteor.methods({
 
             if(totalIncomeDataList.length==0){
                 totalIncomeData+="<td></td>";
+                if(numMonthColumn>0){
+                    for(let a=1;a<numMonthColumn;a++){
+                        totalIncomeData+="<td></td>";
+                    }
+                }
+            }
+
+            // Total COGS
+            let totalCOGSDataList = sumColumn(arrCOGS);
+            let subTotalCOGS = 0;
+            totalCOGSDataList.forEach(function (val) {
+                totalCOGSData += "<td align='right'>" + formatMoney(-val) + "</td>";
+                subTotalCOGS += val;
+            })
+
+            totalCOGSData += "<td align='right'>" + formatMoney(subTotalCOGS) + "</td>";
+
+            if(totalCOGSDataList.length==0){
+                totalCOGSData+="<td></td>";
+                if(numMonthColumn>0){
+                    for(let a=1;a<numMonthColumn;a++){
+                        totalCOGSData+="<td></td>";
+                    }
+                }
             }
 
             // Total Expense
@@ -798,6 +882,11 @@ Meteor.methods({
 
             if(totalExpenseDataList.length==0){
                 totalExpenseData+="<td></td>";
+                if(numMonthColumn>0){
+                    for(let a=1;a<numMonthColumn;a++){
+                        totalExpenseData+="<td></td>";
+                    }
+                }
             }
 
             // Total Net Income
@@ -814,14 +903,21 @@ Meteor.methods({
             netProfitData += "<td align='right'>" + formatMoney(-totalNetIncome) + "</td>";
 
 
+            if(totalNetIncomeList.length==0){
+                netProfitData+="<td></td>";
+                if(numMonthColumn>0){
+                    for(let a=1;a<numMonthColumn;a++){
+                        netProfitData+="<td></td>";
+                    }
+                }
+            }
 
 
 
 
 
 
-
-            content += incomeData + "<tr style='font-weight: bold'><td>Total Income</td>" + totalIncomeData + "</tr>" + cogsDataMain + grossProfitData + expenseData + "<tr style='font-weight: bold'><td>Total Expense</td>" + totalExpenseData + "</tr><tr style='font-weight: bold'><td>Net Profit</td>" + netProfitData + '</tr></tbody></table>';
+            content += incomeData + "<tr style='font-weight: bold'><td>Total Income</td>" + totalIncomeData + "</tr>" + cogsData + "<tr style='font-weight: bold'><td>Total Cost Of Goods Sold</td>" + totalCOGSData + "</tr>" +  grossProfitData + expenseData + "<tr style='font-weight: bold'><td>Total Expense</td>" + totalExpenseData + "</tr><tr style='font-weight: bold'><td>Net Profit</td>" + netProfitData + '</tr></tbody></table>';
             data.content = content;
 
 
@@ -863,7 +959,6 @@ Meteor.methods({
             var self = params;
             var selector = {};
 
-            let cogs = MapClosing.findOne({ chartAccountCompare: "Cost Of Goods Sold" });
 
             if (!_.isEmpty(self.date)) {
                 selector.journalDate = {
@@ -942,6 +1037,10 @@ Meteor.methods({
                 + '                 <td colspan="14"><b>Income</b></td>'
                 + '              </tr>'
 
+            let cogsData = '      <tr>'
+                + '                 <td colspan="14"><b>Cost Of Goods Sold</b></td>'
+                + '              </tr>'
+
             let expenseData = '      <tr>'
                 + '                 <td colspan="14"><b>Expense</b></td>'
                 + '              </tr>'
@@ -955,10 +1054,12 @@ Meteor.methods({
             let subArr = [];
             let arrIncome = [];
             let arrExpense = [];
+            let arrCOGS= [];
             let temp = { code: "" };
 
             let totalIncomeData = "";
             let totalExpenseData = "";
+            let totalCOGSData = "";
 
             let netProfitData = "";
 
@@ -969,14 +1070,8 @@ Meteor.methods({
             let level = 0;
             let dataOld = {};
 
-            let arrCOGS = [];
 
             contentProfitList.forEach(function (obj) {
-                if (obj.code == cogs.accountDoc.code) {
-                    // Cost Of Goods Sold
-                    arrCOGS.push({ month: obj.month, value: obj.value });
-
-                } else {
                     let style = "";
                     if (obj.level > 0) {
                         style = "align='left'";
@@ -1001,6 +1096,8 @@ Meteor.methods({
                                     incomeData += '<td ' + styleBefore + '>' + formatMoney(0) + '</td>';
                                 } else if (accountType == "50" || accountType == "51") {
                                     expenseData += '<td ' + styleBefore + '>' + formatMoney(0) + '</td>';
+                                }else {
+                                    cogsData += '<td ' + styleBefore + '>' + formatMoney(0) + '</td>';
                                 }
                                 arr.push(0);
 
@@ -1029,6 +1126,15 @@ Meteor.methods({
                                     amount = val;
                                 });
                                 expenseData += '<td ' + styleBefore + '>' + formatMoney(amount) + '</td></tr>';
+
+                            }else {
+                                arrCOGS.push(arr);
+                                let subTotalRowList = sumRow(arrCOGS);
+                                let amount = 0;
+                                subTotalRowList.forEach(function (val) {
+                                    amount = val;
+                                });
+                                cogsData += '<td ' + styleBefore + '>' + formatMoney(amount) + '</td></tr>';
 
                             }
 
@@ -1066,6 +1172,15 @@ Meteor.methods({
                             })
 
                             expenseData += "<td align='right'>" + formatMoney(totalSubAmount) + "</td></tr>";
+                        }else {
+                            cogsData += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Total : ' + SpaceChar.space(6 * dataOld.level) + dataOld.code + " | " + dataOld.name + '</td>';
+                            let totalSubAmount = 0;
+                            subTotalColumnList.forEach(function (val) {
+                                cogsData += "<td align='right'>" + formatMoney(val) + "</td>";
+                                totalSubAmount += val;
+                            })
+
+                            cogsData += "<td align='right'>" + formatMoney(totalSubAmount) + "</td></tr>";
                         }
 
                         isPush = false;
@@ -1083,6 +1198,8 @@ Meteor.methods({
                                 incomeData += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;' + SpaceChar.space(6 * dataOld.level) + dataOld.code + " | " + dataOld.name + '<td colspan="' + numMonth + '"></td></tr>';
                             } else if (obj.accountTypeId == "50" || obj.accountTypeId == "51") {
                                 expenseData += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;' + SpaceChar.space(6 * dataOld.level) + dataOld.code + " | " + dataOld.name + '<td colspan="' + numMonth + '"></td></tr>';
+                            }else {
+                                cogsData += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;' + SpaceChar.space(6 * dataOld.level) + dataOld.code + " | " + dataOld.name + '<td colspan="' + numMonth + '"></td></tr>';
                             }
                             isPush = true;
                         }
@@ -1093,6 +1210,8 @@ Meteor.methods({
                             incomeData += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;' + SpaceChar.space(6 * obj.level) + obj.code + " | " + obj.name;
                         } else if (obj.accountTypeId == "50" || obj.accountTypeId == "51") {
                             expenseData += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;' + SpaceChar.space(6 * obj.level) + obj.code + " | " + obj.name;
+                        }else {
+                            cogsData += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;' + SpaceChar.space(6 * obj.level) + obj.code + " | " + obj.name;
                         }
                     }
 
@@ -1109,6 +1228,8 @@ Meteor.methods({
                                 incomeData += "<td " + style + ">" + formatMoney(-obj.value) + "</td>";
                             } else if (obj.accountTypeId == "50" || obj.accountTypeId == "51") {
                                 expenseData += "<td " + style + ">" + formatMoney(obj.value) + "</td>";
+                            }else {
+                                cogsData += "<td " + style + ">" + formatMoney(obj.value) + "</td>";
                             }
 
 
@@ -1124,6 +1245,8 @@ Meteor.methods({
                                 incomeData += "<td " + style + ">" + formatMoney(0) + "</td>";
                             } else if (obj.accountTypeId == "50" || obj.accountTypeId == "51") {
                                 expenseData += "<td " + style + ">" + formatMoney(0) + "</td>";
+                            }else {
+                                cogsData += "<td " + style + ">" + formatMoney(0) + "</td>";
                             }
                             arr.push(0);
 
@@ -1139,7 +1262,6 @@ Meteor.methods({
                     tempParent = obj.parentId;
                     accountType = obj.accountTypeId;
                     level = obj.level;
-                }
             })
 
 
@@ -1158,6 +1280,8 @@ Meteor.methods({
                         incomeData += "<td " + styleBefore + ">" + formatMoney(0) + "</td>";
                     } else if (accountType == "50" || accountType == "51") {
                         expenseData += "<td " + styleBefore + ">" + formatMoney(0) + "</td>";
+                    }else {
+                        cogsData += "<td " + styleBefore + ">" + formatMoney(0) + "</td>";
                     }
 
                     arr.push(0);
@@ -1187,6 +1311,14 @@ Meteor.methods({
                     });
                     expenseData += '<td ' + styleBefore + '>' + formatMoney(amount) + '</td></tr>';
 
+                }else {
+                    arrCOGS.push(arr);
+                    let subTotalRowList = sumRow(arrCOGS);
+                    let amount = 0;
+                    subTotalRowList.forEach(function (val) {
+                        amount = val;
+                    });
+                    cogsData += '<td ' + styleBefore + '>' + formatMoney(amount) + '</td></tr>';
                 }
 
                 if (level > 0) {
@@ -1218,12 +1350,20 @@ Meteor.methods({
                     })
 
                     expenseData += "<td align='right'>" + formatMoney(totalSubAmount) + "</td></tr>";
+                }else {
+                    cogsData += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Total : ' + SpaceChar.space(6 * dataOld.level) + dataOld.code + " | " + dataOld.name + '</td>';
+                    let totalSubAmount = 0;
+                    subTotalColumnList.forEach(function (val) {
+                        cogsData += "<td align='right'>" + formatMoney(val)+ "</td>";
+                        totalSubAmount += val;
+                    })
+
+                    cogsData += "<td align='right'>" + formatMoney(totalSubAmount) + "</td></tr>";
                 }
 
                 isPush = false;
                 totalSubArr = [];
 
-                isPush = false;
             }
 
             // // Total Row and Column
@@ -1249,7 +1389,7 @@ Meteor.methods({
 
 
 
-            // cogs
+            /*// cogs
             let numMonthAddOne = numMonth + 1;
             let cogsDataMain = "<tr  style='font-weight: bold'><td colspan='" + numMonthAddOne + "'>Cost Of Goods Sold Expense</td></tr><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;" + cogs.accountDoc.code + " | " + cogs.accountDoc.name + "</td>";
             let cogsData = "";
@@ -1280,10 +1420,13 @@ Meteor.methods({
 
             cogsData += "<td align='right'>" + formatMoney(totalCogs) + "</td></tr>";
             cogsDataMain += cogsData;
-            cogsDataMain += "<tr  style='font-weight: bold'><td>Total Cost Of Goods Sold</td>" + cogsData;
+            cogsDataMain += "<tr  style='font-weight: bold'><td>Total Cost Of Goods Sold</td>" + cogsData;*/
+
+
+            let numMonthColumn=numMonth-1;
 
             // Gross Profit
-            let grossProfitList = arrIncome.concat(arrCOGSMain);
+            let grossProfitList = arrIncome.concat(arrCOGS);
             let grossProfitData = "<tr style='font-weight: bold'><td>Gross Profit</td>";
             let k = startMonth;
             let totalGrossProfit = 0;
@@ -1295,6 +1438,16 @@ Meteor.methods({
                     totalGrossProfit += val;
                 })
             }
+
+            if(grossProfitSum.length==0){
+                grossProfitData+="<td></td>";
+                if(numMonthColumn>0){
+                    for(let a=1;a<numMonthColumn;a++){
+                        grossProfitData+="<td></td>";
+                    }
+                }
+            }
+
             grossProfitData += "<td align='right'>"+formatMoney(-totalGrossProfit)+"</td></tr>";
 
 
@@ -1310,8 +1463,31 @@ Meteor.methods({
 
             if(totalIncomeDataList.length==0){
                 totalIncomeData+="<td></td>";
+                if(numMonthColumn>0){
+                    for(let a=1;a<numMonthColumn;a++){
+                        totalIncomeData+="<td></td>";
+                    }
+                }
             }
+            // Total COGS
+            let subTotalCOGS = 0;
+            let totalCOGSDataList = sumColumn(arrCOGS);
 
+            totalCOGSDataList.forEach(function (val) {
+                totalCOGSData += "<td align='right'>" + formatMoney(val)+ "</td>";
+                subTotalCOGS += val;
+            })
+            totalCOGSData += "<td align='right'>" + formatMoney(subTotalCOGS) + "</td>";
+
+
+            if(totalCOGSDataList.length==0){
+                totalCOGSData+="<td></td>";
+                if(numMonthColumn>0){
+                    for(let a=1;a<numMonthColumn;a++){
+                        totalCOGSData+="<td></td>";
+                    }
+                }
+            }
             // Total Expense
             let subTotalExpense = 0;
             let totalExpenseDataList = sumColumn(arrExpense);
@@ -1324,6 +1500,11 @@ Meteor.methods({
 
             if(totalExpenseDataList.length==0){
                 totalExpenseData+="<td></td>";
+                if(numMonthColumn>0){
+                    for(let a=1;a<numMonthColumn;a++){
+                        totalExpenseData+="<td></td>";
+                    }
+                }
             }
 
             // Total Net Income
@@ -1340,14 +1521,18 @@ Meteor.methods({
             netProfitData += "<td align='right'>" + formatMoney(-totalNetIncome) + "</td>";
 
 
+            if(totalNetIncomeList.length==0){
+                netProfitData+="<td></td>";
+                if(numMonthColumn>0){
+                    for(let a=1;a<numMonthColumn;a++){
+                        netProfitData+="<td></td>";
+                    }
+                }
+            }
 
 
 
-
-
-
-
-            content += incomeData + "<tr style='font-weight: bold'><td>Total Income</td>" + totalIncomeData + "</tr>" + cogsDataMain + grossProfitData + expenseData + "<tr style='font-weight: bold'><td>Total Expense</td>" + totalExpenseData + "</tr><tr style='font-weight: bold'><td>Net Profit</td>" + netProfitData + '</tr></tbody></table>';
+            content += incomeData + "<tr style='font-weight: bold'><td>Total Income</td>" + totalIncomeData + "</tr>" + cogsData + "<tr style='font-weight: bold'><td>Total Cost Of Goods Sold</td>" + totalCOGSData + "</tr>"+ grossProfitData + expenseData + "<tr style='font-weight: bold'><td>Total Expense</td>" + totalExpenseData + "</tr><tr style='font-weight: bold'><td>Net Profit</td>" + netProfitData + '</tr></tbody></table>';
             data.content = content;
 
 

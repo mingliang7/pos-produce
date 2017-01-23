@@ -45,11 +45,6 @@ var reportTpl = Template.acc_transactionDetailReport,
     tmplPrintData = Template.acc_transactionDetailReportPrintData;
 
 
-reportTpl.helpers({
-    schema() {
-        return TransactionDetailReport;
-    }
-})
 
 
 //===================================Run
@@ -63,10 +58,32 @@ let rptInitState = new ReactiveVar(false);
 let rptDataState = new ReactiveVar(null);
 
 
-reportTpl.onCreated(function () {
-    createNewAlertify(['acc_transactionDetail','journal']);
-    this.autorun(() => {
 
+reportTpl.helpers({
+    schema() {
+        return TransactionDetailReport;
+    },
+    param(){
+        let param = FlowRouter.current().query;
+
+        Session.set('accountTypeIdSession', param.accountType);
+        if (!(param.accountType instanceof Array)) {
+
+            Session.set('accountTypeIdSession', param.accountType.split(','));
+            param.accountType =param.accountType.split(',');
+
+        } else {
+            Session.set('accountTypeIdSession', param.accountType);
+        }
+
+        formDataState.set(param);
+        return param;
+    }
+})
+
+reportTpl.onCreated(function () {
+    createNewAlertify(['acc_transactionDetail', 'journal']);
+    this.autorun(() => {
         // Check form data
         if (formDataState.get()) {
             rptInitState.set(true);
@@ -102,9 +119,8 @@ tmplPrintData.helpers({
 
 tmplPrintData.events({
     'dblclick .journalRow': function (e, t) {
-        debugger;
+
         var self = this;
-        console.log(self._id);
 
         var selectorGetLastDate = {};
         var branchId = Session.get("currentBranch");
@@ -150,7 +166,6 @@ tmplPrintData.events({
 
 reportTpl.events({
     'click .run ': function (e, t) {
-
         let result = {};
         result.branchId = $('[name="branchId"]').val();
         result.date = $('[name="date"]').val();
@@ -167,6 +182,7 @@ reportTpl.events({
         formDataState.set(result);
     },
     'change [name="accountType"]': function (e) {
+        debugger;
         Session.set('accountTypeIdSession', $(e.currentTarget).val());
     },
     'click .fullScreen'(event, instance){
@@ -222,13 +238,6 @@ let hooksObject = {
 // ===============================Generate
 
 
-reportTpl.events({
-    'change [name="accountType"]': function (e) {
-        Session.set('accountTypeIdSession', $(e.currentTarget).val());
-    }
-});
-
-
 generateTpl.onCreated(function () {
     createNewAlertify(['journal']);
 })
@@ -237,7 +246,6 @@ generateTpl.onCreated(function () {
 generateTpl.events({
     'dblclick .journalRow': function (e, t) {
         var self = this;
-        console.log(self._id);
 
         var selectorGetLastDate = {};
         var branchId = Session.get("currentBranch");
@@ -314,10 +322,3 @@ generateTpl.helpers({
          return call.result();*/
     }
 });
-
-
-
-
-
-
-

@@ -105,30 +105,67 @@
                     <tbody class="report-content-body">
                     {{#each content}}
                         <tr class="journalRow report-pointer">
-                            <td width="30px">{{order}}</td>
-                            <td width="70px">{{journalDateFm}}</td>
-                            <td width="70px">{{substrVoucher voucherId}}</td>
-                            <td>{{memo}}</td>
-                            <td>{{#each transaction}}
+                            <td width="30px" style="border-bottom: 0px;">{{order}}</td>
+                            <td width="70px" style="border-bottom: 0px;">{{journalDateFm}}</td>
+                            <td width="70px" style="border-bottom: 0px;">{{substrVoucher voucherId}}</td>
+                            <td style="border-bottom: 0px;">{{memo}}</td>
+                            {{#each firstTransaction}}
+                                <td>
+                                    {{accountDoc.code}}:{{accountDoc.name}}
+                                </td>
+                                <td>
+                                    {{formatMoneyNormal dr}}
+                                </td>
+                                <td>
+                                    {{formatMoneyNormal cr}}
+                                </td>
+                            {{/each}}
+
+                            <!-- <td align="right"><b>Total</b></td>
+                            <td align="right" style=" border-top: medium">
+                                <b>{{getCurrency  currencyId}}{{formatMoneyNormal total}}</b>
+                            </td>
+                            <td align="right" style=" border-top: medium">
+                                <b>{{getCurrency currencyId}}{{formatMoneyNormal total}}</b>
+                            </td>-->
+                            <!--<td>{{#each transaction}}
                                 {{accountDoc.code}}:{{accountDoc.name}}<br>
                             {{/each}}
                             </td>
                             <td>
                                 {{#each transaction}}
-                                    {{formatMoneyNormal dr}}<br>
+                                {{formatMoneyNormal dr}}<br>
                                 {{/each}}
                             </td>
                             <td>{{#each transaction}}
                                 {{formatMoneyNormal cr}}<br>
                             {{/each}}
-                            </td>
+                            </td>-->
                         </tr>
+                        {{#each secondTransaction}}
+                            <tr>
+                                <td style="border-top: 0px; border-bottom: 0px;"></td>
+                                <td style="border-top: 0px; border-bottom: 0px;"></td>
+                                <td style="border-top: 0px; border-bottom: 0px;"></td>
+                                <td style="border-top: 0px; border-bottom: 0px;"></td>
+                                <td>
+                                    {{accountDoc.code}}:{{accountDoc.name}}
+                                </td>
+                                <td>
+                                    {{formatMoneyNormal dr}}
+                                </td>
+                                <td>
+                                    {{formatMoneyNormal cr}}
+                                </td>
+
+                            </tr>
+                        {{/each}}
                         <tr>
-                            <td style="border-top: hidden !important;"></td>
-                            <td style="border-top: hidden !important;"></td>
-                            <td style="border-top: hidden !important;"></td>
-                            <td style="border-top: hidden !important;"></td>
-                            <td style="border-top: hidden !important;"></td>
+                            <td style="border-top: 0px; border-bottom: 0px;"></td>
+                            <td style="border-top: 0px; border-bottom: 0px;"></td>
+                            <td style="border-top: 0px; border-bottom: 0px;"></td>
+                            <td style="border-top: 0px; border-bottom: 0px;"></td>
+                            <td style="border-top: 0px; border-bottom: 0px;"></td>
                             <td align="right" style=" border-top: medium">
                                 <b>{{getCurrency  currencyId}}{{formatMoneyNormal total}}</b>
                             </td>
@@ -136,6 +173,7 @@
                                 <b>{{getCurrency currencyId}}{{formatMoneyNormal total}}</b>
                             </td>
                         </tr>
+
 
                     {{/each}}
                     <tr>
@@ -228,30 +266,61 @@
                             <tbody class="sub-body display-on-print-body">
                             {{#each content}}
                                 <tr class="journalRow report-pointer">
-                                    <td width="30px">{{order}}</td>
-                                    <td width="70px">{{journalDateFm}}</td>
-                                    <td width="70px">{{substrVoucher voucherId}}</td>
-                                    <td>{{memo}}</td>
-                                    <td>{{#each transaction}}
+                                    <td width="30px" style="border-bottom: hidden !important;">{{order}}</td>
+                                    <td width="70px" style="border-bottom: hidden !important;">{{journalDateFm}}</td>
+                                    <td width="70px" style="border-bottom: hidden !important;">{{substrVoucher voucherId}}</td>
+                                    <td style="border-bottom: hidden !important;">{{memo}}</td>
+
+                                    {{#each firstTransaction}}
+                                        <td>
+                                            {{accountDoc.code}}:{{accountDoc.name}}
+                                        </td>
+                                        <td>
+                                            {{formatMoneyNormal dr}}
+                                        </td>
+                                        <td>
+                                            {{formatMoneyNormal cr}}
+                                        </td>
+                                    {{/each}}
+
+                                    <!--<td>{{#each transaction}}
                                         {{accountDoc.code}}:{{accountDoc.name}}<br>
                                     {{/each}}
                                     </td>
                                     <td>
                                         {{#each transaction}}
-                                            {{formatMoneyNormal dr}}<br>
+                                        {{formatMoneyNormal dr}}<br>
                                         {{/each}}
                                     </td>
                                     <td>{{#each transaction}}
                                         {{formatMoneyNormal cr}}<br>
                                     {{/each}}
-                                    </td>
+                                    </td>-->
                                 </tr>
+                                {{#each secondTransaction}}
+                                    <tr>
+                                        <td style="border-top: hidden !important; border-bottom: hidden !important;"></td>
+                                        <td style="border-top: hidden !important; border-bottom: hidden !important;"></td>
+                                        <td style="border-top: hidden !important; border-bottom: hidden !important;"></td>
+                                        <td style="border-top: hidden !important; border-bottom: hidden !important;"></td>
+                                        <td>
+                                            {{accountDoc.code}}:{{accountDoc.name}}
+                                        </td>
+                                        <td>
+                                            {{formatMoneyNormal dr}}
+                                        </td>
+                                        <td>
+                                            {{formatMoneyNormal cr}}
+                                        </td>
+
+                                    </tr>
+                                {{/each}}
                                 <tr>
                                     <td style="border-top: hidden !important;"></td>
                                     <td style="border-top: hidden !important;"></td>
                                     <td style="border-top: hidden !important;"></td>
                                     <td style="border-top: hidden !important;"></td>
-                                    <td style="border-top: hidden !important;"></td>
+                                    <td></td>
                                     <td align="right" style=" border-top: medium">
                                         <b>{{getCurrency  currencyId}}{{formatMoneyNormal total}}</b>
                                     </td>

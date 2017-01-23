@@ -699,7 +699,7 @@
                         {{/with}}
 
                         <!--Content-->
-                        <table class="sub-table table table-striped  table-hover diplay-on-print-table" border="1px">
+                        <table class="sub-table table table-striped  table-hover diplay-on-print-table">
 
                             <thead class="sub-body display-on-print-header">
                             <tr>
@@ -737,7 +737,7 @@
 
 
                             {{#each otherCurrentAsset}}
-                                <tr class="journalRow report-pointer">
+                                <tr class="transactionDetail report-pointer">
                                     <td>{{{code}}}:{{name}}</td>
                                     {{#if currency}}
                                         <td align="right">{{formatMoneyNormal amountRiel}}</td>{{else}}
@@ -780,7 +780,7 @@
                                 <td></td>
                             </tr>
                             {{#each fixAsset}}
-                                <tr class="journalRow report-pointer">
+                                <tr class="transactionDetail report-pointer">
                                     <td>{{{code}}}:{{name}}</td>
                                     {{#if currency}}
                                         <td align="right">{{formatMoneyNormal amountRiel}}</td>{{else}}
@@ -815,7 +815,7 @@
                                 <td></td>
                             </tr>
                             {{#each otherFixAsset}}
-                                <tr class="journalRow report-pointer">
+                                <tr class="transactionDetail report-pointer">
                                     <td>{{{code}}}:{{name}}</td>
                                     {{#if currency}}
                                         <td align="right">{{formatMoneyNormal amountRiel}}</td>{{else}}
@@ -882,7 +882,7 @@
                                 <td></td>
                             </tr>
                             {{#each otherCurrentLiability}}
-                                <tr class="journalRow report-pointer">
+                                <tr class="transactionDetail report-pointer">
                                     <td>{{{code}}}:{{name}}</td>
                                     {{#if currency}}
                                         <td align="right">{{formatMoneyNormal amountRiel}}</td>{{else}}
@@ -927,7 +927,7 @@
                                 <td></td>
                             </tr>
                             {{#each longTermLiability}}
-                                <tr class="journalRow report-pointer">
+                                <tr class="transactionDetail report-pointer">
                                     <td>{{{code}}}:{{name}}</td>
                                     {{#if currency}}
                                         <td align="right">{{formatMoneyNormal amountRiel}}</td>{{else}}
@@ -972,7 +972,7 @@
                                 <td></td>
                             </tr>
                             {{#each equity}}
-                                <tr class="journalRow report-pointer">
+                                <tr class="transactionDetail report-pointer">
                                     <td>{{{code}}}:{{name}}</td>
                                     {{#if currency}}
                                         <td align="right">{{formatMoneyNormal amountRiel}}</td>{{else}}
@@ -1092,7 +1092,7 @@
                         {{/with}}
 
                         <!--Content-->
-                        <table class="sub-table table table-striped  table-hover diplay-on-print-table" border="1px">
+                        <table class="sub-table table table-striped  table-hover diplay-on-print-table">
                             <tbody class="sub-header diplay-on-print-body">
                             <tr>
                                 <td><b>Asset</b></td>
@@ -1108,7 +1108,7 @@
                                 <td></td>
                             </tr>
                             {{#each otherCurrentAsset}}
-                                <tr class="journalRow report-pointer">
+                                <tr class="transactionDetail report-pointer">
                                     <td>{{{code}}}:{{name}}</td>
                                     {{#if currency}}
                                         <td align="right">{{formatMoneyNormal amount}}</td>{{else}}
@@ -1132,7 +1132,7 @@
                                 <td></td>
                             </tr>
                             {{#each fixAsset}}
-                                <tr class="journalRow report-pointer">
+                                <tr class="transactionDetail report-pointer">
                                     <td>{{{code}}}:{{name}}</td>
                                     {{#if currency}}
                                         <td align="right">{{formatMoneyNormal amount}}</td>{{else}}
@@ -1149,7 +1149,7 @@
                                 <td></td>
                             </tr>
                             {{#each otherFixAsset}}
-                                <tr class="journalRow report-pointer">
+                                <tr class="transactionDetail report-pointer">
                                     <td>{{{code}}}:{{name}}</td>
                                     {{#if currency}}
                                         <td align="right">{{formatMoneyNormal amount}}</td>{{else}}
@@ -1184,7 +1184,7 @@
                                 <td></td>
                             </tr>
                             {{#each otherCurrentLiability}}
-                                <tr class="journalRow report-pointer">
+                                <tr class="transactionDetail report-pointer">
                                     <td>{{{code}}}:{{name}}</td>
                                     {{#if currency}}
                                         <td align="right">{{formatMoneyNormal amount}}</td>{{else}}
@@ -1210,7 +1210,7 @@
                                 <td></td>
                             </tr>
                             {{#each longTermLiability}}
-                                <tr class="journalRow report-pointer">
+                                <tr class="transactionDetail report-pointer">
                                     <td>{{{code}}}:{{name}}</td>
                                     {{#if currency}}
                                         <td align="right">{{formatMoneyNormal amount}}</td>{{else}}
@@ -1233,7 +1233,7 @@
                                 <td></td>
                             </tr>
                             {{#each equity}}
-                                <tr class="journalRow report-pointer">
+                                <tr class="transactionDetail report-pointer">
                                     <td>{{{code}}}:{{name}}</td>
                                     {{#if currency}}
                                         <td align="right">{{formatMoneyNormal amount}}</td>{{else}}

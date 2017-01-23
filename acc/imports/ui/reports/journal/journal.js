@@ -74,6 +74,22 @@ reportTpl.onCreated(function () {
 
             Meteor.call('acc_journalReport', params, function (err, result) {
                 if (result) {
+
+                    let contentDocs=result.content;
+                    contentDocs.forEach(function (contentDoc) {
+                        contentDoc.firstTransaction=[];
+                        contentDoc.secondTransaction=[];
+                        let transactions=contentDoc.transaction;
+                        for(let i=0;i<transactions.length;i++ ){
+                            if(i==0){
+                                contentDoc.firstTransaction.push(transactions[i]);
+                            }else{
+                                contentDoc.secondTransaction.push(transactions[i]);
+                            }
+                        }
+                        result.content.push(contentDoc);
+                    });
+
                     rptDataState.set(result);
                 } else {
                     console.log(err.message);
@@ -300,7 +316,26 @@ generateTpl.helpers({
         Fetcher.setDefault('data', false);
         Fetcher.retrieve('data', 'acc_journalReport', q);
 
-        return Fetcher.get('data');
+        let doc= Fetcher.get('data');
+
+        if(doc.content){
+            let contentDocs=doc.content;
+            contentDocs.forEach(function (contentDoc) {
+                contentDoc.firstTransaction=[];
+                contentDoc.secondTransaction=[];
+                let transactions=contentDoc.transaction;
+                for(let i=0;i<transactions.length;i++ ){
+                    if(i==0){
+                        contentDoc.firstTransaction.push(transactions[i]);
+                    }else{
+                        contentDoc.secondTransaction.push(transactions[i]);
+                    }
+                }
+                doc.content.push(contentDoc);
+            });
+        }
+        return doc;
+
         /*var callId = JSON.stringify(q);
          var call = Meteor.callAsync(callId, 'acc_journalReport', q);
 
@@ -323,6 +358,3 @@ var formatNumberToSeperate = function (val) {
     }
     return parseFloat(val);
 };
-
-
-

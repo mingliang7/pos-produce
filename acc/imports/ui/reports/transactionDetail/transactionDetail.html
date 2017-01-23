@@ -21,15 +21,15 @@
 
                         <div class="row " style="background: rgb(227, 234, 243); padding: 10px; margin: 0;">
                             <div class="col-md-6">
-                                {{> afQuickField name='branchId'}}
-                                {{> afQuickField name='currencyId'}}
-                                {{> afQuickField name='date'}}
-                                {{> afQuickField name='exchangeDate'}}
+                                {{> afQuickField name='branchId' value=param.branchId}}
+                                {{> afQuickField name='currencyId' value=param.currencyId}}
+                                {{> afQuickField name='date' value=param.date}}
+                                {{> afQuickField name='exchangeDate'  value=param.exchangeDate}}
                             </div>
 
                             <div class="col-md-6">
-                                {{> afQuickField name='accountType' size=10}}
-                                {{> afQuickField name='chartAccount'}}
+                                {{> afQuickField name='accountType' size=10 value=param.accountType id=accountType}}
+                                {{> afQuickField name='chartAccount' value=param.chartAccount}}
                             </div>
 
                         </div>
