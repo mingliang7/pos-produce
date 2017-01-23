@@ -69,7 +69,7 @@
         {{#with data}}
             <table class="table table-responsive table-striped fixed-table">
                 <thead>
-                <tr style="border-top: 1px solid black">
+                <tr class="bg-aqua" style="border-top: 1px solid black ">
                     <th>អតិថិជន</th>
                     <th>ថ្ងៃខែ</th>
                     <th>វិក័យប័ត្រ</th>
@@ -119,7 +119,7 @@
                                         <td class="text-right">{{numFormat item.tsFee '0,0.00'}}</td>
                                         <td class="text-right">{{numFormat item.amount '0,0.00'}}</td>
                                     {{/each}}
-                                    <td class="text-right">+{{numFormat col.total '0,0.00'}}</td>
+                                    <td class="text-right">{{numFormat col.total '0,0.00'}}</td>
                                     <td class="text-right"></td>
                                     <td class="text-right"><b>{{numFormat col.beginningBalance '0,0.00'}}</b></td>
                                     <td class="text-right">{{numFormat col.total '0,0.00'}}</td>
@@ -130,7 +130,7 @@
                                     <td class="text-right"></td>
                                     <td class="text-right"></td>
                                     <td class="text-right"></td>
-                                    <td class="text-right">-{{numFormat col.paidAmount '0,0.00'}}</td>
+                                    <td class="text-right">{{numFormat col.paidAmount '0,0.00'}}</td>
                                     <td class="text-right"><b>{{numFormat col.beginningBalance '0,0.00'}}</b></td>
                                     <td class="text-right">{{numFormat col.balanceAmount '0,0.00'}}</td>
                                 {{/if}}
@@ -158,7 +158,6 @@
                         {{/each}}
                     {{/if}}
                 {{/each}}
-                </tbody>
                 <tr class="sub-body">
                     <td colspan="5"></td>
                     <td><b><u>Grand Total:</u></b></td>
@@ -170,6 +169,7 @@
                     <td style="border-top: 1px solid black;" class="text-right"><b>{{numFormat footer.totalBalance
                                                                                                '0,0.00'}}$</b></td>
                 </tr>
+                </tbody>
             </table>
         {{/with}}
         {{> ReportSignFooter}}

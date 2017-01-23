@@ -74,7 +74,9 @@ invoiceDataTmpl.onDestroyed(function () {
     $('.sub-header').removeClass('rpt rpt-header');
 });
 invoiceDataTmpl.onRendered(function () {
-    $("table.fixed-table").fixMe();
+    Meteor.setTimeout(function () {
+        $("table.fixed-table").fixMe();
+    },1000);
 });
 invoiceDataTmpl.helpers({
     existPayment(paymentDate){
