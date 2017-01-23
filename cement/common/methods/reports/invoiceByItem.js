@@ -165,8 +165,8 @@ export const invoiceByItemReport = new ValidatedMethod({
                             $addToSet: '$$ROOT'
                         },
                         totalQty: {$sum: '$totalQty'},
-                        totalTsFeeAmount: {$last: '$tsFeeAmount'},
-                        totalSubAmount: {$last: '$subAmount'},
+                        totalTsFeeAmount: {$sum: '$tsFeeAmount'},
+                        totalSubAmount: {$sum: '$subAmount'},
                         total: {$sum:{$add: ['$tsFeeAmount', '$subAmount']}},
                     }
                 }

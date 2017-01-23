@@ -3,6 +3,7 @@ import {ReceivePayment} from '../../imports/api/collections/receivePayment';
 import {Penalty} from '../../imports/api/collections/penalty';
 import {RemovedInvoice} from '../../imports/api/collections/removedCollection';
 import {Invoices} from '../../imports/api/collections/invoice';
+import {Order} from '../../imports/api/collections/order';
 Meteor.methods({
     getInvoice({_id}){
         return Invoices.findOne(_id);
@@ -39,6 +40,9 @@ Meteor.methods({
         return {count, lateInvoices, calculatePenalty, penaltyNotExist: penalty.notExist || false};
     },
     invoiceShowItems({doc}){
+        if(doc.invoiceType == 'saleOrder') {
+            doc.saleOrder = Order.findOne({_id: doc.saleId});
+        }
         doc.items.forEach(function (item) {
             item.name = Item.findOne(item.itemId).name;
         });
@@ -93,7 +97,7 @@ Meteor.methods({
             }
 
         ]);
-        if(invoices[0].items.length > 0) {
+        if (invoices[0].items.length > 0) {
             return {items: invoices[0].items, total: invoices[0].total};
         }
         return {items: [], total: 0};

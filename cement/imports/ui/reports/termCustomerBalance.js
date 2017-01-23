@@ -85,7 +85,6 @@ invoiceDataTmpl.helpers({
                 let currentDate = moment( (date && date) || "");
                 let dueDate = moment(col[obj.field]);
                 let diffDay = currentDate.diff(dueDate, 'days');
-                console.log(console.log(diffDay));
                 if (currentDate.isAfter(dueDate) && diffDay != 0) {
                     data += `<td>${diffDay}</td>`
                 } else {

@@ -73,16 +73,32 @@ invoiceDataTmpl.onDestroyed(function () {
     $('.sub-body').removeClass('rpt rpt-body');
     $('.sub-header').removeClass('rpt rpt-header');
 });
+invoiceDataTmpl.onRendered(function () {
+    $("table.fixed-table").fixMe();
+});
 invoiceDataTmpl.helpers({
     existPayment(paymentDate){
         return !!paymentDate;
+    },
+    hasFilterDate(date){
+        let paramsFilterDate = FlowRouter.query.get('filterDate');
+        let filterDate = paramsFilterDate ? moment(paramsFilterDate).startOf('months').format('YYYY-MM-DD') : null;
+        let currentViewDate = moment(date).startOf('months');
+        if (paramsFilterDate) {
+            if (currentViewDate.isSameOrAfter(filterDate)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        return true;
     },
     data(){
         if (invoiceData.get()) {
             let customerHistory = invoiceData.get();
             let data = {content: [], footer: customerHistory.footer};
             let content = customerHistory.content;
-            if (content.length > 0) {
+            if (content && content.length > 0) {
                 content.forEach(function (invoice) {
                     let invoiceData = invoice.data;
                     if (invoiceData.length > 0) {
@@ -90,11 +106,13 @@ invoiceDataTmpl.helpers({
                             let itemDoc = dataDoc.items;
                             dataDoc.firstItem = [];
                             dataDoc.secondItem = [];
-                            for (let i = 0; i < itemDoc.length; i++) {
-                                if (i == 0) {
-                                    dataDoc.firstItem.push(itemDoc[i]);
-                                } else {
-                                    dataDoc.secondItem.push(itemDoc[i]);
+                            if (itemDoc) {
+                                for (let i = 0; i < itemDoc.length; i++) {
+                                    if (i == 0) {
+                                        dataDoc.firstItem.push(itemDoc[i]);
+                                    } else {
+                                        dataDoc.secondItem.push(itemDoc[i]);
+                                    }
                                 }
                             }
                         });
@@ -114,7 +132,7 @@ invoiceDataTmpl.helpers({
         if (customerHistory.groupByDate.length > 0) {
             customerHistory.groupByDate.forEach(function (o) {
                 let formatMonth = moment(o.invoiceDate).format('YYYY-MM');
-                if(moment(formatMonth).isSame(moment(subtractCurrentMapDateByOneMonth)) || moment(formatMonth).isBefore(moment(subtractCurrentMapDateByOneMonth))) {
+                if (moment(formatMonth).isSame(moment(subtractCurrentMapDateByOneMonth)) || moment(formatMonth).isBefore(moment(subtractCurrentMapDateByOneMonth))) {
                     beginningBalance += o.balance;
                 }
             });
@@ -125,6 +143,9 @@ invoiceDataTmpl.helpers({
             beginningBalance: numeral(beginningBalance).format('0,0.00')
         };
 
+    },
+    concatInvoiceId(val){
+        return val.substr(val.length - 10, val.length - 1);
     },
     company(){
         let doc = Session.get('currentUserStockAndAccountMappingDoc');
@@ -146,8 +167,8 @@ AutoForm.hooks({
             if (doc.customer) {
                 params.customer = doc.customer
             }
-            if (doc.filter) {
-                params.filter = doc.filter.join(',');
+            if (doc.filterDate) {
+                params.filterDate = moment(doc.filterDate).endOf('days').format('YYYY-MM-DD HH:mm:ss');
             }
             if (doc.branchId) {
                 params.branchId = doc.branchId.join(',');
@@ -158,3 +179,38 @@ AutoForm.hooks({
         }
     }
 });
+
+//Copyright by kevin
+$.fn.fixMe = function () {
+    return this.each(function () {
+        var $this = $(this),
+            $t_fixed;
+
+        function init() {
+            $this.wrap('<div class="container-fix-header" />');
+            $t_fixed = $this.clone();
+            $t_fixed.find("tbody").remove().end().addClass("fixed").insertBefore($this);
+            resizeFixed();
+        }
+
+        function resizeFixed() {
+            $t_fixed.find("th").each(function (index) {
+                $(this).css("width", $this.find("th").eq(index).outerWidth() + "px");
+            });
+        }
+
+        function scrollFixed() {
+            var offset = $(this).scrollTop(),
+                tableOffsetTop = $this.offset().top,
+                tableOffsetBottom = tableOffsetTop + $this.height() - $this.find("thead").height();
+            if (offset < tableOffsetTop || offset > tableOffsetBottom)
+                $t_fixed.hide();
+            else if (offset >= tableOffsetTop && offset <= tableOffsetBottom && $t_fixed.is(":hidden"))
+                $t_fixed.show();
+        }
+
+        $(window).resize(resizeFixed);
+        $(window).scroll(scrollFixed);
+        init();
+    });
+}

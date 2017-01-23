@@ -12,6 +12,7 @@ import {invoiceSchema} from '../../api/collections/reports/invoice';
 import {invoiceByItemReport} from '../../../common/methods/reports/invoiceByItem';
 //import from lib
 import RangeDate from '../../api/libs/date';
+import '../pages/invoice';
 //state
 let paramsState = new ReactiveVar();
 let invoiceData = new ReactiveVar();
@@ -26,6 +27,7 @@ indexTmpl.onCreated(function () {
     this.fromDate = new ReactiveVar(moment().startOf('days').toDate());
     this.endDate = new ReactiveVar(moment().endOf('days').toDate());
     createNewAlertify('invoiceByItemReport');
+    createNewAlertify('invoiceEdit', {size: 'lg'});
     paramsState.set(FlowRouter.query.params());
     this.autorun(() => {
         if (paramsState.get()) {
@@ -110,6 +112,21 @@ indexTmpl.events({
 invoiceDataTmpl.events({
     'click .print'(event, instance){
         $('#to-print').printThis();
+    },
+    'click .inv'(event,instance){
+        let currentBranch = Session.get('currentBranch');
+        let _id = event.currentTarget.text.trim();
+        let currentInvoiceId = `${currentBranch}-20${_id}`;
+        Meteor.call('getInvoice', {_id: currentInvoiceId}, function (err, result) {
+            if(result) {
+                if(result.status != 'closed') {
+                    alertify.invoiceEdit(fa('', 'Invoice Edit'), renderTemplate(Template.Cement_invoiceEdit, result)).maximize();
+                }else{
+                    alertify.invoiceEdit(fa('', 'Invoice Edit'), renderTemplate(Template.Cement_invoiceShow, result)).maximize();
+
+                }
+            }
+        });
     }
 });
 invoiceDataTmpl.onDestroyed(function () {

@@ -23,6 +23,11 @@
                                         {{> afQuickField name="branchId" label="Branch"}}
                                     </div>
                                 </div>
+                                <div class="row">
+                                    <div class="col-xs-2">
+                                        {{> afQuickField name="filterDate" label= 'Filter Month'}}
+                                    </div>
+                                </div>
                                 <button class="btn btn-primary"><i class="fa fa-play" aria-hidden="true"></i> Run
                                 </button>
                                 <a class="btn btn-default printReport">Print</a>
@@ -62,111 +67,108 @@
         </div>
 
         {{#with data}}
-            <table class="table table-responsive table-striped">
+            <table class="table table-responsive table-striped fixed-table">
                 <thead>
                 <tr style="border-top: 1px solid black">
                     <th>អតិថិជន</th>
                     <th>ថ្ងៃខែ</th>
                     <th>វិក័យប័ត្រ</th>
-                    <th>ល.រ ចំណូល</th>
                     <th>បរិយាយ</th>
                     <th>Name</th>
                     <th>Qty</th>
                     <th>Price</th>
+                    <th>TSPrice</th>
                     <th>Amount</th>
                     <th>សរុប</th>
                     <th>ទូរទាត់</th>
+                    <th>សមតុល្យដើមគ្រា</th>
                     <th>សមតុល្យ</th>
                 </tr>
                 </thead>
+                <tbody class="rpt-body">
                 {{#each field in content}}
-                    <tbody class="rpt-body">
-                    <tr>
-                        <td colspan="11"></td>
-                        {{#with getBeginningBalance @index field.balanceAmount}}
-                            <td class="text-right"
-                                ><u><b>Beginning Balance: {{beginningBalance}}</b></u>
-                            </td>
-                        {{/with}}
-                    </tr>
-                    {{#each col in field.data}}
+                    {{#if hasFilterDate field.date}}
                         <tr>
-                            <td>{{field.customerDoc.name}}</td>
-                            <td>
-                                {{moFormat col.invoiceDate 'YYYY/MM/DD'}}
+                            <td class="text-right">
+                                <u><b>Date: {{moFormat field.date 'MM/YYYY'}}</b></u>
                             </td>
-                            <td>
-                                {{col.invoiceId}}
-                            </td>
-                            <td></td>
-                            <td>Invoice</td>
-                            {{#each item in col.firstItem}}
-                                <td>{{item.itemName}}</td>
-                                <td class="text-right">{{numFormat item.qty '0,0.00'}}</td>
-                                <td class="text-right">{{numFormat item.price '0,0.00'}}</td>
-                                <td class="text-right">{{numFormat item.amount '0,0.00'}}</td>
-                            {{/each}}
-
-                            <td class="text-right">{{numFormat col.total '0,0.00'}}</td>
-                            <td></td>
-                            <td class="text-right">{{numFormat col.total '0,0.00'}}</td>
                         </tr>
-
-                        {{#each item in col.secondItem}}
+                        {{#each col in field.data}}
                             <tr>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td>{{item.itemName}}</td>
-                                <td class="text-right">{{item.qty}}</td>
-                                <td class="text-right">{{numFormat item.price '0,0.00'}}</td>
-                                <td class="text-right">{{numFormat item.amount '0,0.00'}}</td>
+                                <td>{{field.customer.name}}</td>
+                                <td>
+                                    {{moFormat col.date 'DD/MM/YYYY'}}
+                                </td>
+                                <td>
+                                    {{#if col.inv}}
+                                        {{concatInvoiceId col._id}}
+                                    {{else}}
+                                        {{col._id}}
+                                    {{/if}}
+                                </td>
+                                {{#if col.inv}}
+                                    <td>INV</td>
+                                {{else}}
+                                    <td>RP#{{concatInvoiceId col.invoiceId}}</td>
+                                {{/if}}
+                                {{#if col.inv}}
+                                    {{#each item in col.firstItem}}
+                                        <td>{{item.itemName}}</td>
+                                        <td class="text-right">{{numFormat item.qty '0,0.00'}}</td>
+                                        <td class="text-right">{{numFormat item.price '0,0.00'}}</td>
+                                        <td class="text-right">{{numFormat item.tsFee '0,0.00'}}</td>
+                                        <td class="text-right">{{numFormat item.amount '0,0.00'}}</td>
+                                    {{/each}}
+                                    <td class="text-right">+{{numFormat col.total '0,0.00'}}</td>
+                                    <td class="text-right"></td>
+                                    <td class="text-right"><b>{{numFormat col.beginningBalance '0,0.00'}}</b></td>
+                                    <td class="text-right">{{numFormat col.total '0,0.00'}}</td>
+                                {{else}}
+                                    <td>{{item.itemName}}</td>
+                                    <td class="text-right"></td>
+                                    <td class="text-right"></td>
+                                    <td class="text-right"></td>
+                                    <td class="text-right"></td>
+                                    <td class="text-right"></td>
+                                    <td class="text-right">-{{numFormat col.paidAmount '0,0.00'}}</td>
+                                    <td class="text-right"><b>{{numFormat col.beginningBalance '0,0.00'}}</b></td>
+                                    <td class="text-right">{{numFormat col.balanceAmount '0,0.00'}}</td>
+                                {{/if}}
 
-                                <td></td>
-                                <td></td>
-                                <td></td>
                             </tr>
-                        {{/each}}
 
-                        {{#each col.receivePaymentDoc}}
-                            {{#if existPayment paymentDate}}
-                                <tr>
-                                    <td>{{field.customerDoc.name}}</td>
-                                    <td>{{moFormat paymentDate 'YYYY/MM/DD'}}</td>
-                                    <td></td>
-                                    <td>{{_id}}</td>
-                                    <td>Receive Payment</td>
-                                    <td colspan="3"></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td class="text-right">{{numFormat paidAmount '0,0.00'}}</td>
-                                    <td class="text-right">{{numFormat balanceAmount '0,0.00'}}</td>
-                                </tr>
+                            {{#if col.inv}}
+                                {{#each item in col.secondItem}}
+                                    <tr>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td>{{item.itemName}}</td>
+                                        <td class="text-right">{{item.qty}}</td>
+                                        <td class="text-right">{{numFormat item.price '0,0.00'}}</td>
+                                        <td class="text-right">{{numFormat item.tsFee '0,0.00'}}</td>
+                                        <td class="text-right">{{numFormat item.amount '0,0.00'}}</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                {{/each}}
                             {{/if}}
                         {{/each}}
-                    {{/each}}
-                    <tr>
-                        <td colspan="8"></td>
-
-                        <td>Total:</td>
-                        <td style="border-top: 1px solid black;" class="text-right">{{numFormat field.total
-                                                                                                '0,0.00'}}</td>
-                        <td style="border-top: 1px solid black;" class="text-right">{{numFormat field.paidAmount
-                                                                                                '0,0.00'}}</td>
-                        {{#with getBeginningBalance @index field.balanceAmount}}
-                            <td style="border-top: 1px solid black;" class="text-right"><b><u>{{beginningBalance}}</u></b>
-                                + {{balance}}={{sumBalance}}</td>
-                        {{/with}}
-                    </tr>
-                    </tbody>
+                    {{/if}}
                 {{/each}}
+                </tbody>
                 <tr class="sub-body">
                     <td colspan="5"></td>
                     <td><b><u>Grand Total:</u></b></td>
-                    <td colspan="5"></td>
-                    <td style="border-top: 1px solid black;" class="text-right"><b>{{numFormat footer.totalBalance '0,0.00'}}$</b></td>
+                    <td colspan="3"></td>
+                    <td style="border-top: 1px solid black;" class="text-right"><b>{{numFormat footer.totalAmount
+                                                                                               '0,0.00'}}$</b></td>
+                    <td style="border-top: 1px solid black;" class="text-right"><b>{{numFormat footer.totalPaidAmount
+                                                                                               '0,0.00'}}$</b></td>
+                    <td style="border-top: 1px solid black;" class="text-right"><b>{{numFormat footer.totalBalance
+                                                                                               '0,0.00'}}$</b></td>
                 </tr>
             </table>
         {{/with}}

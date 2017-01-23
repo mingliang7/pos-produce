@@ -750,7 +750,7 @@ let hooksObject = {
                 closeOnConfirm: false,
                 showLoaderOnConfirm: true,
             }).then(function () {
-                receivePayment.callPromise({paymentDate, invoicesObj, branch, voucherId})
+                receivePayment.callPromise({currentPaymentDate: moment().toDate(), paymentDate, invoicesObj, branch, voucherId})
                     .then(function (result) {
                         clearChecbox();
                         swal({

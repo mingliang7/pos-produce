@@ -25,41 +25,56 @@
                 <i class="fa fa-angle-left pull-right"></i>
             </a>
             <ul class="treeview-menu menu-open" style="display: block;">
-                <li class="{{isActiveRoute name='cement.customer'}}">
-                    <a href="{{pathFor 'cement.customer'}}">
-                        <i class="fa fa-male"></i> <span>{{_ "cement.sidebarMenu.customer"}}</span>
-                    </a>
-                </li>
-                <li class="{{isActiveRoute name='cement.order'}}">
-                    <a href="{{pathFor 'cement.order'}}">
-                        <i class="fa fa-shopping-cart"></i> <span>{{_ "cement.sidebarMenu.order"}}</span>
-                    </a>
-                </li>
-                <li class="{{isActiveRoute name='cement.invoice'}}">
-                    <a href="{{pathFor 'cement.invoice'}}">
-                        <i class="fa fa-file-text"></i> <span>{{_ "cement.sidebarMenu.invoice"}}</span>
-                    </a>
-                </li>
-                <li class="{{isActiveRoute name='cement.receivePayment'}}">
-                    <a href="{{pathFor 'cement.receivePayment'}}">
-                        <i class="fa fa-money"></i> <span>Receive Payment</span>
-                    </a>
-                </li>
-                <li class="{{isActiveRoute name='cement.paymentTransactionList'}}">
-                    <a href="{{pathFor 'cement.paymentTransactionList'}}">
-                        <i class="fa fa-exchange"></i> <span>Payment Transaction</span>
-                    </a>
-                </li>
-                <li class="{{isActiveRoute name='cement.saleOrderReceivePayment'}}">
-                    <a href="{{pathFor 'cement.saleOrderReceivePayment'}}">
-                        <i class="fa fa-money"></i> <span>SO Receive Payment</span>
-                    </a>
-                </li>
-                <li class="{{isActiveRoute name='cement.soPaymentTransaction'}}">
-                    <a href="{{pathFor 'cement.soPaymentTransaction'}}">
-                        <i class="fa fa-exchange"></i> <span>SO Receive Payment List</span>
-                    </a>
-                </li>
+                {{#if isInRole 'form-customer' 'Cement'}}
+                    <li class="{{isActiveRoute name='cement.customer'}}">
+                        <a href="{{pathFor 'cement.customer'}}">
+                            <i class="fa fa-male"></i> <span>{{_ "cement.sidebarMenu.customer"}}</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'form-sale-order' 'Cement'}}
+
+                    <li class="{{isActiveRoute name='cement.order'}}">
+                        <a href="{{pathFor 'cement.order'}}">
+                            <i class="fa fa-shopping-cart"></i> <span>{{_ "cement.sidebarMenu.order"}}</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'form-invoice' 'Cement'}}
+                    <li class="{{isActiveRoute name='cement.invoice'}}">
+                        <a href="{{pathFor 'cement.invoice'}}">
+                            <i class="fa fa-file-text"></i> <span>{{_ "cement.sidebarMenu.invoice"}}</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'form-receive-payment' 'Cement'}}
+                    <li class="{{isActiveRoute name='cement.receivePayment'}}">
+                        <a href="{{pathFor 'cement.receivePayment'}}">
+                            <i class="fa fa-money"></i> <span>Receive Payment</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'list-receive-payment-transaction' 'Cement'}}
+                    <li class="{{isActiveRoute name='cement.paymentTransactionList'}}">
+                        <a href="{{pathFor 'cement.paymentTransactionList'}}">
+                            <i class="fa fa-exchange"></i> <span>Payment Transaction</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'form-so-receive-payment' 'Cement'}}
+                    <li class="{{isActiveRoute name='cement.saleOrderReceivePayment'}}">
+                        <a href="{{pathFor 'cement.saleOrderReceivePayment'}}">
+                            <i class="fa fa-money"></i> <span>SO Receive Payment</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'list-so-receive-payment-transaction' 'Cement'}}
+                    <li class="{{isActiveRoute name='cement.soPaymentTransaction'}}">
+                        <a href="{{pathFor 'cement.soPaymentTransaction'}}">
+                            <i class="fa fa-exchange"></i> <span>SO Receive Payment List</span>
+                        </a>
+                    </li>
+                {{/if}}
             </ul>
         </li>
         <li class="treeview">
@@ -69,59 +84,76 @@
                 <i class="fa fa-angle-left pull-right"></i>
             </a>
             <ul class="treeview-menu" style="display: none;">
-                <li class="{{isActiveRoute name='cement.vendor'}}">
-                    <a href="{{pathFor 'cement.vendor'}}">
-                        <i class="fa fa-male" aria-hidden="true"></i> <span>Vendor</span>
-                    </a>
-                </li>
-                <li class="{{isActiveRoute name='cement.purchaseOrder'}}">
-                    <a href="{{pathFor 'cement.purchaseOrder'}}">
-                        <i class="fa fa-file-text" aria-hidden="true"></i>
-                        <span>{{_ "cement.sidebarMenu.purchaseOrder"}}</span>
-                    </a>
-                </li>
-
-                <li class="{{isActiveRoute name='cement.enterBill'}}">
-                    <a href="{{pathFor 'cement.enterBill'}}">
-                        <i class="fa fa-file-text" aria-hidden="true"></i>
-                        <span>{{_ "cement.sidebarMenu.enterBill"}}</span>
-                    </a>
-                </li>
-                <li class="{{isActiveRoute name='cement.groupBillList'}}">
-                    <a href="{{pathFor 'cement.groupBillList'}}">
-                        <i class="fa fa-list-alt" aria-hidden="true"></i> <span>Group Bill List</span>
-                    </a>
-                </li>
+                {{#if isInRole 'form-vendor' 'Cement'}}
+                    <li class="{{isActiveRoute name='cement.vendor'}}">
+                        <a href="{{pathFor 'cement.vendor'}}">
+                            <i class="fa fa-male" aria-hidden="true"></i> <span>Vendor</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'form-purchase-order' 'Cement'}}
+                    <li class="{{isActiveRoute name='cement.purchaseOrder'}}">
+                        <a href="{{pathFor 'cement.purchaseOrder'}}">
+                            <i class="fa fa-file-text" aria-hidden="true"></i>
+                            <span>{{_ "cement.sidebarMenu.purchaseOrder"}}</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'form-enter-bill' 'Cement'}}
+                    <li class="{{isActiveRoute name='cement.enterBill'}}">
+                        <a href="{{pathFor 'cement.enterBill'}}">
+                            <i class="fa fa-file-text" aria-hidden="true"></i>
+                            <span>{{_ "cement.sidebarMenu.enterBill"}}</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'list-group-bill' 'Cement'}}
+                    <li class="{{isActiveRoute name='cement.groupBillList'}}">
+                        <a href="{{pathFor 'cement.groupBillList'}}">
+                            <i class="fa fa-list-alt" aria-hidden="true"></i> <span>Group Bill List</span>
+                        </a>
+                    </li>
+                {{/if}}
                 <!--<li class="{{isActiveRoute name='cement.prepaidOrder'}}">
 				<a href="{{pathFor 'cement.prepaidOrder'}}">
 					<i class="fa fa-cart-arrow-down" aria-hidden="true"></i> <span>Prepaid Order</span>
 				</a>
 			</li>-->
-                <li class="{{isActiveRoute name='cement.payBill'}}">
-                    <a href="{{pathFor 'cement.payBill'}}">
-                        <i class="fa fa-money"></i> <span>Pay Bill</span>
-                    </a>
-                </li>
-                <li class="{{isActiveRoute name='cement.payBillTransactionList'}}">
-                    <a href="{{pathFor 'cement.payBillTransactionList'}}">
-                        <i class="fa fa-exchange"></i> <span>PayBill Transaction</span>
-                    </a>
-                </li>
-                <li class="{{isActiveRoute name='cement.purchaseOrderPayment'}}">
-                    <a href="{{pathFor 'cement.purchaseOrderPayment'}}">
-                        <i class="fa fa-money"></i> <span>PO Payment</span>
-                    </a>
-                </li>
-                <li class="{{isActiveRoute name='cement.purchaseOrderPaymentTransaction'}}">
-                    <a href="{{pathFor 'cement.purchaseOrderPaymentTransaction'}}">
-                        <i class="fa fa-exchange"></i> <span>PO Payment Transaction</span>
-                    </a>
-                </li>
-                <li class="{{isActiveRoute name='cement.lendingStock'}}">
-                    <a href="{{pathFor 'cement.lendingStock'}}">
-                        <i class="fa fa-share-square-o"></i> <span>{{_ "cement.sidebarMenu.lendingStock"}}</span>
-                    </a>
-                </li>
+                {{#if isInRole 'form-pay-bill' 'Cement'}}
+                    <li class="{{isActiveRoute name='cement.payBill'}}">
+                        <a href="{{pathFor 'cement.payBill'}}">
+                            <i class="fa fa-money"></i> <span>Pay Bill</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'list-pay-bill-transaction' 'Cement'}}
+                    <li class="{{isActiveRoute name='cement.payBillTransactionList'}}">
+                        <a href="{{pathFor 'cement.payBillTransactionList'}}">
+                            <i class="fa fa-exchange"></i> <span>PayBill Transaction</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'form-po-payment' 'Cement'}}
+                    <li class="{{isActiveRoute name='cement.purchaseOrderPayment'}}">
+                        <a href="{{pathFor 'cement.purchaseOrderPayment'}}">
+                            <i class="fa fa-money"></i> <span>PO Payment</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'list-po-payment-transaction' 'Cement'}}
+                    <li class="{{isActiveRoute name='cement.purchaseOrderPaymentTransaction'}}">
+                        <a href="{{pathFor 'cement.purchaseOrderPaymentTransaction'}}">
+                            <i class="fa fa-exchange"></i> <span>PO Payment Transaction</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole  'form-lending-stock' 'Cement'}}
+                    <li class="{{isActiveRoute name='cement.lendingStock'}}">
+                        <a href="{{pathFor 'cement.lendingStock'}}">
+                            <i class="fa fa-share-square-o"></i> <span>{{_ "cement.sidebarMenu.lendingStock"}}</span>
+                        </a>
+                    </li>
+                {{/if}}
             </ul>
         </li>
         <li class="treeview">

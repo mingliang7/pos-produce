@@ -16,21 +16,26 @@ export const receivePayment = new ValidatedMethod({
         invoicesObj: {
             type: Object, blackbox: true
         },
+        currentPaymentDate: {type: Date},
         paymentDate: {type: Date},
         branch: {type: String},
         voucherId: {type: String}
     }).validator(),
     run({
+        currentPaymentDate,
         invoicesObj, paymentDate, branch, voucherId
     }) {
         if (!this.isSimulation) {
             console.log(invoicesObj);
             for (let k in invoicesObj) {
-                let selector = {}
+                let selector = {};
+                let currentDate = moment(currentPaymentDate).format('HH:mm:ss');
+                let currentPaymentDate = moment(paymentDate).format('YYYY-MM-DD');
+                let date = moment(currentPaymentDate + ' ' + currentDate).toDate();
                 let obj = {
                     invoiceId: k,
                     voucherId: voucherId,
-                    paymentDate: paymentDate,
+                    paymentDate: date,
                     paidAmount: invoicesObj[k].receivedPay,
                     penalty: invoicesObj[k].penalty,
                     discount: invoicesObj[k].discount || 0,
@@ -46,16 +51,16 @@ export const receivePayment = new ValidatedMethod({
                 let customer = Customers.findOne(obj.customerId);
                 obj.paymentType = customer.termId ? 'term' : 'group';
                 ReceivePayment.insert(obj);
-                if(obj.status == 'closed'){
+                if (obj.status == 'closed') {
                     selector.$set = {status: 'closed', closedAt: obj.paymentDate}
-                }else{
+                } else {
                     selector.$set = {
                         status: 'partial',
                     };
                 }
-                if(customer.termId) {
+                if (customer.termId) {
                     Invoices.direct.update(k, selector)
-                }else{
+                } else {
                     GroupInvoice.direct.update(k, selector);
                 }
             }

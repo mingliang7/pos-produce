@@ -31,7 +31,7 @@ export const customerHistoryReport = new ValidatedMethod({
                 }
             };
             let branchId = [];
-            if(!params.customer) {
+            if (!params.customer) {
                 return data;
             }
             if (params.branchId) {
@@ -60,219 +60,158 @@ export const customerHistoryReport = new ValidatedMethod({
             /****** Title *****/
             data.title.company = Company.findOne();
             /****** Content *****/
+            let groupDateObj = {};
+            let arr = [];
+            let beginningBalance = 0;
+            let totalPaidAmount = 0;
+            let totalAmount = 0;
+            let totalBalance = 0;
             let invoices = Invoices.aggregate([
+                {$match: selector},
+                {$unwind: '$items'},
                 {
-                    $facet: {
-                        groupByCustomers: [
-                            {$match: selector},
-                            {
-                                $lookup: {
-                                    from: "cement_receivePayment",
-                                    localField: "_id",
-                                    foreignField: "invoiceId",
-                                    as: "receivePaymentDoc"
-                                }
-                            }, {
-                                $project: {
-                                    customerId: 1,
-                                    voucher: 1,
-                                    _id: 1,
-                                    total: 1,
-                                    invoiceDate: 1,
-                                    items: 1,
-                                    receivePaymentDoc: 1,
-                                }
-                            },
-                            {$unwind: {path: '$receivePaymentDoc', preserveNullAndEmptyArrays: true}},
-                            {
-                                $project: {
-                                    customerId: 1,
-                                    _id: 1,
-                                    voucherId: 1,
-                                    total: 1,
-                                    paidAmount: {
-                                        $cond: [
-
-                                            {
-                                                $lte: ['$receivePaymentDoc.paymentDate', moment(currentArrDate).endOf('days').toDate()]
-                                            },
-
-                                            '$receivePaymentDoc.paidAmount',
-                                            0
-                                        ]
-                                    },
-                                    items: 1,
-                                    invoiceDate: 1,
-                                    receivePaymentDoc: {
-                                        $cond: [
-
-                                            {
-                                                $lte: ['$receivePaymentDoc.paymentDate', moment(currentArrDate).endOf('days').toDate()]
-                                            },
-
-                                            '$receivePaymentDoc',
-                                            null
-                                        ]
-                                    }
-                                }
-                            },
-                            {
-                                $group: {
-                                    _id: '$_id',
-                                    items: {$last: '$items'},
-                                    invoiceId: {$last: '$_id'},
-                                    total: {$last: '$total'},
-                                    paidAmount: {$sum: '$paidAmount'},
-                                    invoiceDate: {$last: '$invoiceDate'},
-                                    customerId: {$last: '$customerId'},
-                                    voucherId: {$last: '$voucherId'},
-                                    receivePaymentDoc: {
-                                        $push: '$receivePaymentDoc'
-                                    }
-                                }
-                            },
-                            {
-                                $unwind: {path: '$items', preserveNullAndEmptyArrays: true}
-                            },
-                            {
-                                $lookup: {
-                                    from: 'cement_item',
-                                    localField: 'items.itemId',
-                                    foreignField: '_id',
-                                    as: 'itemsDoc'
-                                }
-                            },
-                            {
-                                $unwind: {path: '$itemsDoc', preserveNullAndEmptyArrays: true}
-                            },
-                            {$sort: {"itemsDoc.name": 1}},
-                            {
-                                $group: {
-                                    _id: '$_id',
-                                    invoiceId: {$last: '$_id'},
-                                    total: {$last: '$total'},
-                                    balanceAmount: {$last: '$balanceAmount'},
-                                    paidAmount: {$last: '$paidAmount'},
-                                    invoiceDate: {$last: '$invoiceDate'},
-                                    customerId: {$last: '$customerId'},
-                                    voucherId: {$last: '$voucherId'},
-                                    receivePaymentDoc: {$last: '$receivePaymentDoc'},
-                                    items: {
-                                        $push: {
-                                            itemName: '$itemsDoc.name',
-                                            price: '$items.price',
-                                            qty: '$items.qty',
-                                            amount: '$items.amount'
-                                        }
-                                    }
-                                }
-                            },
-                            {
-                                $group: {
-                                    _id: {month: {$month: '$invoiceDate'}, year:{$year: '$invoiceDate'}},
-                                    invoiceDate: {$last: '$invoiceDate'},
-                                    customerId: {$last: '$customerId'},
-                                    total: {$sum: '$total'},
-                                    balanceAmount: {$sum: {$subtract: ['$total', '$paidAmount']}},
-                                    paidAmount: {$sum: '$paidAmount'},
-                                    data: {$push: '$$ROOT'},
-                                }
-                            },
-                            {
-                                $project: {
-                                    _id: {$dateToString: { format: "%m-%Y", date: "$invoiceDate" }},
-                                    customerId: 1,
-                                    invoiceDate: 1,
-                                    total:1,
-                                    balanceAmount: 1,
-                                    paidAmount: 1,
-                                    data: 1
-                                }
-                            },
-                            {
-                                $lookup: {
-                                    from: 'cement_customers',
-                                    localField: 'customerId',
-                                    foreignField: '_id',
-                                    as: 'customerDoc'
-                                }
-                            },
-                            {$unwind: {path: '$customerDoc', preserveNullAndEmptyArrays: true}},
-                            {
-                                $group: {
-                                    _id: null,
-                                    invoiceDate: {$push: '$invoiceDate'},
-                                    data: {
-                                        $push: '$$ROOT'
-                                    },
-                                    totalBalance: {$sum: '$balanceAmount'}
-                                }
+                    $lookup: {
+                        from: 'cement_item',
+                        localField: 'items.itemId',
+                        foreignField: '_id',
+                        as: 'itemDoc'
+                    }
+                },
+                {$unwind: {path: '$itemDoc', preserveNullAndEmptyArrays: true}},
+                {
+                    $group: {
+                        _id: '$_id',
+                        total: {$last: '$total'},
+                        customerId: {$last: '$customerId'},
+                        invoiceDate: {$last: '$invoiceDate'},
+                        voucherId: {$last: '$voucherId'},
+                        items: {
+                            $push: {
+                                itemName: '$itemDoc.name',
+                                tsFee: '$items.transportFee',
+                                price: '$items.price',
+                                qty: '$items.qty',
+                                amount: '$items.amount'
                             }
-                        ],
-                        groupByDate: [
-                            {$match: selector},
-                            {
-                                $lookup: {
-                                    from: 'cement_receivePayment',
-                                    localField: '_id',
-                                    foreignField: 'invoiceId',
-                                    as: 'paymentDoc'
-                                }
-                            },
-                            {$unwind: {path: '$paymentDoc', preserveNullAndEmptyArrays: true}},
-                            {
-                                $project: {
-                                    invoiceDate: 1,
-                                    _id: 1,
-                                    total: 1,
-                                    paidAmount: {
-                                        $cond: [
-                                            {$lt: ["$paymentDoc.paymentDate", moment(currentArrDate).toDate()]},
-                                            '$paymentDoc.paidAmount',0
-                                        ]
-                                    }
-                                }
-                            },
-                            {
-                                $group: {
-                                    _id: '$_id',
-                                    invoiceDate: {$last: '$invoiceDate'},
-                                    total: {$last: '$total'},
-                                    paidAmount:{$sum: '$paidAmount'}
-                                }
-                            },
-                            {
-                                $group: {
-                                    _id: {
-                                        month: {$month: '$invoiceDate'},
-                                        year: {$year: '$invoiceDate'}
-                                    },
-                                    invoiceDate: {$last: '$invoiceDate'},
-                                    total: {$sum: '$total'},
-                                    paidAmount: {$sum: '$paidAmount'}
-                                }
-                            },
-                            {
-                                $project: {
-                                    _id: {$dateToString: { format: "%m-%Y", date: "$invoiceDate" }},
-                                    total: 1,
-                                    invoiceDate:1,
-                                    paidAmount: 1,
-                                    balance: {$subtract: ["$total", "$paidAmount"]}
-                                }
-                            },
-                            {
-                                $sort: {invoiceDate: 1}
-                            }
-                        ]
+                        }
+                    }
+                },
+                {
+                    $lookup: {
+                        from: 'cement_customers',
+                        localField: 'customerId',
+                        foreignField: '_id',
+                        as: 'customerDoc'
+                    }
+                },
+                {$unwind: {path: '$customerDoc', preserveNullAndEmptyArrays: true}},
+                {
+                    $lookup: {
+                        from: "cement_receivePayment",
+                        localField: "_id",
+                        foreignField: "invoiceId",
+                        as: "paymentDoc"
                     }
                 }
             ]);
-            if (invoices[0].groupByCustomers.length > 0) {
-                data.groupByDate = invoices[0].groupByDate;
-                data.content = invoices[0].groupByCustomers[0].data;
-                data.invoiceDateArr = invoices[0].groupByCustomers[0].invoiceDate;
-                data.footer.totalBalance = invoices[0].groupByCustomers[0].totalBalance;
+            invoices.forEach(function (doc) {
+                let groupDate = moment(doc.invoiceDate).format('MM-YYYY');
+                if (!groupDateObj[groupDate]) {
+                    groupDateObj[groupDate] = {
+                        customer: doc.customerDoc,
+                        date: moment(doc.invoiceDate).toDate(),
+                        data: [{
+                            _id: doc._id,
+                            voucherId: doc.voucherId,
+                            type: 'invoice',
+                            inv: true,
+                            date: moment(doc.invoiceDate).toDate(),
+                            paidAmount: 0,
+                            balance: 0,
+                            items: doc.items,
+                            total: doc.total
+                        }]
+                    }
+                } else {
+                    groupDateObj[groupDate].data.push({
+                        _id: doc._id,
+                        voucherId: doc.voucherId,
+                        type: 'invoice',
+                        inv: true,
+                        date: moment(doc.invoiceDate).toDate(),
+                        paidAmount: 0,
+                        balance: 0,
+                        items: doc.items,
+                        total: doc.total
+                    })
+                }
+                doc.paymentDoc.forEach(function (payment) {
+                    let queryDate = moment(currentArrDate).format('YYYY-MM-DD');
+                    let paymentDate = moment(payment.paymentDate);
+                    if (paymentDate.isSameOrBefore(queryDate)) {
+                        let groupPayDate = moment(payment.paymentDate).format('MM-YYYY');
+                        if (!groupDateObj[groupPayDate]) {
+                            groupDateObj[groupPayDate] = {
+                                customer: doc.customerDoc,
+                                date: moment(payment.paymentDate).toDate(),
+                                data: [{
+                                    _id: payment._id,
+                                    invoiceId: payment.invoiceId,
+                                    voucherId: payment.voucherId,
+                                    type: 'receive-payment',
+                                    rp: true,
+                                    date: moment(payment.paymentDate).toDate(),
+                                    paidAmount: payment.paidAmount,
+                                    balance: payment.balanceAmount
+                                }]
+                            }
+                        } else {
+                            groupDateObj[groupPayDate].data.push({
+                                _id: payment._id,
+                                invoiceId: payment.invoiceId,
+                                voucherId: payment.voucherId,
+                                type: 'receive-payment',
+                                rp: true,
+                                date: moment(payment.paymentDate).toDate(),
+                                paidAmount: payment.paidAmount,
+                                balance: payment.balanceAmount
+                            })
+                        }
+                    }
+
+                });
+            });
+            for (let k in groupDateObj) {
+                let sortData = _.sortBy(groupDateObj[k].data, function (value) {
+                    return new Date(value.date);
+                });
+                groupDateObj[k].data = sortData;
+                arr.push(groupDateObj[k]);
+            }
+            let afterSortArr = arr.sort ( (a, b) => {
+                return new Date(a.date) - new Date(b.date);
+            });
+            afterSortArr.forEach(function (doc) {
+                doc.data.forEach(function (o) {
+                    if (o.type == 'invoice') {
+                        o.beginningBalance = o.total + beginningBalance;
+                        beginningBalance += o.total;
+                        o.balanceAmount = beginningBalance + o.total;
+                        totalAmount += o.total;
+                    } else {
+                        o.beginningBalance = beginningBalance - o.paidAmount;
+                        o.balanceAmount = o.balance;
+                        beginningBalance -= o.paidAmount;
+                        totalPaidAmount += o.paidAmount;
+                    }
+                });
+            });
+
+            if (afterSortArr.length > 0) {
+                data.content = arr;
+                data.footer.totalAmount = totalAmount;
+                data.footer.totalPaidAmount = totalPaidAmount;
+                data.footer.totalBalance = totalAmount - totalPaidAmount;
             }
             return data
         }

@@ -78,8 +78,9 @@
                     {{/each}}
                 </tr>
                 </thead>
+                <tbody>
                 {{#each col in content}}
-                    <tbody>
+
                     <tr>
                         <td>
                             <u><i>Name: {{capitalize col.customerDoc.name}}</i>
@@ -102,12 +103,13 @@
                     <tr>
                         {{{getTotal col.dueAmountSubTotal col.paidAmount col.balance col.customerDoc.name}}}
                     </tr>
-                    </tbody>
-
                 {{/each}}
+                {{{getTotalFooter footer.totalDue footer.totalPaid footer.totalBalance}}}
+
+                </tbody>
+
                 <!--<tbody>-->
                 <!--<tr>-->
-                {{{getTotalFooter footer.totalDue footer.totalPaid footer.totalBalance}}}
                 <!--</tr>-->
 
 
