@@ -16,9 +16,9 @@ import {PayBills} from '../../imports/api/collections/payBill.js';
 import {Vendors} from '../../imports/api/collections/vendor.js';
 import {AccountIntegrationSetting} from '../../imports/api/collections/accountIntegrationSetting.js';
 EnterBills.before.insert(function (userId, doc) {
-    let checkItems=[];
+    let checkItems = [];
     doc.items.forEach(function (item) {
-        if(item.isBill==false){
+        if (item.isBill == false) {
             checkItems.push(item);
         }
     });
@@ -45,17 +45,17 @@ EnterBills.before.insert(function (userId, doc) {
 
 EnterBills.before.update(function (userId, doc, fieldNames, modifier, options) {
     let postDoc = {itemList: []};
-    if(modifier.$set.items){
+    if (modifier.$set.items) {
         modifier.$set.items.forEach(function (item) {
-            if(item.isBill==false){
+            if (item.isBill == false) {
                 postDoc.itemList.push(item);
             }
         })
     }
 
-    let checkItems=[];
+    let checkItems = [];
     doc.items.forEach(function (item) {
-        if(item.isBill==false){
+        if (item.isBill == false) {
             checkItems.push(item);
         }
     });
@@ -75,18 +75,30 @@ EnterBills.after.insert(function (userId, doc) {
         if (doc.billType == 'group') {
             Meteor.call('cement.generateInvoiceGroup', {doc});
         }
-        if(doc.invoiceId){
+        if (doc.invoiceId) {
             //update invoice with refBillId
             EnterBillMutation.updateInvoiceRefBillId({doc});
-            let newEnterBillItems=[];
+            let newEnterBillItems = [];
+            let totalAmount = 0;
+            let totalUnBill = 0;
             doc.items.forEach(function (item) {
-                if(item.isBill==false){
-                    item.price= StockFunction.minusAverageInventoryInsertAndReturnCostPrice(doc.branchId,item,doc.stockLocationId,'invoice-bill',doc._id);
-                    newEnterBillItems.push(item);
+                if (item.isBill == false) {
+                    item.price = StockFunction.minusAverageInventoryInsertAndReturnCostPrice(doc.branchId, item, doc.stockLocationId, 'invoice-bill', doc._id);
+                    item.amount = item.price * item.qty;
+                    totalUnBill += item.amount;
+                }
+                newEnterBillItems.push(item);
+                totalAmount += item.amount;
+            });
+
+            EnterBills.direct.update(doc._id, {
+                $set: {
+                    items: newEnterBillItems,
+                    total:totalAmount,
+                    totalUnBill:totalUnBill,
                 }
             });
-            EnterBills.direct.update(doc._id,{$set:{items:newEnterBillItems}});
-        }else{
+        } else {
             doc.items.forEach(function (item) {
                 StockFunction.averageInventoryInsertForBill(doc.branchId, item, doc.stockLocationId, 'insert-bill', doc._id);
             });
@@ -148,26 +160,26 @@ EnterBills.after.update(function (userId, doc, fieldNames, modifier, options) {
         });
     }
     Meteor.defer(function () {
-        if(doc.invoiceId){
+        if (doc.invoiceId) {
             //EnterBillMutation.updateInvoiceBack({doc});
             EnterBillMutation.updateInvoiceRefBillId({doc});
 
             preDoc.items.forEach(function (preItem) {
-                if(preItem.isBill==false){
-                    preItem.price= StockFunction.averageInventoryInsert(preDoc.branchId, preItem, preDoc.stockLocationId, 'enterBill', preDoc._id);
+                if (preItem.isBill == false) {
+                    preItem.price = StockFunction.averageInventoryInsert(preDoc.branchId, preItem, preDoc.stockLocationId, 'enterBill', preDoc._id);
                 }
             });
 
-            let newEnterBillItems=[];
+            let newEnterBillItems = [];
             doc.items.forEach(function (item) {
-                if(item.isBill==false){
-                    item.price= StockFunction.minusAverageInventoryInsertAndReturnCostPrice(doc.branchId,item,doc.stockLocationId,'invoice-bill',doc._id);
+                if (item.isBill == false) {
+                    item.price = StockFunction.minusAverageInventoryInsertAndReturnCostPrice(doc.branchId, item, doc.stockLocationId, 'invoice-bill', doc._id);
                     newEnterBillItems.push(item);
                 }
             });
-            EnterBills.direct.update(doc._id,{$set:{items:newEnterBillItems}});
+            EnterBills.direct.update(doc._id, {$set: {items: newEnterBillItems}});
 
-        }else {
+        } else {
             Meteor._sleepForMs(200);
             let inventoryIdList = [];
             preDoc.items.forEach(function (preItem) {
@@ -239,17 +251,17 @@ EnterBills.after.remove(function (userId, doc) {
         };
         let inventoryIdList = [];
         if (type.group) {
-            if(doc.invoiceId) {
+            if (doc.invoiceId) {
                 EnterBillMutation.updateInvoiceBack({doc});
                 doc.items.forEach(function (item) {
-                    if(item.isBill==false){
+                    if (item.isBill == false) {
                         StockFunction.averageInventoryInsert(doc.branchId, item, doc.stockLocationId, 'enterBill', doc._id);
                     }
                 });
-            }else{
+            } else {
                 //reduceFromInventory(doc);
                 doc.items.forEach(function (item) {
-                   StockFunction.minusAverageInventoryInsert(doc.branchId, item, doc.stockLocationId, 'reduce-from-bill', doc._id);
+                    StockFunction.minusAverageInventoryInsert(doc.branchId, item, doc.stockLocationId, 'reduce-from-bill', doc._id);
                 });
             }
             removeBillFromGroup(doc);
@@ -260,14 +272,14 @@ EnterBills.after.remove(function (userId, doc) {
                 recalculatePaymentAfterRemoved({doc});
             }
         } else {
-            if(doc.invoiceId) {
+            if (doc.invoiceId) {
                 EnterBillMutation.updateInvoiceBack({doc});
                 doc.items.forEach(function (item) {
-                    if(item.isBill==false){
+                    if (item.isBill == false) {
                         StockFunction.averageInventoryInsert(doc.branchId, item, doc.stockLocationId, 'enterBill', doc._id);
                     }
                 });
-            }else{
+            } else {
                 //  reduceFromInventory(doc);
                 doc.items.forEach(function (item) {
                     let id = StockFunction.minusAverageInventoryInsert(doc.branchId, item, doc.stockLocationId, 'reduce-from-bill', doc._id);

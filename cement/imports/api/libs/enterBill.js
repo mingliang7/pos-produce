@@ -13,7 +13,7 @@ export default  class EnterBillMutation {
                 invoice.items.forEach(function (item) {
                     let matchItem = doc.items.find(x=> x.itemId == item.itemId && x.originalPrice == item.price);
                     let cost = matchItem.price;
-                    if(matchItem.isBill){
+                    if(matchItem.isBill==false){
                         let inventory = AverageInventories.findOne({
                             branchId: doc.branchId,
                             itemId: item.itemId,

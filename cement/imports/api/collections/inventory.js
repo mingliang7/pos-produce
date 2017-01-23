@@ -23,7 +23,8 @@ AverageInventories.schema = new SimpleSchema({
         decimal: true
     },
     qty: {
-        type: Number
+        type: Number,
+        decimal:true,
     },
     amount: {
         type: Number,
@@ -38,7 +39,8 @@ AverageInventories.schema = new SimpleSchema({
         decimal: true
     },
     remainQty: {
-        type: Number
+        type: Number,
+        decimal: true
     },
     branchId: {
         type: String
