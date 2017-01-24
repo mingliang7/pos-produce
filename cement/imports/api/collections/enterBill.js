@@ -203,6 +203,16 @@ EnterBills.schema = new SimpleSchema({
             }
         }
     },
+    totalUnBill: {
+        type: Number,
+        decimal: true,
+        optional:true
+    },
+    grandTotal: {
+        type: Number,
+        decimal: true,
+        optional:true
+    },
     branchId: {
         type: String
     },

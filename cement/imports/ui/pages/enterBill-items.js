@@ -140,7 +140,27 @@ itemsTmpl.helpers({
         let total = 0;
         let getItems = itemsCollection.find();
         getItems.forEach((obj) => {
-            total += obj.amount;
+            if(obj.isBill){
+                total += obj.amount;
+            }
+        });
+        return FlowRouter.query.get('vendorId') ? 0 : total;
+    },
+    grandTotal: function () {
+        let total = 0;
+        let getItems = itemsCollection.find();
+        getItems.forEach((obj) => {
+                total += obj.amount;
+        });
+        return FlowRouter.query.get('vendorId') ? 0 : total;
+    },
+    totalUnBill: function () {
+        let total = 0;
+        let getItems = itemsCollection.find();
+        getItems.forEach((obj) => {
+            if(obj.isBill==false){
+                total += obj.amount;
+            }
         });
         return FlowRouter.query.get('vendorId') ? 0 : total;
     }

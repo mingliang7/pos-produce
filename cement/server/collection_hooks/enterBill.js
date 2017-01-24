@@ -79,8 +79,8 @@ EnterBills.after.insert(function (userId, doc) {
             //update invoice with refBillId
             EnterBillMutation.updateInvoiceRefBillId({doc});
             let newEnterBillItems = [];
-            let totalAmount = 0;
             let totalUnBill = 0;
+            let grandTotal=0;
             doc.items.forEach(function (item) {
                 if (item.isBill == false) {
                     item.price = StockFunction.minusAverageInventoryInsertAndReturnCostPrice(doc.branchId, item, doc.stockLocationId, 'invoice-bill', doc._id);
@@ -88,14 +88,13 @@ EnterBills.after.insert(function (userId, doc) {
                     totalUnBill += item.amount;
                 }
                 newEnterBillItems.push(item);
-                totalAmount += item.amount;
+                grandTotal += item.amount;
             });
-
             EnterBills.direct.update(doc._id, {
                 $set: {
                     items: newEnterBillItems,
-                    total:totalAmount,
-                    totalUnBill:totalUnBill,
+                    grandTotal:grandTotal,
+                    totalUnBill:totalUnBill
                 }
             });
         } else {
