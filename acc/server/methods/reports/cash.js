@@ -220,6 +220,8 @@ Meteor.methods({
 
                     selector['transaction.accountDoc._id'] = obj._id;
                     var i = 0;
+                    var j = 0;
+                    var k = 0;
                     /*var resultData = ReactiveMethod.call("getJournalTran", selector);*/
                     // var resultData = Journal.find(selector).fetch();
 
@@ -278,8 +280,7 @@ Meteor.methods({
 
 
                         if (ob._id.account == obj._id) {
-                            i += 1;
-                            detailObj.order = i;
+
                             var convertDrcr = Meteor.call('exchange', ob._id.currencyId,
                                 baseCurrency, ob.drcr, exchangeDate);
                             var convertDr = Meteor.call('exchange', ob._id.currencyId,
@@ -312,12 +313,22 @@ Meteor.methods({
                         detailObj.isFooter = false;
 
                         if (ob.dr > 0) {
+
+                            i += 1;
+                            detailObj.order = i;
                             content.push(detailObj);
+                            k = detailObj.order;
                         } else {
+                            j += 1;
+                            detailObj.order = j;
                             contentExpense.push(detailObj);
                         }
 
 
+                    });
+
+                    contentExpense.forEach(function (obj) {
+                        obj.order = obj.order + k;
                     });
 
                     content = content.concat(contentExpense);

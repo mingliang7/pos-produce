@@ -166,7 +166,7 @@ Meteor.methods({
 
             selectorProfit['transaction.accountDoc.accountTypeId'] = {
                 $gte: "40",
-                $lte: "59"
+                $lte: "60"
             };
 
             var contentProfit = {};
@@ -209,7 +209,7 @@ Meteor.methods({
                     };
                     if (val.accountType >= 40 && val.accountType <= 49) {
                         resultIncome.push(key[val.account]);
-                    } else if (val.accountType >= 50 && val.accountType <= 59) {
+                    } else if (val.accountType >= 50 && val.accountType <= 60) {
                         resultExpense.push(key[val.account]);
                     }
 
@@ -233,7 +233,7 @@ Meteor.methods({
                         grandTotalIncomeBath += val.value;Accounting
                     }
 
-                } else if (val.accountType >= 50 && val.accountType <= 59) {
+                } else if (val.accountType >= 50 && val.accountType <= 60) {
                     grandTotalExpense += val.result;
                     if (val.currency == "USD") {
                         grandTotalExpenseUSD += val.value;
@@ -1229,7 +1229,7 @@ Meteor.methods({
 
             selectorProfit['transaction.accountDoc.accountTypeId'] = {
                 $gte: "40",
-                $lte: "59"
+                $lte: "60"
             };
 
             var contentProfit = {};
@@ -1264,7 +1264,7 @@ Meteor.methods({
                     };
                     if (val.accountType >= 40 && val.accountType <= 49) {
                         resultIncome.push(key[val.account]);
-                    } else if (val.accountType >= 50 && val.accountType <= 59) {
+                    } else if (val.accountType >= 50 && val.accountType <= 60) {
                         resultExpense.push(key[val.account]);
                     }
 
@@ -1280,7 +1280,7 @@ Meteor.methods({
                 }
                 if (val.accountType >= 40 && val.accountType <= 49) {
                     grandTotalIncome += val.result;
-                } else if (val.accountType >= 50 && val.accountType <= 59) {
+                } else if (val.accountType >= 50 && val.accountType <= 60) {
                     grandTotalExpense += val.result;
                 }
 
