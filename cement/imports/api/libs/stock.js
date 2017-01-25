@@ -405,7 +405,7 @@ export  default class StockFunction {
             let inventoryQty = !thisItem.qtyOnHand || (thisItem && thisItem.qtyOnHand[stockLocationId]) == null ? 0 : thisItem.qtyOnHand[stockLocationId];
             if (item.qty > inventoryQty) {
                 result.isEnoughStock = false;
-                result.message = thisItem.name + " is not enough in stock. Qty on hand: " + inventoryQty;
+                result.message = thisItem.name + " is not enough in stock. Qty on hand " + inventoryQty;
                 return false;
             }
         });
@@ -470,7 +470,7 @@ export  default class StockFunction {
             let inventoryQty = thisItem.qtyOnHand[stockLocationId] == null ? 0 : thisItem.qtyOnHand[stockLocationId];
             if (item.qty > (inventoryQty + qty)) {
                 result.isEnoughStock = false;
-                result.message = thisItem.name + " is not enough in stock. Qty on hand: " + (inventoryQty + qty);
+                result.message = thisItem.name + " is not enough in stock. Qty on hand " + (inventoryQty + qty);
                 return false;
             }
         });
@@ -486,12 +486,12 @@ export  default class StockFunction {
             if (ringPullStock) {
                 if (item.qty > ringPullStock.qty) {
                     result.isEnoughStock = false;
-                    result.message = thisItem.name + " is not enough Ring Pull. Qty on hand: " + ringPullStock.qty;
+                    result.message = thisItem.name + " is not enough Ring Pull. Qty on hand " + ringPullStock.qty;
                     return false;
                 }
             } else {
                 result.isEnoughStock = false;
-                result.message = thisItem.name + " is not enough Ring Pull. Qty on hand: " + ringPullStock.qty;
+                result.message = thisItem.name + " is not enough Ring Pull. Qty on hand " + ringPullStock.qty;
                 return false;
             }
         });
@@ -510,12 +510,12 @@ export  default class StockFunction {
             if (ringPullStock) {
                 if (item.qty > (ringPullStock.qty + qty)) {
                     result.isEnoughStock = false;
-                    result.message = thisItem.name + " is not enough Ring Pull. Qty on hand: " + ringPullStock.qty;
+                    result.message = thisItem.name + " is not enough Ring Pull. Qty on hand " + ringPullStock.qty;
                     return false;
                 }
             } else {
                 result.isEnoughStock = false;
-                result.message = thisItem.name + " is not enough Ring Pull. Qty on hand: " + ringPullStock.qty;
+                result.message = thisItem.name + " is not enough Ring Pull. Qty on hand " + ringPullStock.qty;
                 return false;
             }
         });

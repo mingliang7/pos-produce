@@ -68,6 +68,15 @@ EnterBills.before.update(function (userId, doc, fieldNames, modifier, options) {
     }
 });
 
+EnterBills.before.remove(function (userId, doc) {
+    if (doc.invoiceId == null) {
+        let result = StockFunction.checkStockByLocation(doc.stockLocationId, doc.items);
+        if (!result.isEnoughStock) {
+            throw new Meteor.Error(result.message);
+        }
+    }
+
+});
 
 EnterBills.after.insert(function (userId, doc) {
     Meteor.defer(function () {
@@ -80,7 +89,7 @@ EnterBills.after.insert(function (userId, doc) {
             EnterBillMutation.updateInvoiceRefBillId({doc});
             let newEnterBillItems = [];
             let totalUnBill = 0;
-            let grandTotal=0;
+            let grandTotal = 0;
             doc.items.forEach(function (item) {
                 if (item.isBill == false) {
                     item.price = StockFunction.minusAverageInventoryInsertAndReturnCostPrice(doc.branchId, item, doc.stockLocationId, 'invoice-bill', doc._id);
@@ -93,8 +102,8 @@ EnterBills.after.insert(function (userId, doc) {
             EnterBills.direct.update(doc._id, {
                 $set: {
                     items: newEnterBillItems,
-                    grandTotal:grandTotal,
-                    totalUnBill:totalUnBill
+                    grandTotal: grandTotal,
+                    totalUnBill: totalUnBill
                 }
             });
         } else {
@@ -103,37 +112,39 @@ EnterBills.after.insert(function (userId, doc) {
             });
         }
         //Account Integration
-        let setting = AccountIntegrationSetting.findOne();
-        if (setting && setting.integrate) {
-            let inventoryChartAccount = AccountMapping.findOne({name: 'Inventory'});
-            let apChartAccount = AccountMapping.findOne({name: 'A/P'});
+        if (doc.total > 0) {
+            let setting = AccountIntegrationSetting.findOne();
+            if (setting && setting.integrate) {
+                let inventoryChartAccount = AccountMapping.findOne({name: 'Inventory'});
+                let apChartAccount = AccountMapping.findOne({name: 'A/P'});
 
-            let transaction = [];
-            let data = doc;
+                let transaction = [];
+                let data = doc;
 
-            let vendorDoc = Vendors.findOne({_id: doc.vendorId});
-            if (vendorDoc) {
-                data.name = vendorDoc.name;
-                data.des = data.des == "" || data.des == null ? ("បញ្ជាទិញទំនិញពីៈ " + data.name) : data.des;
+                let vendorDoc = Vendors.findOne({_id: doc.vendorId});
+                if (vendorDoc) {
+                    data.name = vendorDoc.name;
+                    data.des = data.des == "" || data.des == null ? ("បញ្ជាទិញទំនិញពីៈ " + data.name) : data.des;
+                }
+                data.type = "EnterBill";
+                transaction.push({
+                    account: inventoryChartAccount.account,
+                    dr: doc.total,
+                    cr: 0,
+                    drcr: doc.total,
+
+                }, {
+                    account: apChartAccount.account,
+                    dr: 0,
+                    cr: doc.total,
+                    drcr: -doc.total,
+                });
+                /* }
+                 });*/
+                data.transaction = transaction;
+                data.journalDate = data.enterBillDate;
+                Meteor.call('insertAccountJournal', data);
             }
-            data.type = "EnterBill";
-            transaction.push({
-                account: inventoryChartAccount.account,
-                dr: doc.total,
-                cr: 0,
-                drcr: doc.total,
-
-            }, {
-                account: apChartAccount.account,
-                dr: 0,
-                cr: doc.total,
-                drcr: -doc.total,
-            });
-            /* }
-             });*/
-            data.transaction = transaction;
-            data.journalDate = data.enterBillDate;
-            Meteor.call('insertAccountJournal', data);
         }
         //End Account Integration
     });
@@ -190,54 +201,56 @@ EnterBills.after.update(function (userId, doc, fieldNames, modifier, options) {
             });
         }
         //Account Integration
-        let setting = AccountIntegrationSetting.findOne();
-        if (setting && setting.integrate) {
-            let apChartAccount = AccountMapping.findOne({name: 'A/P'});
-            let inventoryChartAccount = AccountMapping.findOne({name: 'Inventory'});
-            let transaction = [];
-            let data = doc;
-            data.type = "EnterBill";
+        if (doc.total > 0) {
+            let setting = AccountIntegrationSetting.findOne();
+            if (setting && setting.integrate) {
+                let apChartAccount = AccountMapping.findOne({name: 'A/P'});
+                let inventoryChartAccount = AccountMapping.findOne({name: 'Inventory'});
+                let transaction = [];
+                let data = doc;
+                data.type = "EnterBill";
 
-            let vendorDoc = Vendors.findOne({_id: doc.vendorId});
-            if (vendorDoc) {
-                data.name = vendorDoc.name;
-                data.des = data.des == "" || data.des == null ? ("បញ្ជាទិញទំនិញពីៈ " + data.name) : data.des;
+                let vendorDoc = Vendors.findOne({_id: doc.vendorId});
+                if (vendorDoc) {
+                    data.name = vendorDoc.name;
+                    data.des = data.des == "" || data.des == null ? ("បញ្ជាទិញទំនិញពីៈ " + data.name) : data.des;
+                }
+
+                /*data.items.forEach(function (item) {
+                 let itemDoc = Item.findOne(item.itemId);
+                 if (itemDoc.accountMapping.inventoryAsset && itemDoc.accountMapping.accountPayable) {
+                 transaction.push({
+                 account: itemDoc.accountMapping.inventoryAsset,
+                 dr: item.amount,
+                 cr: 0,
+                 drcr: item.amount
+
+                 }, {
+                 account: itemDoc.accountMapping.accountPayable,
+                 dr: 0,
+                 cr: item.amount,
+                 drcr: -item.amount
+                 })
+                 }
+                 });*/
+                transaction.push({
+                    account: inventoryChartAccount.account,
+                    dr: doc.total,
+                    cr: 0,
+                    drcr: doc.total,
+
+                }, {
+                    account: apChartAccount.account,
+                    dr: 0,
+                    cr: doc.total,
+                    drcr: -doc.total,
+                });
+                data.transaction = transaction;
+                data.journalDate = data.enterBillDate;
+                Meteor.call('updateAccountJournal', data);
             }
-
-            /*data.items.forEach(function (item) {
-             let itemDoc = Item.findOne(item.itemId);
-             if (itemDoc.accountMapping.inventoryAsset && itemDoc.accountMapping.accountPayable) {
-             transaction.push({
-             account: itemDoc.accountMapping.inventoryAsset,
-             dr: item.amount,
-             cr: 0,
-             drcr: item.amount
-
-             }, {
-             account: itemDoc.accountMapping.accountPayable,
-             dr: 0,
-             cr: item.amount,
-             drcr: -item.amount
-             })
-             }
-             });*/
-            transaction.push({
-                account: inventoryChartAccount.account,
-                dr: doc.total,
-                cr: 0,
-                drcr: doc.total,
-
-            }, {
-                account: apChartAccount.account,
-                dr: 0,
-                cr: doc.total,
-                drcr: -doc.total,
-            });
-            data.transaction = transaction;
-            data.journalDate = data.enterBillDate;
-            Meteor.call('updateAccountJournal', data);
+            //End Account Integration
         }
-        //End Account Integration
     });
 });
 
