@@ -356,7 +356,7 @@ Meteor.methods({
 
             var resultCOGSFinal = [];
             resultCOGS.sort(compare);
-            resultCOGS.map(function () {
+            resultCOGS.map(function (obj) {
                 if (temporaryCOGS !== obj.parent && isPushCOGS == false) {
                     resultCOGSFinal.push({
                         name: dataCOGS.name,
@@ -391,6 +391,7 @@ Meteor.methods({
                     }
                     isPushCOGS = false;
                 }
+
                 temporaryCOGS = obj.parent;
                 resultCOGSFinal.push({
                     result: obj.result,
@@ -403,6 +404,18 @@ Meteor.methods({
                     level: obj.level
                 });
             })
+
+            if (isPushCOGS == false) {
+                resultCOGSFinal.push({
+                    name: dataIncome.name,
+                    account: dataIncome.account,
+                    code: SpaceChar.space(6 * dataIncome.level) +
+                    'Total : ' + dataIncome.code,
+                    result: subTotalIncome,
+                    resultYearToDate: subTotalIncomeYearToDate
+                });
+                isPushCOGS = true;
+            }
 
 
             var resultEnpenseFinal = [];
