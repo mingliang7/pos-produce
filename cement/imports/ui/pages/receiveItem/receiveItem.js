@@ -70,7 +70,7 @@ Tracker.autorun(function () {
             data = Session.get('companyExchangeRingPullItems');
         } else if (query.get('type') == 'activeExchangeGratis') {
             data = Session.get('exchangeGratisItems');
-        }else if(query.get('type') == 'activePurchaseOrder'){
+        } else if (query.get('type') == 'activePurchaseOrder') {
             data = Session.get('purchaseOrderItems')
         }
         Meteor.subscribe('cement.item', {_id: {$in: data}});
@@ -103,6 +103,7 @@ indexTmpl.onCreated(function () {
     createNewAlertify('listExchangeGratis', {size: 'lg'});
     createNewAlertify('listPurchaseOrder', {size: 'lg'});
     createNewAlertify('vendor');
+    this.customerId = new ReactiveVar();
 });
 
 indexTmpl.helpers({
@@ -164,18 +165,25 @@ newTmpl.events({
     'click .toggle-list'(event, instance){
         let receiveType = $('#receive-type').val();
         let vendor = $('[name="vendorId"]').val();
-        receiveTypeFn({receiveType, vendor});
+        let customerId = $('[name="customerId"]').val();
+        receiveTypeFn({customerId, receiveType, vendor});
     },
 
-    'change [name=vendorId]'(event, instance){
+    'change [name=customerId]'(event, instance){
         itemsCollection.remove({});
+        let vendor = $('[name="vendorId"]').val();
         $('#receive-type').val('');
-        if (event.currentTarget.value != '') {
+        if (vendor != '') {
             $('.toggle-list').addClass('hidden');
-            Session.set('getVendorId', event.currentTarget.value);
+            Session.set('getVendorId', vendor);
         } else {
             Session.set('getVendorId', undefined);
             FlowRouter.query.unset();
+        }
+        if(event.currentTarget.value != '') {
+            instance.customerId.set(event.currentTarget.value);
+        }else{
+            instance.customerId.set(undefined);
         }
         Session.set('totalOrder', undefined);
     },
@@ -185,8 +193,9 @@ newTmpl.events({
     'change #receive-type'(event, instance){
         let receiveType = event.currentTarget.value;
         let vendor = $('[name="vendorId"]').val();
+        let customerId = $('[name="customerId"]').val();
         $('.toggle-list').removeClass('hidden');
-        receiveTypeFn({receiveType, vendor});
+        receiveTypeFn({customerId, receiveType, vendor});
     }
 });
 newTmpl.helpers({
@@ -535,7 +544,7 @@ let hooksObject = {
                     doc.exchangeGratisId = obj.exchangeGratisId;
                 } else if (obj.companyExchangeRingPullId) {
                     doc.companyExchangeRingPullId = obj.companyExchangeRingPullId;
-                }else if(obj.purchaseOrderId) {
+                } else if (obj.purchaseOrderId) {
                     doc.purchaseOrderId = obj.purchaseOrderId;
                 }
                 items.push(obj);
@@ -740,7 +749,7 @@ function excuteEditForm(doc) {
 }
 
 
-function receiveTypeFn({receiveType, vendor}) {
+function receiveTypeFn({customerId,receiveType, vendor}) {
     let label = '';
     if (receiveType == 'PrepaidOrder') {
         label = 'Prepaid Order';
@@ -764,7 +773,7 @@ function receiveTypeFn({receiveType, vendor}) {
 
     } else if (receiveType == 'PurchaseOrder') {
         label = "PurchaseOrder";
-        FlowRouter.query.set({vendorId: vendor, type: 'activePurchaseOrder'});
+        FlowRouter.query.set({customerId: customerId, vendorId: vendor, type: 'activePurchaseOrder'});
         alertify.listPurchaseOrder(fa('', 'Purchase Order'), renderTemplate(listPurchaseOrder));
 
     }

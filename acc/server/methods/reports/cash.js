@@ -241,11 +241,15 @@ Meteor.methods({
                                     level: "$transaction.accountDoc.level",
                                     parent: "$transaction.accountDoc.parentId",
                                     currencyId: "$currencyId",
-                                    journalDate: "$journalDate",
+                                    month: {$month: "$journalDate"},
+                                    day: {$dayOfMonth: "$journalDate"},
+                                    year: {$year: "$journalDate"},
+                                    
                                     voucherId: "$voucherId",
                                     cusAndVenname: "$cusAndVenname",
                                     memo: "$memo"
                                 },
+                                 journalDate: {$last: "$journalDate"},
                                 dr: {
                                     $sum: "$transaction.dr"
                                 },
@@ -271,7 +275,7 @@ Meteor.methods({
                     resultData.forEach(function (ob) {
                         var detailObj = {};
                         // detailObj._id = ob._id;
-                        detailObj.journalDate = ob._id.journalDate;
+                        detailObj.journalDate = ob.journalDate;
                         detailObj.memo = ob._id.memo;
                         detailObj.cusAndVenname = ob._id.cusAndVenname;
                         detailObj.voucherId = (ob._id.voucherId).substr(8, 13);

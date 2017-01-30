@@ -32,6 +32,9 @@
                 </div>
                 <div class="row">
                     <div class="col-md-2">
+                        {{> afQuickField name="customerId" label="Customer"}}
+                    </div>
+                    <div class="col-md-2">
                         <label for="receive-type">Receive From:<span style="color: red;">*</span> </label>
                         <select name="type" class="form-control" id="receive-type" disabled="{{enableReceiveType}}">
                             <option value="">(Select One)</option>
@@ -155,7 +158,7 @@
                 <div class="col-md-2">
                     {{> afQuickField name="voucherId"}}
                 </div>
-              <!--  {{#if isTerm}}
+                <!--  {{#if isTerm}}
                     <div class="col-md-2">
                         {{> afQuickField name="termId" options=termOption value=termId}}
                     </div>

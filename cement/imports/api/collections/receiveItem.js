@@ -17,7 +17,7 @@ ReceiveItems.itemsSchema = new SimpleSchema({
     },
     qty: {
         type: Number,
-        decimal: true,min: 0
+        decimal: true, min: 0
     },
     price: {
         type: Number,
@@ -58,6 +58,23 @@ ReceiveItems.schema = new SimpleSchema({
         type: String,
         optional: true
     },
+    customerId: {
+        type: String,
+        optional: true,
+        autoform: {
+            type: 'universe-select',
+            afFieldInput: {
+                uniPlaceholder: 'Please search .... (Limit 10)',
+                optionsMethod: 'cement.selectOptMethods.customer',
+                optionsMethodParams: function () {
+                    if (Meteor.isClient) {
+                        let currentBranch = Session.get('currentBranch');
+                        return {branchId: currentBranch};
+                    }
+                }
+            }
+        }
+    },
     receiveItemDate: {
         type: Date,
         // defaultValue: moment().toDate(),
@@ -70,7 +87,7 @@ ReceiveItems.schema = new SimpleSchema({
                 },
                 value(){
                     let vendorId = AutoForm.getFieldValue('vendorId');
-                    if(vendorId) {
+                    if (vendorId) {
                         return moment().toDate();
                     }
                 }

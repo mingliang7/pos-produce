@@ -74,8 +74,9 @@ reportTpl.onCreated(function () {
 
             Meteor.call('acc_journalReport', params, function (err, result) {
                 if (result) {
-
+                    let arrResult=[];
                     let contentDocs=result.content;
+                    console.log(contentDocs);
                     contentDocs.forEach(function (contentDoc) {
                         contentDoc.firstTransaction=[];
                         contentDoc.secondTransaction=[];
@@ -87,8 +88,9 @@ reportTpl.onCreated(function () {
                                 contentDoc.secondTransaction.push(transactions[i]);
                             }
                         }
-                        result.content.push(contentDoc);
+                        arrResult.push(contentDoc);
                     });
+                    result.content=arrResult;
 
                     rptDataState.set(result);
                 } else {
@@ -320,6 +322,8 @@ generateTpl.helpers({
 
         if(doc.content){
             let contentDocs=doc.content;
+
+            let arrResult=[];
             contentDocs.forEach(function (contentDoc) {
                 contentDoc.firstTransaction=[];
                 contentDoc.secondTransaction=[];
@@ -331,8 +335,9 @@ generateTpl.helpers({
                         contentDoc.secondTransaction.push(transactions[i]);
                     }
                 }
-                doc.content.push(contentDoc);
+                arrResult.push(contentDoc);
             });
+            doc.content=arrResult;
         }
         return doc;
 
