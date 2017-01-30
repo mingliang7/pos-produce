@@ -481,12 +481,13 @@ invoiceBillTmpl.helpers({
     }
 });
 invoiceBillTmpl.events({
-    'change [name="invoiceId"]'(event,instance){
+    'change [name="invoiceId"]'(event, instance){
         debugger;
         let invoiceIds = $("[name='invoiceId']").val();
+        let ids = invoiceIds == null ? [] : invoiceIds;
         itemsCollection.remove({});
-        Meteor.call('groupInvoiceItemByPrice', {selector: {_id: {$in: invoiceIds}}}, function (err, result) {
-            if(result){
+        Meteor.call('groupInvoiceItemByPrice', {selector: {_id: {$in: ids}}}, function (err, result) {
+            if (result) {
                 if (result.items.length > 0) {
                     result.items.forEach(function (item) {
                         item.originalPrice = item.price;
@@ -496,20 +497,21 @@ invoiceBillTmpl.events({
                 }
             }
         });
-        if(invoiceIds){
+        if (invoiceIds) {
             $('.items-header').addClass('hidden');
             Meteor.setTimeout(function () {
                 $('.js-destroy-item').addClass('hidden');
-            },500);
-        }else{
+            }, 500);
+        } else {
             $('.items-header').removeClass('hidden');
         }
     },
     'click .addInvoiceId'(event, instance){
         let invoiceIds = $("[name='invoiceId']").val();
         itemsCollection.remove({});
-        Meteor.call('groupInvoiceItemByPrice', {selector: {_id: {$in: invoiceIds}}}, function (err, result) {
-            if(result){
+        let ids = invoiceIds == null ? [] : invoiceIds;
+        Meteor.call('groupInvoiceItemByPrice', {selector: {_id: {$in: ids}}}, function (err, result) {
+            if (result) {
                 if (result.items.length > 0) {
                     result.items.forEach(function (item) {
                         item.originalPrice = item.price;

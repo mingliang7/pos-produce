@@ -232,6 +232,12 @@ itemsTmpl.events({
                 isBill:true
             });
         }
+        Meteor.setTimeout(function () {
+            let invoiceIds = $("[name='invoiceId']").val();
+            if (invoiceIds==null) {
+                $('.is-bill').addClass('hidden');
+            }
+        }, 500)
     },
     // Reactive table for item
     'click .js-update-item': function (event, instance) {

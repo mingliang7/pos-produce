@@ -40,7 +40,7 @@ Meteor.methods({
         return {count, lateInvoices, calculatePenalty, penaltyNotExist: penalty.notExist || false};
     },
     invoiceShowItems({doc}){
-        if(doc.invoiceType == 'saleOrder') {
+        if (doc.invoiceType == 'saleOrder') {
             doc.saleOrder = Order.findOne({_id: doc.saleId});
         }
         doc.items.forEach(function (item) {
@@ -97,7 +97,7 @@ Meteor.methods({
             }
 
         ]);
-        if (invoices[0].items.length > 0) {
+        if (invoices[0] && invoices[0].items && invoices[0].items.length > 0) {
             return {items: invoices[0].items, total: invoices[0].total};
         }
         return {items: [], total: 0};
