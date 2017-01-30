@@ -23,10 +23,24 @@ AverageInventories.schema = new SimpleSchema({
         decimal: true
     },
     qty: {
-        type: Number
+        type: Number,
+        decimal:true,
+    },
+    amount: {
+        type: Number,
+        decimal: true
+    },
+    lastAmount: {
+        type: Number,
+        decimal: true
+    },
+    averagePrice: {
+        type: Number,
+        decimal: true
     },
     remainQty: {
-        type: Number
+        type: Number,
+        decimal: true
     },
     branchId: {
         type: String
@@ -39,7 +53,7 @@ AverageInventories.schema = new SimpleSchema({
     },
     refId: {
         type: String
-    }
+    },
 });
 
 Meteor.startup(function () {

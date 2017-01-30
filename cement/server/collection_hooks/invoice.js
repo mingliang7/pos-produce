@@ -48,19 +48,21 @@ Invoices.before.insert(function (userId, doc) {
     invoiceState.set(tmpInvoiceId, {customerId: doc.customerId, invoiceId: doc._id, total: doc.total});
 });
 Invoices.before.update(function (userId, doc, fieldNames, modifier, options) {
-    let totalDiscount = 0;
-    modifier.$set.totalTransportFee = 0;
-    modifier.$set.items.forEach(function (item) {
-        item.transportFeeAmount = item.qty * item.transportFee;
-        modifier.$set.totalTransportFee += item.transportFeeAmount;
-        if (item.discount) {
-            totalDiscount += item.discount * item.qty;
+    if (modifier.$set.items) {
+        let totalDiscount = 0;
+        modifier.$set.totalTransportFee = 0;
+        modifier.$set.items.forEach(function (item) {
+            item.transportFeeAmount = item.qty * item.transportFee;
+            modifier.$set.totalTransportFee += item.transportFeeAmount;
+            if (item.discount) {
+                totalDiscount += item.discount * item.qty;
+            }
+        });
+        if (modifier.$set.discount) {
+            totalDiscount += modifier.$set.discount
         }
-    });
-    if (modifier.$set.discount) {
-        totalDiscount += modifier.$set.discount
+        modifier.$set.totalDiscount = totalDiscount;
     }
-    modifier.$set.totalDiscount = totalDiscount;
 });
 
 Invoices.after.insert(function (userId, doc) {
@@ -167,7 +169,7 @@ Invoices.after.insert(function (userId, doc) {
                 let COGSChartAccount = AccountMapping.findOne({name: 'COGS'});
                 let transportRevChartAccount = AccountMapping.findOne({name: 'Transport Revenue'});
                 let transportExpChartAccount = AccountMapping.findOne({name: 'Transport Expense'});
-                let APChartAccount = AccountMapping.findOne({name: 'Transport Payable'});
+                let TransportAPChartAccount = AccountMapping.findOne({name: 'Transport Payable'});
                 let saleDiscountChartAccount = AccountMapping.findOne({name: 'Sale Discount'});
 
                 transaction.push(
@@ -183,12 +185,18 @@ Invoices.after.insert(function (userId, doc) {
                         cr: doc.total - doc.totalTransportFee,
                         drcr: -(doc.total - doc.totalTransportFee)
                     },
-                    {
-                        account: transportRevChartAccount.account,
-                        dr: 0,
-                        cr: doc.totalTransportFee,
-                        drcr: -doc.totalTransportFee,
-                    },
+                );
+                if (doc.totalTransportFee > 0) {
+                    transaction.push(
+                        {
+                            account: transportRevChartAccount.account,
+                            dr: 0,
+                            cr: doc.totalTransportFee,
+                            drcr: -doc.totalTransportFee,
+                        },
+                    );
+                }
+                transaction.push(
                     {
                         account: inventoryChartAccount.account,
                         dr: 0,
@@ -201,29 +209,34 @@ Invoices.after.insert(function (userId, doc) {
                         cr: 0,
                         drcr: doc.total - doc.totalTransportFee
                     },
-
-                    {
-                        account: transportExpChartAccount.account,
-                        dr: doc.totalTransportFee,
-                        cr: 0,
-                        drcr: doc.totalTransportFee,
-                    },
-
-                    {
-                        account: APChartAccount.account,
-                        dr: 0,
-                        cr: doc.totalTransportFee,
-                        drcr: -doc.totalTransportFee,
-                    }
-                    ,
-
-                    {
-                        account: saleDiscountChartAccount.account,
-                        dr: doc.totalDiscount,
-                        cr: 0,
-                        drcr: doc.totalDiscount,
-                    }
                 );
+                if (doc.totalTransportFee > 0) {
+                    transaction.push(
+                        {
+                            account: transportExpChartAccount.account,
+                            dr: doc.totalTransportFee,
+                            cr: 0,
+                            drcr: doc.totalTransportFee,
+                        },
+
+                        {
+                            account: TransportAPChartAccount.account,
+                            dr: 0,
+                            cr: doc.totalTransportFee,
+                            drcr: -doc.totalTransportFee,
+                        },
+                    );
+                }
+                if (doc.totalDiscount > 0) {
+                    transaction.push({
+                            account: saleDiscountChartAccount.account,
+                            dr: doc.totalDiscount,
+                            cr: 0,
+                            drcr: doc.totalDiscount,
+                        }
+                    );
+                }
+
 
                 /*    if (totalGratis > 0) {
                  accountRefType = 'Invoice-Gratis';
@@ -288,9 +301,8 @@ Invoices.after.insert(function (userId, doc) {
                 let COGSChartAccount = AccountMapping.findOne({name: 'COGS'});
                 let transportRevChartAccount = AccountMapping.findOne({name: 'Transport Revenue'});
                 let transportExpChartAccount = AccountMapping.findOne({name: 'Transport Expense'});
-                let APChartAccount = AccountMapping.findOne({name: 'Transport Payable'});
+                let TransportAPChartAccount = AccountMapping.findOne({name: 'Transport Payable'});
                 let saleDiscountChartAccount = AccountMapping.findOne({name: 'Sale Discount'});
-
 
                 transaction.push(
                     {
@@ -305,12 +317,18 @@ Invoices.after.insert(function (userId, doc) {
                         cr: doc.total - doc.totalTransportFee,
                         drcr: -(doc.total - doc.totalTransportFee)
                     },
-                    {
-                        account: transportRevChartAccount.account,
-                        dr: 0,
-                        cr: doc.totalTransportFee,
-                        drcr: -doc.totalTransportFee,
-                    },
+                );
+                if (doc.totalTransportFee > 0) {
+                    transaction.push(
+                        {
+                            account: transportRevChartAccount.account,
+                            dr: 0,
+                            cr: doc.totalTransportFee,
+                            drcr: -doc.totalTransportFee,
+                        },
+                    );
+                }
+                transaction.push(
                     {
                         account: inventoryChartAccount.account,
                         dr: 0,
@@ -323,28 +341,34 @@ Invoices.after.insert(function (userId, doc) {
                         cr: 0,
                         drcr: doc.total - doc.totalTransportFee
                     },
-
-                    {
-                        account: transportExpChartAccount.account,
-                        dr: doc.totalTransportFee,
-                        cr: 0,
-                        drcr: doc.totalTransportFee,
-                    },
-
-                    {
-                        account: APChartAccount.account,
-                        dr: 0,
-                        cr: doc.totalTransportFee,
-                        drcr: -doc.totalTransportFee,
-                    },
-
-                    {
-                        account: saleDiscountChartAccount.account,
-                        dr: doc.totalDiscount,
-                        cr: 0,
-                        drcr: doc.totalDiscount,
-                    }
                 );
+                if (doc.totalTransportFee > 0) {
+                    transaction.push(
+                        {
+                            account: transportExpChartAccount.account,
+                            dr: doc.totalTransportFee,
+                            cr: 0,
+                            drcr: doc.totalTransportFee,
+                        },
+
+                        {
+                            account: TransportAPChartAccount.account,
+                            dr: 0,
+                            cr: doc.totalTransportFee,
+                            drcr: -doc.totalTransportFee,
+                        },
+                    );
+                }
+                if (doc.totalDiscount > 0) {
+                    transaction.push({
+                            account: saleDiscountChartAccount.account,
+                            dr: doc.totalDiscount,
+                            cr: 0,
+                            drcr: doc.totalDiscount,
+                        }
+                    );
+                }
+
 
                 /*    if (totalGratis > 0) {
                  accountRefType = 'Invoice-Gratis';
@@ -398,7 +422,7 @@ Invoices.after.insert(function (userId, doc) {
 Invoices.after.update(function (userId, doc) {
     let preDoc = this.previous;
     Meteor.defer(function () {
-        let des="វិក្កយបត្រ អតិថិជនៈ ";
+        let des = "វិក្កយបត្រ អតិថិជនៈ ";
         let setting = AccountIntegrationSetting.findOne();
         let type = {
             saleOrder: doc.invoiceType == 'saleOrder',
@@ -408,7 +432,7 @@ Invoices.after.update(function (userId, doc) {
         let accountRefType = 'Invoice';
         let transaction = [];
         if (type.saleOrder) {
-            des="វិក្កយបត្រ SO អតិថិជនៈ ";
+            des = "វិក្កយបត្រ SO អតិថិជនៈ ";
             accountRefType = 'Invoice-SaleOrder';
 
             recalculateQty(preDoc);
@@ -528,44 +552,55 @@ Invoices.after.update(function (userId, doc) {
                         cr: doc.total - doc.totalTransportFee,
                         drcr: -(doc.total - doc.totalTransportFee)
                     },
-                    {
-                        account: transportRevChartAccount.account,
-                        dr: 0,
-                        cr: doc.totalTransportFee,
-                        drcr: -doc.totalTransportFee,
-                    },
-                    {
-                        account: inventoryChartAccount.account,
-                        dr: 0,
-                        cr: totalCost,
-                        drcr: -totalCost
-                    },
-                    {
+                );
+                if (doc.totalTransportFee > 0) {
+                    transaction.push(
+                        {
+                            account: transportRevChartAccount.account,
+                            dr: 0,
+                            cr: doc.totalTransportFee,
+                            drcr: -doc.totalTransportFee,
+                        },
+                        {
+                            account: inventoryChartAccount.account,
+                            dr: 0,
+                            cr: totalCost,
+                            drcr: -totalCost
+                        },
+                    );
+                }
+                transaction.push({
                         account: COGSChartAccount.account,
                         dr: totalCost,
                         cr: 0,
                         drcr: totalCost
                     },
-                    {
-                        account: transportExpChartAccount.account,
-                        dr: doc.totalTransportFee,
-                        cr: 0,
-                        drcr: doc.totalTransportFee,
-                    },
-                    {
-                        account: APChartAccount.account,
-                        dr: 0,
-                        cr: doc.totalTransportFee,
-                        drcr: -doc.totalTransportFee,
-                    },
-
-                    {
-                        account: saleDiscountChartAccount.account,
-                        dr: doc.totalDiscount,
-                        cr: 0,
-                        drcr: doc.totalDiscount,
-                    }
                 );
+                if (doc.totalTransportFee > 0) {
+                    transaction.push({
+                            account: transportExpChartAccount.account,
+                            dr: doc.totalTransportFee,
+                            cr: 0,
+                            drcr: doc.totalTransportFee,
+                        },
+                        {
+                            account: APChartAccount.account,
+                            dr: 0,
+                            cr: doc.totalTransportFee,
+                            drcr: -doc.totalTransportFee,
+                        },
+                    );
+                }
+                if (doc.totalDiscount > 0) {
+                    transaction.push({
+                            account: saleDiscountChartAccount.account,
+                            dr: doc.totalDiscount,
+                            cr: 0,
+                            drcr: doc.totalDiscount,
+                        }
+                    );
+                }
+
 
                 /*    if (totalGratis > 0) {
                  accountRefType = 'Invoice-Gratis';
@@ -661,44 +696,55 @@ Invoices.after.update(function (userId, doc) {
                         cr: doc.total - doc.totalTransportFee,
                         drcr: -(doc.total - doc.totalTransportFee)
                     },
-                    {
-                        account: transportRevChartAccount.account,
-                        dr: 0,
-                        cr: doc.totalTransportFee,
-                        drcr: -doc.totalTransportFee,
-                    },
-                    {
-                        account: inventoryChartAccount.account,
-                        dr: 0,
-                        cr: totalCost,
-                        drcr: -totalCost
-                    },
-                    {
+                );
+                if (doc.totalTransportFee > 0) {
+                    transaction.push(
+                        {
+                            account: transportRevChartAccount.account,
+                            dr: 0,
+                            cr: doc.totalTransportFee,
+                            drcr: -doc.totalTransportFee,
+                        },
+                        {
+                            account: inventoryChartAccount.account,
+                            dr: 0,
+                            cr: totalCost,
+                            drcr: -totalCost
+                        },
+                    );
+                }
+                transaction.push({
                         account: COGSChartAccount.account,
                         dr: totalCost,
                         cr: 0,
                         drcr: totalCost
                     },
-                    {
-                        account: transportExpChartAccount.account,
-                        dr: doc.totalTransportFee,
-                        cr: 0,
-                        drcr: doc.totalTransportFee,
-                    },
-                    {
-                        account: APChartAccount.account,
-                        dr: 0,
-                        cr: doc.totalTransportFee,
-                        drcr: -doc.totalTransportFee,
-                    },
-
-                    {
-                        account: saleDiscountChartAccount.account,
-                        dr: doc.totalDiscount,
-                        cr: 0,
-                        drcr: doc.totalDiscount,
-                    }
                 );
+                if (doc.totalTransportFee > 0) {
+                    transaction.push({
+                            account: transportExpChartAccount.account,
+                            dr: doc.totalTransportFee,
+                            cr: 0,
+                            drcr: doc.totalTransportFee,
+                        },
+                        {
+                            account: APChartAccount.account,
+                            dr: 0,
+                            cr: doc.totalTransportFee,
+                            drcr: -doc.totalTransportFee,
+                        },
+                    );
+                }
+                if (doc.totalDiscount > 0) {
+                    transaction.push({
+                            account: saleDiscountChartAccount.account,
+                            dr: doc.totalDiscount,
+                            cr: 0,
+                            drcr: doc.totalDiscount,
+                        }
+                    );
+                }
+
 
                 /*    if (totalGratis > 0) {
                  accountRefType = 'Invoice-Gratis';

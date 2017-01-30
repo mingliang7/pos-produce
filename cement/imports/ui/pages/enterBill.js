@@ -481,23 +481,50 @@ invoiceBillTmpl.helpers({
     }
 });
 invoiceBillTmpl.events({
+    'change [name="invoiceId"]'(event,instance){
+        debugger;
+        let invoiceIds = $("[name='invoiceId']").val();
+        itemsCollection.remove({});
+        Meteor.call('groupInvoiceItemByPrice', {selector: {_id: {$in: invoiceIds}}}, function (err, result) {
+            if(result){
+                if (result.items.length > 0) {
+                    result.items.forEach(function (item) {
+                        item.originalPrice = item.price;
+                        item.isBill = true;
+                        itemsCollection.insert(item);
+                    });
+                }
+            }
+        });
+        if(invoiceIds){
+            $('.items-header').addClass('hidden');
+            Meteor.setTimeout(function () {
+                $('.js-destroy-item').addClass('hidden');
+            },500);
+        }else{
+            $('.items-header').removeClass('hidden');
+        }
+    },
     'click .addInvoiceId'(event, instance){
         let invoiceIds = $("[name='invoiceId']").val();
         itemsCollection.remove({});
         Meteor.call('groupInvoiceItemByPrice', {selector: {_id: {$in: invoiceIds}}}, function (err, result) {
-           if(result.items.length > 0) {
-               result.items.forEach(function (item) {
-                   item.originalPrice = item.price;
-                   itemsCollection.insert(item);
-               });
-           }
+            if(result){
+                if (result.items.length > 0) {
+                    result.items.forEach(function (item) {
+                        item.originalPrice = item.price;
+                        item.isBill = true;
+                        itemsCollection.insert(item);
+                    });
+                }
+            }
         });
     },
     'click .previewInvoiceItem'(event, insance){
         let invoiceIds = $("[name='invoiceId']").val();
-            Meteor.call('groupInvoiceItemByPrice', {selector: {_id: {$in: invoiceIds}}}, function (err, result) {
-                alertify.previewInvoiceItem(fa('', `Preview Item INV: ${invoiceIds && invoiceIds.join(', ')}`), renderTemplate(previewInvoiceItemTmpl, result));
-            });
+        Meteor.call('groupInvoiceItemByPrice', {selector: {_id: {$in: invoiceIds}}}, function (err, result) {
+            alertify.previewInvoiceItem(fa('', `Preview Item INV: ${invoiceIds && invoiceIds.join(', ')}`), renderTemplate(previewInvoiceItemTmpl, result));
+        });
 
     }
 });

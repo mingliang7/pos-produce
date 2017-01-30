@@ -103,6 +103,7 @@ Order.after.insert(function (userId, doc) {
                 data.des = data.des == "" || data.des == null ? ('កម្ម៉ង់ទិញទំនិញពីអតិថិជនៈ ' + data.name) : data.des;
             }
 
+
             transaction.push(
                 {
                     account: ARChartAccount.account,
@@ -116,13 +117,18 @@ Order.after.insert(function (userId, doc) {
                     cr: data.total - data.totalTransportFee,
                     drcr: -(data.total - data.totalTransportFee)
                 },
-                {
-                    account: transportRevChartAccount.account,
-                    dr: 0,
-                    cr: data.totalTransportFee,
-                    drcr: -data.totalTransportFee,
-                },
-                {
+            );
+            if (data.totalTransportFee > 0) {
+                transaction.push({
+                        account: transportRevChartAccount.account,
+                        dr: 0,
+                        cr: data.totalTransportFee,
+                        drcr: -data.totalTransportFee,
+                    },
+                );
+            }
+
+            transaction.push({
                     account: oweInventoryChartAccount.account,
                     dr: 0,
                     cr: data.total - data.totalTransportFee,
@@ -134,25 +140,31 @@ Order.after.insert(function (userId, doc) {
                     cr: 0,
                     drcr: data.total - data.totalTransportFee
                 },
-                {
-                    account: transportExpChartAccount.account,
-                    dr: data.totalTransportFee,
-                    cr: 0,
-                    drcr: data.totalTransportFee,
-                },
-                {
-                    account: APChartAccount.account,
-                    dr: 0,
-                    cr: data.totalTransportFee,
-                    drcr: -data.totalTransportFee,
-                },
-                {
-                    account: saleDiscountChartAccount.account,
-                    dr: data.totalDiscount,
-                    cr: 0,
-                    drcr: data.totalDiscount,
-                }
             );
+            if (data.totalTransportFee > 0) {
+                transaction.push({
+                        account: transportExpChartAccount.account,
+                        dr: data.totalTransportFee,
+                        cr: 0,
+                        drcr: data.totalTransportFee,
+                    },
+                    {
+                        account: APChartAccount.account,
+                        dr: 0,
+                        cr: data.totalTransportFee,
+                        drcr: -data.totalTransportFee,
+                    },
+                );
+            }
+            if (data.totalDiscount > 0) {
+                transaction.push({
+                        account: saleDiscountChartAccount.account,
+                        dr: data.totalDiscount,
+                        cr: 0,
+                        drcr: data.totalDiscount,
+                    }
+                );
+            }
             data.transaction = transaction;
             data.total = total;
             data.journalDate = data.orderDate;
@@ -252,13 +264,17 @@ Order.after.update(function (userId, doc) {
                     cr: data.total - data.totalTransportFee,
                     drcr: -(data.total - data.totalTransportFee)
                 },
-                {
-                    account: transportRevChartAccount.account,
-                    dr: 0,
-                    cr: data.totalTransportFee,
-                    drcr: -data.totalTransportFee,
-                },
-                {
+            );
+            if (data.totalTransportFee > 0) {
+                transaction.push({
+                        account: transportRevChartAccount.account,
+                        dr: 0,
+                        cr: data.totalTransportFee,
+                        drcr: -data.totalTransportFee,
+                    },
+                );
+            }
+            transaction.push({
                     account: oweInventoryChartAccount.account,
                     dr: 0,
                     cr: data.total - data.totalTransportFee,
@@ -270,27 +286,32 @@ Order.after.update(function (userId, doc) {
                     cr: 0,
                     drcr: data.total - data.totalTransportFee
                 },
-
-                {
-                    account: transportExpChartAccount.account,
-                    dr: data.totalTransportFee,
-                    cr: 0,
-                    drcr: data.totalTransportFee,
-                },
-
-                {
-                    account: APChartAccount.account,
-                    dr: 0,
-                    cr: data.totalTransportFee,
-                    drcr: -data.totalTransportFee,
-                },
-                {
-                    account: saleDiscountChartAccount.account,
-                    dr: data.totalDiscount,
-                    cr: 0,
-                    drcr: data.totalDiscount,
-                }
             );
+            if (data.totalTransportFee > 0) {
+                transaction.push({
+                        account: transportExpChartAccount.account,
+                        dr: data.totalTransportFee,
+                        cr: 0,
+                        drcr: data.totalTransportFee,
+                    },
+
+                    {
+                        account: APChartAccount.account,
+                        dr: 0,
+                        cr: data.totalTransportFee,
+                        drcr: -data.totalTransportFee,
+                    },
+                );
+            }
+            if (data.totalDiscount > 0) {
+                transaction.push({
+                        account: saleDiscountChartAccount.account,
+                        dr: data.totalDiscount,
+                        cr: 0,
+                        drcr: data.totalDiscount,
+                    }
+                );
+            }
             data.transaction = transaction;
             data.total = total;
             data.journalDate = data.orderDate;

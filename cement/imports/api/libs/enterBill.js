@@ -1,4 +1,6 @@
 import {Invoices} from '../collections/invoice';
+import {AverageInventories} from '../collections/inventory.js';
+
 export default  class EnterBillMutation {
     static updateInvoiceRefBillId({doc}) {
         console.log('-----------------Update Invoice Ref BillId---------------------');
@@ -11,6 +13,14 @@ export default  class EnterBillMutation {
                 invoice.items.forEach(function (item) {
                     let matchItem = doc.items.find(x=> x.itemId == item.itemId && x.originalPrice == item.price);
                     let cost = matchItem.price;
+                    if(matchItem.isBill==false){
+                        let inventory = AverageInventories.findOne({
+                            branchId: doc.branchId,
+                            itemId: item.itemId,
+                            stockLocationId: doc.stockLocationId
+                        }, {sort: {_id: -1}});
+                        cost=inventory.averagePrice;
+                    }
                     item.cost = cost;
                     item.amountCost = cost * item.qty;
                     item.profit = item.amount - item.amountCost;
@@ -30,4 +40,23 @@ export default  class EnterBillMutation {
             }
         }
     }
+    static updateInvoiceBack({doc}){
+        if (doc.invoiceId && doc.invoiceId.length > 0) {
+            for (let i = 0; i < doc.invoiceId.length; i++) {
+                Invoices.update({_id: doc.invoiceId[i]}, {
+                    $unset: {
+                        refBillId:"",
+                      //  profit: "",
+                        // totalCost: ""
+                    }
+                });
+            }
+        }
+    }
 };
+
+
+
+
+
+

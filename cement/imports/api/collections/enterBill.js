@@ -42,6 +42,10 @@ EnterBills.itemsSchema = new SimpleSchema({
                 return inputmaskOptions.currency();
             }
         }
+    },
+    isBill:{
+        type:Boolean,
+        optional:true
     }
 });
 
@@ -208,6 +212,16 @@ EnterBills.schema = new SimpleSchema({
                 return inputmaskOptions.currency();
             }
         }
+    },
+    totalUnBill: {
+        type: Number,
+        decimal: true,
+        optional:true
+    },
+    grandTotal: {
+        type: Number,
+        decimal: true,
+        optional:true
     },
     branchId: {
         type: String
