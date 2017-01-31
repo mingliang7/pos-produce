@@ -1,24 +1,26 @@
 import {SimpleSchema} from 'meteor/aldeed:simple-schema';
 import {AutoForm} from 'meteor/aldeed:autoform';
 import {moment} from 'meteor/momentjs:moment';
+import {SelectOpts} from '../../../../../core/imports/ui/libs/select-opts.js';
 
 
-export const saleOrderReportSchema = new SimpleSchema({
-    fromDate: {
+export const saleDetailSchema = new SimpleSchema({
+    filterDate: {
         type: Date,
-        defaultValue: moment().toDate(),
+        optional: true,
         autoform: {
             afFieldInput: {
                 type: "bootstrap-datetimepicker",
                 dateTimePickerOptions: {
-                    format: 'DD/MM/YYYY',
+                    format: 'MM/YYYY',
 
                 }
             }
         }
     },
-    toDate: {
+    date: {
         type: Date,
+        optional: true,
         defaultValue: moment().toDate(),
         autoform: {
             afFieldInput: {
@@ -32,19 +34,44 @@ export const saleOrderReportSchema = new SimpleSchema({
     },
     customer: {
         type: String,
-        optional: true,
         autoform: {
             type: 'universe-select',
             afFieldInput: {
-                uniPlaceholder: 'All',
+                uniPlaceholder: '(Select One)',
                 optionsMethod: 'cement.selectOptMethods.customer',
                 optionsMethodParams: function () {
                     if (Meteor.isClient) {
                         let currentBranch = Session.get('currentBranch');
-                        return {branchId: currentBranch};
+                        return {branchId: currentBranch, paymentType: 'Term'};
                     }
                 }
             }
+        }
+    },
+    saleOrder: {
+        type: String,
+        autoform: {
+            type: 'universe-select',
+            afFieldInput: {
+                uniPlaceholder: '(Select One)',
+                optionsMethod: 'cement.selectOptMethods.saleOrder',
+                optionsMethodParams: function () {
+                    if (Meteor.isClient) {
+                        let customerId = AutoForm.getFieldValue('customer');
+                        console.log(customerId);
+                        if(customerId) {
+                            return {customerId: customerId};
+                        }
+                        return {};
+                    }
+                }
+            }
+        }
+    },
+    itemId: {
+        type: String,
+        autoform: {
+            type: 'select'
         }
     },
     filter: {
@@ -61,12 +88,12 @@ export const saleOrderReportSchema = new SimpleSchema({
                         value: '_id'
                     },
                     {
-                        label: 'Vendor',
-                        value: 'vendorId'
+                        label: 'Representative',
+                        value: 'repId'
                     },
                     {
                         label: 'Date',
-                        value: 'prepaidOrderDate'
+                        value: 'invoiceDate'
                     },
                     {
                         label: 'Status',

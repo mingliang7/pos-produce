@@ -66,7 +66,7 @@ SelectOptMethods.stockLocationMapping = new ValidatedMethod({
             if (params.stockLocations) {
                 selector._id = params.stockLocations;
             }
-            if(params.branchId){
+            if (params.branchId) {
                 selector.branchId = params.branchId;
             }
             if (searchText && params.branchId) {
@@ -98,7 +98,7 @@ SelectOptMethods.lookupInvoice = new ValidatedMethod({
             let values = options.values;
             let params = options.params || {};
             selector.refBillId = {$exists: false};
-            if(params.branchId) {
+            if (params.branchId) {
                 selector.branchId = params.branchId;
             }
             if (searchText) {
@@ -187,6 +187,42 @@ SelectOptMethods.customer = new ValidatedMethod({
         }
     }
 });
+
+SelectOptMethods.saleOrder = new ValidatedMethod({
+    name: 'cement.selectOptMethods.saleOrder',
+    validate: null,
+    run(options) {
+        if (!this.isSimulation) {
+            this.unblock();
+            let list = [];
+            let searchText = options.searchText;
+            let values = options.values;
+            let params = options.params || {};
+            let selector = {};
+            if (!_.isEmpty(params)) {
+                selector = params;
+                if (searchText) {
+                    selector.$or = [
+                        {_id: {$regex: searchText, $options: 'i'}},
+                        {voucherId: {$regex: searchText, $options: 'i'}}
+                    ];
+                } else if (values.length) {
+                    selector._id = {$in: values};
+                }
+                let data = Order.find(selector, {limit: 20});
+                data.forEach(function (value) {
+                    list.push(
+                        {
+                            label: `${value._id} | ${value.voucherId || ''} | $${numeral(value.total).format('0,0.00')}`,
+                            value: value._id
+                        }
+                    );
+                });
+            }
+            return list;
+        }
+    }
+});
 SelectOptMethods.truck = new ValidatedMethod({
     name: 'cement.selectOptMethods.truck',
     validate: null,
@@ -212,7 +248,7 @@ SelectOptMethods.truck = new ValidatedMethod({
             }
             let data = Truck.find(selector, {limit: 10});
             data.forEach(function (value) {
-                list.push({label: value.name + ' | N: ' + value.number , value: value._id});
+                list.push({label: value.name + ' | N: ' + value.number, value: value._id});
             });
             return list;
         }

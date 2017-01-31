@@ -459,7 +459,7 @@ CementRoutes.route('/report/invoiceEnterBill', {
 
 import '../imports/ui/reports/customerHistory';
 CementRoutes.route('/report/customerHistory', {
-    name: 'pos.customerHistory',
+    name: 'cement.customerHistory',
     title: 'Customer History',
     action: function (params, queryParams) {
         Layout.customReportLayout('Cement_customerHistory');
@@ -467,6 +467,20 @@ CementRoutes.route('/report/customerHistory', {
     breadcrumb: {
         title: 'Customer History',
         icon: '',
-        parent: 'pos.home'
+        parent: 'cement.home'
+    }
+});
+
+import '../imports/ui/reports/saleOrderDetail';
+CementRoutes.route('/report/sale-order-detail', {
+    name: 'cement.saleOrderDetailReport',
+    title: 'Sale Order Detail',
+    action: function (params, queryParams) {
+        Layout.customReportLayout('Cement_saleOrderDetail');
+    },
+    breadcrumb: {
+        title: 'Sale Order Detail',
+        icon: '',
+        parent: 'cement.home'
     }
 });

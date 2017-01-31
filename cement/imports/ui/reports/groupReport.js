@@ -70,7 +70,7 @@ invoiceDataTmpl.helpers({
         let data = '';
         this.displayFields.forEach(function (obj) {
             if (obj.field == 'startDate' || obj.field == 'endDate') {
-                data += `<td>${moment(col[obj.field]).format('YYYY-MM-DD')}</td>`
+                data += `<td>${moment(col[obj.field]).format('DD/MM/YY')}</td>`
             } else if (obj.field == 'customer') {
                 let type = col.customer._paymentGroup ? col.customer._paymentGroup.name : 'term';
                 data += `<td>${col.customer.name}(${type})</td>`;

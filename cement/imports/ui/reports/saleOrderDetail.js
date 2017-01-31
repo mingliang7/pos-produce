@@ -3,28 +3,28 @@ import {createNewAlertify} from '../../../../core/client/libs/create-new-alertif
 import {reactiveTableSettings} from '../../../../core/client/libs/reactive-table-settings.js';
 import {renderTemplate} from '../../../../core/client/libs/render-template.js';
 //page
-import './customerHistory.html';
+import './saleOrderDetail.html';
 //import DI
 import  'printthis';
 //import collection
-import {customerHistorySchema} from '../../api/collections/reports/customerHistory';
+import {saleDetailSchema} from '../../api/collections/reports/saleDetail';
 
 //methods
-import {customerHistoryReport} from '../../../common/methods/reports/customerHistory';
+import {saleDetailsMethods} from '../../../common/methods/reports/saleDetail';
 import RangeDate from "../../api/libs/date";
 //state
 let paramsState = new ReactiveVar();
 let invoiceData = new ReactiveVar();
 //declare template
-let indexTmpl = Template.Cement_customerHistory,
-    invoiceDataTmpl = Template.customerHistoryData;
+let indexTmpl = Template.Cement_saleOrderDetail,
+    invoiceDataTmpl = Template.saleOrderDetailData;
 Tracker.autorun(function () {
     if (paramsState.get()) {
         swal({
             title: "Pleas Wait",
             text: "Fetching Data....", showConfirmButton: false
         });
-        customerHistoryReport.callPromise(paramsState.get())
+        saleDetailsMethods.callPromise(paramsState.get())
             .then(function (result) {
                 invoiceData.set(result);
                 setTimeout(function () {
@@ -38,14 +38,15 @@ Tracker.autorun(function () {
 });
 
 indexTmpl.onCreated(function () {
-    createNewAlertify('customerHistory');
+    createNewAlertify('saleOrderDetail');
     paramsState.set(FlowRouter.query.params());
+    this.saleOrderItem = new ReactiveVar([]);
     this.fromDate = new ReactiveVar(moment().startOf('days').toDate());
     this.endDate = new ReactiveVar(moment().endOf('days').toDate());
 });
 indexTmpl.helpers({
     schema(){
-        return customerHistorySchema;
+        return saleDetailSchema;
     },
     fromDate(){
         let instance = Template.instance();
@@ -54,6 +55,10 @@ indexTmpl.helpers({
     endDate(){
         let instance = Template.instance();
         return instance.endDate.get();
+    },
+    getSaleOrderItem(){
+        let instance = Template.instance();
+        return instance.saleOrderItem.get();
     }
 });
 indexTmpl.events({
@@ -65,6 +70,16 @@ indexTmpl.events({
     'click .printReport'(event, instance){
         window.print();
     },
+    'change [name="saleOrder"]'(event,instance){
+        let currentValue = event.currentTarget.value;
+        if(currentValue != '') {
+            Meteor.call('getSaleOrderItemList', {saleOrderId: currentValue}, function (err, result) {
+                instance.saleOrderItem.set(result);
+            });
+        }else{
+            instance.saleOrderItem.set([]);
+        }
+    }
 });
 
 invoiceDataTmpl.onDestroyed(function () {
@@ -97,54 +112,9 @@ invoiceDataTmpl.helpers({
     },
     data(){
         if (invoiceData.get()) {
-            let customerHistory = invoiceData.get();
-            let data = {content: [], footer: customerHistory.footer};
-            let content = customerHistory.content;
-            if (content && content.length > 0) {
-                content.forEach(function (invoice) {
-                    let invoiceData = invoice.data;
-                    if (invoiceData.length > 0) {
-                        invoiceData.forEach(function (dataDoc) {
-                            let itemDoc = dataDoc.items;
-                            dataDoc.firstItem = [];
-                            dataDoc.secondItem = [];
-                            if (itemDoc) {
-                                for (let i = 0; i < itemDoc.length; i++) {
-                                    if (i == 0) {
-                                        dataDoc.firstItem.push(itemDoc[i]);
-                                    } else {
-                                        dataDoc.secondItem.push(itemDoc[i]);
-                                    }
-                                }
-                            }
-                        });
-                    }
-                    data.content.push(invoice);
-                });
-
-            }
-            return data;
+            let saleOrderDetail = invoiceData.get();
+            return saleOrderDetail;
         }
-    },
-    getBeginningBalance(index, balance = 0){
-        let customerHistory = invoiceData.get();
-        let currentMapDate = customerHistory.invoiceDateArr && customerHistory.invoiceDateArr[index];
-        let subtractCurrentMapDateByOneMonth = moment(currentMapDate).subtract(1, 'months').format('YYYY-MM');
-        let beginningBalance = 0;
-        if (customerHistory.groupByDate.length > 0) {
-            customerHistory.groupByDate.forEach(function (o) {
-                let formatMonth = moment(o.invoiceDate).format('YYYY-MM');
-                if (moment(formatMonth).isSame(moment(subtractCurrentMapDateByOneMonth)) || moment(formatMonth).isBefore(moment(subtractCurrentMapDateByOneMonth))) {
-                    beginningBalance += o.balance;
-                }
-            });
-        }
-        return {
-            balance: numeral(balance).format('0,0.00'),
-            sumBalance: numeral(beginningBalance + balance).format('0,0.00'),
-            beginningBalance: numeral(beginningBalance).format('0,0.00')
-        };
-
     },
     concatInvoiceId(val){
         return val.substr(val.length - 10, val.length - 1);
@@ -157,23 +127,19 @@ invoiceDataTmpl.helpers({
 
 
 AutoForm.hooks({
-    customerHistoryReport: {
+    saleOrderDetailReport: {
         onSubmit(doc){
             this.event.preventDefault();
             FlowRouter.query.unset();
             let params = {};
-            params.branchId = Session.get('currentBranch');
-            if (doc.date) {
-                params.date = `${moment(doc.date).endOf('days').format('YYYY-MM-DD HH:mm:ss')}`;
-            }
             if (doc.customer) {
                 params.customer = doc.customer
             }
-            if (doc.filterDate) {
-                params.filterDate = moment(doc.filterDate).endOf('days').format('YYYY-MM-DD HH:mm:ss');
+            if (doc.saleOrder) {
+                params.so = doc.saleOrder
             }
-            if (doc.branchId) {
-                params.branchId = doc.branchId.join(',');
+            if(doc.itemId) {
+                params.itemId = doc.itemId;
             }
             FlowRouter.query.set(params);
             paramsState.set(FlowRouter.query.params());

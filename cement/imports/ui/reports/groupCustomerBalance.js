@@ -70,7 +70,7 @@ invoiceDataTmpl.helpers({
                     data += `<td>${moment(col[obj.field]).format('YYYY-MM-DD HH:mm:ss')}</td>`
                 }
             } else if (obj.field == 'startDate' || obj.field == 'endDate') {
-                data += `<td>${moment(col[obj.field]).format('YYYY-MM-DD')}</td>`
+                data += `<td>${moment(col[obj.field]).format('DD/MM/YY')}</td>`
             } else if (obj.field == 'customerId') {
                 data += `<td>${col._customer.name}</td>`
             } else if (obj.field == 'dueAmount' || obj.field == 'paidAmount' || obj.field == 'balance') {
@@ -114,7 +114,7 @@ AutoForm.hooks({
             FlowRouter.query.unset();
             let params = {};
             if (doc.date) {
-                let formatDate = moment(doc.date).format('YYYY-MM-DD');
+                let formatDate = moment(doc.date).format('DD/MM/YY');
                 params.date = `${formatDate}`;
             }
             if (doc.customer) {
