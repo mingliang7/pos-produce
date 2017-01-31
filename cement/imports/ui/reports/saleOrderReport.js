@@ -9,6 +9,7 @@ import {saleOrderReportSchema} from '../../api/collections/reports/saleOrder';
 
 //methods
 import {saleOrderReport} from '../../../common/methods/reports/saleOrder';
+import RangeDate from "../../api/libs/date";
 //state
 let paramsState = new ReactiveVar();
 let invoiceData = new ReactiveVar();
@@ -37,16 +38,31 @@ Tracker.autorun(function () {
 indexTmpl.onCreated(function () {
     createNewAlertify('invoiceReport');
     paramsState.set(FlowRouter.query.params());
+    this.fromDate = new ReactiveVar(moment().startOf('days').toDate());
+    this.endDate = new ReactiveVar(moment().endOf('days').toDate());
 });
 indexTmpl.helpers({
     schema(){
         return saleOrderReportSchema;
+    },
+    fromDate(){
+        let instance = Template.instance();
+        return instance.fromDate.get();
+    },
+    endDate(){
+        let instance = Template.instance();
+        return instance.endDate.get();
     }
 });
 indexTmpl.events({
     'click .print'(event, instance){
         $('#to-print').printThis();
-    }
+    },
+    'change #date-range-filter'(event, instance){
+        let currentRangeDate = RangeDate[event.currentTarget.value]();
+        instance.fromDate.set(currentRangeDate.start.toDate());
+        instance.endDate.set(currentRangeDate.end.toDate());
+    },
 });
 invoiceDataTmpl.helpers({
     company(){
@@ -91,7 +107,10 @@ invoiceDataTmpl.helpers({
         }
         string += `<td><b>Total:</td></b><td><b>${numeral(totalRemainQty).format('0,0')}</b></td></td><td><b>${numeral(total).format('0,0.00')}</b></td>`;
         return string;
-    }
+    },
+    concatInvoiceId(val){
+        return val.substr(val.length - 10, val.length - 1);
+    },
 });
 
 

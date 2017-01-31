@@ -156,7 +156,7 @@ invoiceDataTmpl.helpers({
         let data = '';
         this.displayFields.forEach(function (obj) {
             if (obj.field == 'date') {
-                data += `<td>${moment(col[obj.field]).format('YYYY-MM-DD')}</td>`
+                data += `<td>${moment(col[obj.field]).format('DD/MM/YY')}</td>`
             } else if (obj.field == 'invoiceId') {
                 let invId = col[obj.field].substr(col[obj.field].length - 10, col[obj.field].length - 1);
                 data += `<td><a class="inv cursor-pointer">${invId}</a></td>`

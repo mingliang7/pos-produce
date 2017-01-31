@@ -73,7 +73,7 @@ invoiceDataTmpl.helpers({
                 if (col[obj.field] == 'None') {
                     data += `<td>${col[obj.field]}</td>`
                 } else {
-                    data += `<td>${moment(col[obj.field]).format('YYYY-MM-DD')}</td>`
+                    data += `<td>${moment(col[obj.field]).format('DD/MM/YY')}</td>`
                 }
             } else if (obj.field == 'customerId') {
                 data += `<td>${col._customer.name}</td>`
@@ -130,7 +130,7 @@ AutoForm.hooks({
             let params = {};
             params.branchId = Session.get('currentBranch');
             if (doc.date) {
-                let formatDate = moment(doc.date).format('YYYY-MM-DD');
+                let formatDate = moment(doc.date).format('DD/MM/YY');
                 params.date = `${formatDate}`;
             }
             if (doc.customer) {

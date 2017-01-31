@@ -40,6 +40,7 @@ Tracker.autorun(function () {
 indexTmpl.onCreated(function () {
     createNewAlertify('saleOrderDetail');
     paramsState.set(FlowRouter.query.params());
+    this.saleOrderItem = new ReactiveVar([]);
     this.fromDate = new ReactiveVar(moment().startOf('days').toDate());
     this.endDate = new ReactiveVar(moment().endOf('days').toDate());
 });
@@ -54,6 +55,10 @@ indexTmpl.helpers({
     endDate(){
         let instance = Template.instance();
         return instance.endDate.get();
+    },
+    getSaleOrderItem(){
+        let instance = Template.instance();
+        return instance.saleOrderItem.get();
     }
 });
 indexTmpl.events({
@@ -65,6 +70,16 @@ indexTmpl.events({
     'click .printReport'(event, instance){
         window.print();
     },
+    'change [name="saleOrder"]'(event,instance){
+        let currentValue = event.currentTarget.value;
+        if(currentValue != '') {
+            Meteor.call('getSaleOrderItemList', {saleOrderId: currentValue}, function (err, result) {
+                instance.saleOrderItem.set(result);
+            });
+        }else{
+            instance.saleOrderItem.set([]);
+        }
+    }
 });
 
 invoiceDataTmpl.onDestroyed(function () {
@@ -84,7 +99,7 @@ invoiceDataTmpl.helpers({
     },
     hasFilterDate(date){
         let paramsFilterDate = FlowRouter.query.get('filterDate');
-        let filterDate = paramsFilterDate ? moment(paramsFilterDate).startOf('months').format('YYYY-MM-DD') : null;
+        let filterDate = paramsFilterDate ? moment(paramsFilterDate).startOf('months').format('DD/MM/YY') : null;
         let currentViewDate = moment(date).startOf('months');
         if (paramsFilterDate) {
             if (currentViewDate.isSameOrAfter(filterDate)) {
@@ -100,26 +115,6 @@ invoiceDataTmpl.helpers({
             let saleOrderDetail = invoiceData.get();
             return saleOrderDetail;
         }
-    },
-    getBeginningBalance(index, balance = 0){
-        let saleOrderDetail = invoiceData.get();
-        let currentMapDate = saleOrderDetail.invoiceDateArr && saleOrderDetail.invoiceDateArr[index];
-        let subtractCurrentMapDateByOneMonth = moment(currentMapDate).subtract(1, 'months').format('YYYY-MM');
-        let beginningBalance = 0;
-        if (saleOrderDetail.groupByDate.length > 0) {
-            saleOrderDetail.groupByDate.forEach(function (o) {
-                let formatMonth = moment(o.invoiceDate).format('YYYY-MM');
-                if (moment(formatMonth).isSame(moment(subtractCurrentMapDateByOneMonth)) || moment(formatMonth).isBefore(moment(subtractCurrentMapDateByOneMonth))) {
-                    beginningBalance += o.balance;
-                }
-            });
-        }
-        return {
-            balance: numeral(balance).format('0,0.00'),
-            sumBalance: numeral(beginningBalance + balance).format('0,0.00'),
-            beginningBalance: numeral(beginningBalance).format('0,0.00')
-        };
-
     },
     concatInvoiceId(val){
         return val.substr(val.length - 10, val.length - 1);
@@ -137,18 +132,14 @@ AutoForm.hooks({
             this.event.preventDefault();
             FlowRouter.query.unset();
             let params = {};
-            params.branchId = Session.get('currentBranch');
-            if (doc.date) {
-                params.date = `${moment(doc.date).endOf('days').format('YYYY-MM-DD HH:mm:ss')}`;
-            }
             if (doc.customer) {
                 params.customer = doc.customer
             }
-            if (doc.filterDate) {
-                params.filterDate = moment(doc.filterDate).endOf('days').format('YYYY-MM-DD HH:mm:ss');
+            if (doc.saleOrder) {
+                params.so = doc.saleOrder
             }
-            if (doc.branchId) {
-                params.branchId = doc.branchId.join(',');
+            if(doc.itemId) {
+                params.itemId = doc.itemId;
             }
             FlowRouter.query.set(params);
             paramsState.set(FlowRouter.query.params());

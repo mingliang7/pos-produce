@@ -90,38 +90,43 @@ export const saleOrderReport = new ValidatedMethod({
                     $group: {
                         _id: '$_id',
                         data: {
-                            $addToSet: project
+                            $last: project
                         },
                         items: {
-                            $addToSet: {
+                            $push: {
                                 qty: '$items.qty',
                                 price: '$items.price',
                                 amount: '$items.amount',
                                 itemId: '$items.itemId',
+                                stockReceived: {$subtract: ["$items.qty", "$items.remainQty"]},
                                 itemName: '$itemDoc.name',
                                 remainQty: '$items.remainQty'
                             }
-                        }
+                        },
+                        total: {$last: '$total'},
+                        totalOrder: {$sum: '$items.qty'},
+                        sumRemainQty: {$last: '$sumRemainQty'}
                     }
-                }]);
-            let total = Order.aggregate(
-                [
-                    {
-                        $match: selector
-                    },
-                    {
-                        $group: {
-                            _id: null, total: {$sum: '$total'},
-                            totalRemainQty: {$sum: '$sumRemainQty'}
-                        }
+                },
+                {$sort: {'data.orderDate': 1}},
+                {
+                    $group: {
+                        _id: null,
+                        data: {$push: '$$ROOT'},
+                        total: {$sum: '$total'},
+                        totalOrder: {$sum: '$totalOrder'},
+                        totalRemainQty: {$sum: '$sumRemainQty'},
+                        totalOrderReceive: {$sum: {$subtract: ["$totalOrder", "$sumRemainQty"]}}
                     }
-                ]);
+                }
+            ]);
+
             if (saleOrders.length > 0) {
-                let sortData = _.sortBy(saleOrders[0].data, '_id');
-                saleOrders[0].data = sortData;
-                data.content = saleOrders;
-                data.footer.total = total[0].total;
-                data.footer.totalRemainQty = total[0].totalRemainQty
+                data.content = saleOrders[0].data;
+                data.footer.total = saleOrders[0].total;
+                data.footer.totalOrder = saleOrders[0].totalOrder;
+                data.footer.totalRemainQty = saleOrders[0].totalRemainQty;
+                data.footer.totalOrderReceive = saleOrders[0].totalOrderReceive
             }
             return data
         }

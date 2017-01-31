@@ -20,6 +20,7 @@ export const saleDetailSchema = new SimpleSchema({
     },
     date: {
         type: Date,
+        optional: true,
         defaultValue: moment().toDate(),
         autoform: {
             afFieldInput: {
@@ -45,6 +46,32 @@ export const saleDetailSchema = new SimpleSchema({
                     }
                 }
             }
+        }
+    },
+    saleOrder: {
+        type: String,
+        autoform: {
+            type: 'universe-select',
+            afFieldInput: {
+                uniPlaceholder: '(Select One)',
+                optionsMethod: 'cement.selectOptMethods.saleOrder',
+                optionsMethodParams: function () {
+                    if (Meteor.isClient) {
+                        let customerId = AutoForm.getFieldValue('customer');
+                        console.log(customerId);
+                        if(customerId) {
+                            return {customerId: customerId};
+                        }
+                        return {};
+                    }
+                }
+            }
+        }
+    },
+    itemId: {
+        type: String,
+        autoform: {
+            type: 'select'
         }
     },
     filter: {
@@ -73,25 +100,6 @@ export const saleDetailSchema = new SimpleSchema({
                         value: 'status'
                     }
                 ]
-            }
-        }
-    },
-    branchId: {
-        type: [String],
-        optional: true,
-        label: function () {
-            return TAPi18n.__('core.welcome.branch');
-        },
-        autoform: {
-            type: "universe-select",
-            multiple: true,
-            options: function () {
-                return Meteor.isClient && SelectOpts.branchForCurrentUser(false);
-            },
-            afFieldInput: {
-                value: function () {
-                    return Meteor.isClient && Session.get('currentBranch');
-                }
             }
         }
     }

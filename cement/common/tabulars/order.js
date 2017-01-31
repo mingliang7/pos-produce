@@ -26,7 +26,7 @@ tabularOpts.columns = [
         data: "orderDate",
         title: "Date",
         render: function (val, type, doc) {
-            return moment(val).format('YYYY-MM-DD');
+            return moment(val).format('DD/MM/YY');
         }
     },
     {data: "_customer.name", title: "Customer"},
