@@ -773,3 +773,16 @@ CementRoutes.route('/advanceDiscount', {
         parent: 'cement.home'
     }
 });
+import '../imports/ui/pages/tsPayment'
+CementRoutes.route('/tsPayment', {
+    name: 'cement.tsPayment',
+    title: 'TS payment',
+    action: function (params,queryParams) {
+        Layout.main('Cement_tsPayment');
+    },
+    breadcrumb: {
+        title: 'TS Payment',
+        icon: '',
+        parent: 'cement.home'
+    }
+});
