@@ -786,3 +786,16 @@ CementRoutes.route('/tsPayment', {
         parent: 'cement.home'
     }
 });
+import '../imports/ui/pages/tsPaymentList'
+CementRoutes.route('/tsPayment-list', {
+    name: 'cement.tsPaymentList',
+    title: 'TS payment',
+    action: function (params,queryParams) {
+        Layout.main('Cement_tsPaymentList');
+    },
+    breadcrumb: {
+        title: 'TS Payment List',
+        icon: '',
+        parent: 'cement.home'
+    }
+});

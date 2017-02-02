@@ -190,11 +190,11 @@ indexTmpl.helpers({
     hasAmount() {
         try {
             let _id = Session.get('invoiceId');
-            let discount = this.status == 'active' ? checkTerm(this) : 0;
+            let discount = this.tsStatus == 'active' ? checkTerm(this) : 0;
             let lastPayment = getLastPayment(this._id);
             let currentSelectDate = currentPaymentDate.get();
             let lastPaymentDate = getLastPaymentDate(_id);
-            if (this.status == 'active' && (this._id == _id || this.voucherId == _id)) { //match _id with status active
+            if (this.tsStatus == 'active' && (this._id == _id || this.voucherId == _id)) { //match _id with status active
                 let saleInvoices = {
                     count: 0
                 };
@@ -209,7 +209,7 @@ indexTmpl.helpers({
                 return true;
 
             }
-            if (this.status == 'partial' && (this._id == _id || this.voucherId == _id)) { //match _id with status partial
+            if (this.tsStatus == 'partial' && (this._id == _id || this.voucherId == _id)) { //match _id with status partial
                 if (!lastPaymentDate || (lastPaymentDate && moment(currentSelectDate).isAfter(lastPaymentDate))) {
                     let saleInvoices = {
                         count: 0
@@ -300,7 +300,7 @@ indexTmpl.helpers({
     },
     totalTransportFee(){
         try {
-            let discount = this.status == 'active' ? checkTerm(this) : 0;
+            let discount = this.tsStatus == 'active' ? checkTerm(this) : 0;
             let penalty = isPenalty.get() ? countLateInvoice.get().calculatePenalty[this._id] || 0 : 0;
             let valueAfterDiscount = this.totalTransportFee - discount;
             let lastPayment = getLastPayment(this._id);
@@ -646,6 +646,14 @@ indexTmpl.onDestroyed(function () {
     countLateInvoice.set(0);
     Session.set('createPenalty', undefined);
 });
+showInvoiceTmpl.helpers({
+    tsAmount(transportFee, price){
+        return numeral(transportFee * price).format('0,0.00');
+    },
+    subAmount(qty, price){
+        return numeral(qty * price).format('0,0.00');
+    }
+});
 //functions
 function clearChecbox() {
     Session.set('invoiceId', 0); //clear checkbox
@@ -671,6 +679,7 @@ function clearChecbox() {
 }
 function getLastPayment(invoiceId) {
     let tsPayments = TSPayment.find({invoiceId: invoiceId}, {sort: {_id: 1, paymentDate: 1}});
+    console.log(tsPayments.fetch());
     if (tsPayments.count() > 0) {
         let lastPayment = _.last(tsPayments.fetch());
         return lastPayment.balanceAmount;
