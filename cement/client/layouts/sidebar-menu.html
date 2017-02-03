@@ -61,6 +61,17 @@
                         </a>
                     </li>
                 {{/if}}
+                <li class="{{isActiveRoute name='cement.tsPayment'}}">
+                    <a href="{{pathFor 'cement.tsPayment'}}">
+                        <i class="fa fa-money"></i> <span>TSPayment</span>
+                    </a>
+                </li>
+                <li class="{{isActiveRoute name='cement.tsPaymentList'}}">
+                    <a href="{{pathFor 'cement.tsPaymentList'}}">
+                        <i class="fa fa-exchange"></i> <span>TSPayment List</span>
+                    </a>
+                </li>
+
                 {{#if isInRole 'form-so-receive-payment' 'Cement'}}
                     <li class="{{isActiveRoute name='cement.saleOrderReceivePayment'}}">
                         <a href="{{pathFor 'cement.saleOrderReceivePayment'}}">

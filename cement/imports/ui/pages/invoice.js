@@ -110,15 +110,56 @@ indexTmpl.events({
         //         }
         //     });
         // }
-        excuteEditForm(this);
+        let data = this;
+        Meteor.call('isInvoiceHasRelation', data._id, function (error, result) {
+            if (error) {
+                alertify.error(error.message);
+            } else {
+                if (result) {
+                    let msg = '';
+                    if (data.invoiceType == 'group') {
+                        msg = `Please Check Group #${data.paymentGroupId}`;
+                    }
+                    swal(
+                        'Cancelled',
+                        `Data has been used. Can't remove. ${msg}`,
+                        'error'
+                    );
+
+                } else {
+                    excuteEditForm(data);
+                }
+            }
+        });
     },
     'click .js-destroy'(event, instance) {
         let data = this;
-        destroyAction(
-            Invoices,
-            {_id: data._id},
-            {title: TAPi18n.__('cement.invoice.title'), itemTitle: data._id}
-        );
+        Meteor.call('isInvoiceHasRelation', data._id, function (error, result) {
+            if (error) {
+                alertify.error(error.message);
+            } else {
+                if (result) {
+                    let msg = '';
+                    if (data.invoiceType == 'group') {
+                        msg = `Please Check Group #${data.paymentGroupId}`;
+                    }
+                    swal(
+                        'Cancelled',
+                        `Data has been used. Can't remove. ${msg}`,
+                        'error'
+                    );
+
+                } else {
+                    destroyAction(
+                        Invoices,
+                        {_id: data._id},
+                        {title: TAPi18n.__('pos.invoice.title'), itemTitle: data._id}
+                    );
+                }
+            }
+
+
+        });
 
     },
     'click .js-display'(event, instance) {
