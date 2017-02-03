@@ -230,6 +230,14 @@ Order.schema = new SimpleSchema({
     closedAt: {
         type: Date,
         optional: true
+    },
+    tsStatus: {
+        type: String,
+        optional: true
+    },
+    closedTsAt: {
+        type: Date,
+        optional: true
     }
 });
 

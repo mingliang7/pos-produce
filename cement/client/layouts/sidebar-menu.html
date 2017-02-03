@@ -61,17 +61,34 @@
                         </a>
                     </li>
                 {{/if}}
-                <li class="{{isActiveRoute name='cement.tsPayment'}}">
-                    <a href="{{pathFor 'cement.tsPayment'}}">
-                        <i class="fa fa-money"></i> <span>TSPayment</span>
-                    </a>
-                </li>
-                <li class="{{isActiveRoute name='cement.tsPaymentList'}}">
-                    <a href="{{pathFor 'cement.tsPaymentList'}}">
-                        <i class="fa fa-exchange"></i> <span>TSPayment List</span>
-                    </a>
-                </li>
-
+                {{#if isInRole 'form-ts-payment' 'Cement'}}
+                    <li class="{{isActiveRoute name='cement.tsPayment'}}">
+                        <a href="{{pathFor 'cement.tsPayment'}}">
+                            <i class="fa fa-money"></i> <span>TSPayment</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'list-ts-payment' 'Cement'}}
+                    <li class="{{isActiveRoute name='cement.tsPaymentList'}}">
+                        <a href="{{pathFor 'cement.tsPaymentList'}}">
+                            <i class="fa fa-exchange"></i> <span>TSPayment List</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'form-tsso-payment' 'Cement'}}
+                    <li class="{{isActiveRoute name='cement.tsSoPayment'}}">
+                        <a href="{{pathFor 'cement.tsSoPayment'}}">
+                            <i class="fa fa-money"></i> <span>TS SO Payment</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'list-tsso-payment' 'Cement'}}
+                    <li class="{{isActiveRoute name='cement.tsSoPaymentList'}}">
+                        <a href="{{pathFor 'cement.tsSoPaymentList'}}">
+                            <i class="fa fa-exchange"></i> <span>TSSO Payment List</span>
+                        </a>
+                    </li>
+                {{/if}}
                 {{#if isInRole 'form-so-receive-payment' 'Cement'}}
                     <li class="{{isActiveRoute name='cement.saleOrderReceivePayment'}}">
                         <a href="{{pathFor 'cement.saleOrderReceivePayment'}}">

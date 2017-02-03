@@ -799,3 +799,29 @@ CementRoutes.route('/tsPayment-list', {
         parent: 'cement.home'
     }
 });
+import '../imports/ui/pages/tsSoPayment'
+CementRoutes.route('/tsSoPayment', {
+    name: 'cement.tsSoPayment',
+    title: 'TS SO payment',
+    action: function (params,queryParams) {
+        Layout.main('Cement_tsSoPayment');
+    },
+    breadcrumb: {
+        title: 'TS SO Payment',
+        icon: '',
+        parent: 'cement.home'
+    }
+});
+import '../imports/ui/pages/tsSoPaymentList'
+CementRoutes.route('/tsSoPayment-list', {
+    name: 'cement.tsSoPaymentList',
+    title: 'TSSO List',
+    action: function (params,queryParams) {
+        Layout.main('Cement_tsSoPaymentList');
+    },
+    breadcrumb: {
+        title: 'TSSO Payment List',
+        icon: '',
+        parent: 'cement.home'
+    }
+});

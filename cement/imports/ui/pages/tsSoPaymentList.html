@@ -1,0 +1,14 @@
+<template name="Cement_tsSoPaymentList">
+    <div class="box-body">
+        {{> tabular table=tabularTable selector=selector class="table table-striped table-bordered table-condensed"}}
+    </div>
+</template>
+
+<!--Action-->
+<template name="Cement_tsSoPaymentListAction">
+    {{#columnAction align="right"}}
+        <!--<li><a class="js-update"><i class="fa fa-pencil"></i> {{_ "action.edit"}}</a></li>-->
+        <li><a class="js-destroy"><i class="fa fa-remove"></i> {{_ "action.delete"}}</a></li>
+        <!--<li><a class="js-display"><i class="fa fa-eye"></i> {{_ "action.show"}}</a></li>-->
+    {{/columnAction}}
+</template>

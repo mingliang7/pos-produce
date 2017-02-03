@@ -10,3 +10,4 @@ export const RemoveCompanyExchangeRingPull = new Mongo.Collection('removed_compa
 export const RemoveExchangeGratis = new Mongo.Collection('removed_exchangeGratis');
 export const RemoveExchangeRingPulls = new Mongo.Collection('removed_exchangeRingPulls');
 export const RemoveTsPayment = new Mongo.Collection('removed_tsPayment');
+export const RemoveTsSoPayment = new Mongo.Collection('removed_tsSoPayment');
