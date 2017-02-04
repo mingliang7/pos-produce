@@ -388,6 +388,7 @@ newTmpl.helpers({
 newTmpl.onDestroyed(function () {
     // Remove items collection
     itemsCollection.remove({});
+    dateState.set(null);
     Session.set('customerInfo', undefined);
     Session.set('getCustomerId', undefined);
     FlowRouter.query.unset();
@@ -403,6 +404,7 @@ editTmpl.onCreated(function () {
     Meteor.subscribe('cement.requirePassword', {branchId: {$in: [Session.get('currentBranch')]}});//subscribe require password validation
     this.repOptions = new ReactiveVar();
     this.isSaleOrder = new ReactiveVar(false);
+    this.invoiceDate = new ReactiveVar(this.data.invoiceDate);
     Meteor.call('getRepList', (err, result) => {
         this.repOptions.set(result);
     });
@@ -424,7 +426,6 @@ editTmpl.onCreated(function () {
             value.saleId = this.saleId;
             value.invoiceDiscount = this.data.discount;
             value.unitConvertId = result.unitConvertId;
-            console.log(value);
             itemsCollection.insert(value);
             currentItemsCollection.insert(value);
         })
@@ -466,6 +467,10 @@ editTmpl.events({
     }
 });
 editTmpl.helpers({
+    invoiceData(){
+      let instance = Template.instance();
+      return instance.invoiceDate.get();
+    },
     description(){
         let instance = Template.instance();
         return instance.description.get();
@@ -585,7 +590,7 @@ editTmpl.helpers({
     },
     dueDate() {
         try {
-            let date = dateState.get() || AutoForm.getFieldValue('invoiceDate');
+            let date =  dateState.get() || AutoForm.getFieldValue('invoiceDate');
             let {customerInfo} = Session.get('customerInfo');
             if (customerInfo) {
                 if (customerInfo._term) {

@@ -97,7 +97,7 @@ Invoices.schema = new SimpleSchema({
     },
     invoiceDate: {
         type: Date,
-        defaultValue: moment().toDate(),
+        // defaultValue: moment().toDate(),
         autoform: {
             afFieldInput: {
                 type: "bootstrap-datetimepicker",
