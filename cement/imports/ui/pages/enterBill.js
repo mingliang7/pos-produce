@@ -82,15 +82,64 @@ indexTmpl.events({
         alertify.enterBill(fa('plus', TAPi18n.__('cement.enterBill.title')), renderTemplate(newTmpl)).maximize();
     },
     'click .js-update' (event, instance) {
-        alertify.enterBill(fa('pencil', TAPi18n.__('cement.enterBill.title')), renderTemplate(editTmpl, this));
+        debugger;
+        // alertify.enterBill(fa('pencil', TAPi18n.__('cement.enterBill.title')), renderTemplate(editTmpl, this));
+        let data = this;
+        if(data.invoiceId==null){
+            Meteor.call('isBillHasRelation', data._id, function (error, result) {
+                if (error) {
+                    alertify.error(error.message);
+                } else {
+                    if (result) {
+                        let msg = '';
+                        if (data.billType == 'group') {
+                            msg = `Please Check Group #${data.paymentGroupId}`;
+                        }
+                        swal(
+                            'Cancelled',
+                            `Data has been used. Can't update. ${msg}`,
+                            'error'
+                        );
+                    } else {
+                        alertify.enterBill(fa('pencil', TAPi18n.__('pos.enterBill.title')), renderTemplate(editTmpl, data));
+                    }
+                }
+            });
+        }else{
+            swal(
+                'Cancelled',
+                `Can't update. Invoices will miss the reference to this Bill.`,
+                'error'
+            );
+        }
+
     },
     'click .js-destroy' (event, instance) {
         let data = this;
-        destroyAction(
-            EnterBills,
-            {_id: data._id},
-            {title: TAPi18n.__('cement.enterBill.title'), itemTitle: data._id}
-        );
+        Meteor.call('isBillHasRelation', data._id, function (error, result) {
+            if (error) {
+                alertify.error(error.message);
+            } else {
+                if (result) {
+                    let msg = '';
+                    if (data.billType == 'group') {
+                        msg = `Please Check Group #${data.paymentGroupId}`;
+                    }
+                    swal(
+                        'Cancelled',
+                        `Data has been used. Can't remove. ${msg}`,
+                        'error'
+                    );
+
+                } else {
+                    destroyAction(
+                        EnterBills,
+                        {_id: data._id},
+                        {title: TAPi18n.__('pos.enterBill.title'), itemTitle: data._id}
+                    );
+                }
+            }
+        });
     },
     'click .js-display' (event, instance) {
         swal({
