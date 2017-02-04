@@ -122,7 +122,7 @@ indexTmpl.events({
                     }
                     swal(
                         'Cancelled',
-                        `Data has been used. Can't remove. ${msg}`,
+                        `Data has been used. Can't update. ${msg}`,
                         'error'
                     );
 
