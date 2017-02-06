@@ -4,20 +4,7 @@ import {moment} from 'meteor/momentjs:moment';
 
 
 export const saleOrderReportSchema = new SimpleSchema({
-    fromDate: {
-        type: Date,
-        defaultValue: moment().toDate(),
-        autoform: {
-            afFieldInput: {
-                type: "bootstrap-datetimepicker",
-                dateTimePickerOptions: {
-                    format: 'DD/MM/YYYY',
-
-                }
-            }
-        }
-    },
-    toDate: {
+    asDate: {
         type: Date,
         defaultValue: moment().toDate(),
         autoform: {

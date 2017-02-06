@@ -120,10 +120,9 @@ AutoForm.hooks({
             this.event.preventDefault();
             FlowRouter.query.unset();
             let params = {};
-            if (doc.fromDate && doc.toDate) {
-                let fromDate = moment(doc.fromDate).format('YYYY-MM-DD HH:mm:ss');
-                let toDate = moment(doc.toDate).format('YYYY-MM-DD HH:mm:ss');
-                params.date = `${fromDate},${toDate}`;
+            if (doc.asDate) {
+                let asDate = moment(doc.asDate).endOf('days').format('YYYY-MM-DD HH:mm:ss');
+                params.date = `${asDate}}`;
             }
             if (doc.customer) {
                 params.customer = doc.customer

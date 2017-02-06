@@ -31,12 +31,11 @@ export const saleOrderReport = new ValidatedMethod({
             // console.log(user);
             // let date = _.trim(_.words(params.date, /[^To]+/g));
             selector.status = {$in: ['active', 'closed']};
+            selector.sumRemainQty = {$gt: 0};
             if (params.date) {
-                let dateAsArray = params.date.split(',')
-                let fromDate = moment(dateAsArray[0]).toDate();
-                let toDate = moment(dateAsArray[1]).toDate();
-                data.title.date = moment(fromDate).format('YYYY-MMM-DD hh:mm a') + ' - ' + moment(toDate).format('YYYY-MMM-DD hh:mm a');
-                selector.orderDate = {$gte: fromDate, $lte: toDate};
+                let asDate = moment(params.date).toDate();
+                data.title.date = moment(asDate).format('YYYY-MMM-DD hh:mm a');
+                selector.orderDate = {$lte: asDate};
             }
             if (params.customer && params.customer != '') {
                 selector.customerId = params.customer;
