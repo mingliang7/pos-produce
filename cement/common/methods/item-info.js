@@ -44,7 +44,7 @@ export const itemInfo = new ValidatedMethod({
                     data.unitConvert = unitConverts.fetch();
                 }
             }
-            if (data.sellingUnit) {
+            if (data && data.sellingUnit) {
                 let index = 1;
                 data.sellingUnit.forEach(function (obj) {
                     let unit = Units.findOne(obj.unitId);
