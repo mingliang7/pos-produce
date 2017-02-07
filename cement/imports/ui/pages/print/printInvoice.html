@@ -28,38 +28,38 @@
                         <table width="100%">
                             <tr>
                                 <td><b>លក់ជូន/Sold to</b></td>
-                                <td>: {{sale._customer.name }}</td>
-                                <td><b>No</b></td>
-                                <td>: {{sale._id}}</td>
+                                <td colspan="3">: {{sale._customer.name }}</td>
+
                             </tr>
                             <tr>
                                 <td><b>តំណាងលក់/Seller</b></td>
                                 <td>: {{sale._rep.name}}</td>
-                                <td><b>កាលបរិច្ឆេទ/Date</b></td>
-                                <td>: {{moFormat sale.saleDate 'DD/MM/YYYY HH:mm:ss'}}</td>
+                                <td><b>No</b></td>
+                                <td>: {{sale._id}}</td>
                             </tr>
                             <tr>
                                 <td><b>ទូរស័ព្ទ/Tel</b></td>
                                 <td>: {{sale._customer.telephone}}</td>
-                                <td><b>ប្រភេទវិក្កយបត្រ:</b></td>
-                                <td>: {{sale.typeOfInvoice}}</td>
+                                <td><b>កាលបរិច្ឆេទ/Date</b></td>
+                                <td>: {{moFormat sale.saleDate 'DD/MM/YYYY HH:mm:ss'}}</td>
                             </tr>
                             <tr>
                                 <td><b>លេខប័ណ្ណបញ្ចេញឃ្លាំង:</b></td>
                                 <td>: {{sale.boid}}</td>
-                                <td><b>ថ្ងៃផុតកំណត់/Due Date</b></td>
-                                <td>: {{moFormat sale.dueDate 'DD/MM/YYYY HH:mm:ss'}}</td>
+                                <td><b>ប្រភេទវិក្កយបត្រ:</b></td>
+                                <td>: {{sale.typeOfInvoice}}</td>
                             </tr>
                             <tr>
                                 <td><b>លេខឡាន/Truck Num</b></td>
                                 <td>: {{sale.truckDoc.number}}</td>
-                                <td><b>ទៅអាស័យដ្ឋាន/To Address</b></td>
-                                <td colspan="3">: {{{sale.shipTo}}}</td>
+                                <td><b>ថ្ងៃផុតកំណត់/Due Date</b></td>
+                                <td>: {{moFormat sale.dueDate 'DD/MM/YYYY HH:mm:ss'}}</td>
                             </tr>
                             <tr>
                                 <td><b>ឃ្លាំង:</b></td>
                                 <td>: {{sale.stockLocationDoc.name}}</td>
-
+                                <td><b>ទៅអាស័យដ្ឋាន/To Address</b></td>
+                                <td colspan="3">: {{{sale.shipTo}}}</td>
                             </tr>
                             <tr>
                                 <td><b>អាស័យដ្ឋាន/Address</b></td>

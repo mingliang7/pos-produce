@@ -54,6 +54,9 @@ export const invoiceEnterBillReport = new ValidatedMethod({
             if (params.customer && params.customer != '') {
                 selector.customerId = params.customer;
             }
+            if(params.iType) {
+                selector.invoiceType = {$eq: params.iType};
+            }
             // project['$invoice'] = 'Invoice';
             /****** Title *****/
             data.title.company = Company.findOne();

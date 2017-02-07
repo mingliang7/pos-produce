@@ -37,25 +37,28 @@
                         <td align="right">Customer:{{sale._customer.name}}</td>
                     </tr>
 -->
-
-
                             <tr>
-                                <td><b>លក់ជូន/Sold to</b></td>
-                                <td>: {{sale._customer.name }}</td>
+                                <td ><b>លក់ជូន/Sold to</b></td>
+                                <td colspan="3">: {{sale._customer.name }}</td>
+                            </tr>
+                            <tr>
+                                <td><b>កាលបរិច្ឆេទ/Date:</b></td>
+                                <td>: {{moFormat sale.saleDate 'DD/MM/YYYY HH:mm:ss'}}</td>
                                 <td><b>No</b></td>
                                 <td>: {{sale._id}}</td>
                             </tr>
                             <tr>
                                 <td><b>តំណាងលក់/Seller</b></td>
                                 <td>: {{sale._rep.name}}</td>
-                                <td><b>កាលបរិច្ឆេទ/Date:</b></td>
-                                <td>: {{moFormat sale.saleDate 'DD/MM/YYYY HH:mm:ss'}}</td>
+
+                                <td><b>ប្រភេទវិក្កយបត្រ</b></td>
+                                <td>: {{sale.typeOfInvoice}}</td>
                             </tr>
                             <tr>
                                 <td><b>ទូរស័ព្ទ/Tel</b></td>
                                 <td>: {{sale._customer.telephone}}</td>
-                                <td><b>ប្រភេទវិក្កយបត្រ</b></td>
-                                <td>: {{sale.typeOfInvoice}}</td>
+
+                                <td colspan="2"></td>
                             </tr>
                             <tr>
                                 <td><b>អាស័យដ្ឋាន/Address</b></td>

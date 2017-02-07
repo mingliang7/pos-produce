@@ -34,6 +34,9 @@
                                     <div class="col-md-2">
                                         {{> afQuickField name="customer" label="Customer"}}
                                     </div>
+                                    <div class="col-md-2">
+                                        {{> afQuickField name="type" label="Invoice Type"}}
+                                    </div>
                                     <div class="col-md-4">
                                         {{> afQuickField name="branchId"}}
                                     </div>
@@ -91,7 +94,8 @@
                         <td>{{col._customer.name}}</td>
                         <td>
                             {{#each col.items}}
-                                <b>{{itemDoc.name}}</b> {{numFormat qty '0,0.00'}}x{{numFormat price '0,0.00'}}={{numFormat amount '0,0.00'}},
+                                <b>{{itemDoc.name}}</b> {{numFormat qty '0,0.00'}}x{{numFormat price '0,0.00'}}
+                                ={{numFormat amount '0,0.00'}},
                             {{/each}}
                         </td>
                         <td class="text-right">{{numFormat col.totalTransportFee '0,0.00'}}</td>
@@ -116,7 +120,8 @@
                 <tr>
                     <td colspan="6" class="text-center">l</td>
                     <td class="text-center" style="border-top : 1px dotted black"><b>Grand Total</b></td>
-                    <td class="text-right" style="border-top : 1px dotted black"><b>{{numFormat footer.grandTotal '0,0.00'}}</b></td>
+                    <td class="text-right" style="border-top : 1px dotted black"><b>{{numFormat footer.grandTotal
+                                                                                                '0,0.00'}}</b></td>
                 </tr>
                 </tbody>
             {{/with}}

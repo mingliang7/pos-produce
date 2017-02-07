@@ -30,6 +30,19 @@ export const invoiceEnterBillSchema = new SimpleSchema({
             }
         }
     },
+    type: {
+        type: String,
+        optional: true,
+        autoform: {
+            type: 'select',
+            options(){
+                return [
+                    {label: 'Invoice', value: "term"},
+                    {label: 'Invoice SO', value: "saleOrder"}
+                ];
+            }
+        }
+    },
     customer: {
         type: String,
         optional: true,
