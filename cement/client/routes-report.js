@@ -484,3 +484,17 @@ CementRoutes.route('/report/sale-order-detail', {
         parent: 'cement.home'
     }
 });
+
+import '../imports/ui/reports/invoiceSOBalance';
+CementRoutes.route('/report/invoiceSOBalance', {
+    name: 'cement.invoiceSOBalance',
+    title: 'SO By Customer',
+    action: function (params, queryParams) {
+        Layout.customReportLayout('Cement_invoiceSOBalance');
+    },
+    breadcrumb: {
+        title: 'SO By Customer',
+        icon: '',
+        parent: 'cement.home'
+    }
+});

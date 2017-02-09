@@ -1,4 +1,4 @@
-<template name="Cement_termCustomerBalance">
+<template name="Cement_invoiceSOBalance">
     <div class="panel-group" id="accordion1">
         <div class="panel panel-default">
             <div class="no-print panel-heading">
@@ -11,7 +11,7 @@
                 <div class="panel-body">
                     <div class="container-fluid">
                         <div class="inbox-head report-header">
-                            {{#autoForm schema=schema id='termCustomerBalanceReport'}}
+                            {{#autoForm schema=schema id='invoiceSOBalanceReport'}}
                                 <div class="row">
                                     <div class="col-md-2">
                                         {{> afQuickField name="date" label= 'As of date'}}
@@ -36,19 +36,19 @@
                     </div>
                 </div>
             </div>
-            {{>termCustomerBalanceData}}
+            {{>invoiceSOBalanceData}}
         </div>
     </div>
 </template>
 
-<template name="termCustomerBalanceData">
+<template name="invoiceSOBalanceData">
     <div class="container-fluid" id="to-print">
         {{#with company}}
             <div class="col-xs-12">
                 <h5 class="text-center text-blue">{{khName}}</h5>
             </div>
         {{/with}}
-        <div class="col-md-12" align="center"><h5 class="text-blue">CUSTOMER BALANCE REPORT(TERM)</h5></div>
+        <div class="col-md-12" align="center"><h5 class="text-blue">Unpaid SO By Customer</h5></div>
         <div class="row">
             <div class="col-xs-12">
                 <hr>

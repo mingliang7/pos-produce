@@ -3,46 +3,45 @@ import {createNewAlertify} from '../../../../core/client/libs/create-new-alertif
 import {reactiveTableSettings} from '../../../../core/client/libs/reactive-table-settings.js';
 import {renderTemplate} from '../../../../core/client/libs/render-template.js';
 //page
-import './termCustomerBalance.html';
+import './invoiceSOBalance.html';
 //import DI
 import  'printthis';
 //import collection
-import {customerBalanceSchema} from '../../api/collections/reports/customerBalance';
+import {invoiceSOBalance} from '../../api/collections/reports/invoiceSOBalance';
 
 //methods
-import {termCustomerBalanceReport} from '../../../common/methods/reports/termCustomerBalance';
+import {orderSOBalanceReport} from '../../../common/methods/reports/invoiceSOBalance';
 //state
 let paramsState = new ReactiveVar();
 let invoiceData = new ReactiveVar();
 //declare template
-let indexTmpl = Template.Cement_termCustomerBalance,
-    invoiceDataTmpl = Template.termCustomerBalanceData;
-Tracker.autorun(function () {
-    if (paramsState.get()) {
-        swal({
-            title: "Pleas Wait",
-            text: "Fetching Data....", showConfirmButton: false
-        });
-        termCustomerBalanceReport.callPromise(paramsState.get())
-            .then(function (result) {
-                invoiceData.set(result);
-                setTimeout(function () {
-                    swal.close()
-                }, 200);
-            }).catch(function (err) {
-            swal.close();
-            console.log(err.message);
-        })
-    }
-});
-
+let indexTmpl = Template.Cement_invoiceSOBalance,
+    invoiceDataTmpl = Template.invoiceSOBalanceData;
 indexTmpl.onCreated(function () {
     createNewAlertify('invoiceReport');
     paramsState.set(FlowRouter.query.params());
+    this.autorun(() => {
+        if (paramsState.get()) {
+            swal({
+                title: "Pleas Wait",
+                text: "Fetching Data....", showConfirmButton: false
+            });
+            orderSOBalanceReport.callPromise(paramsState.get())
+                .then(function (result) {
+                    invoiceData.set(result);
+                    setTimeout(function () {
+                        swal.close()
+                    }, 200);
+                }).catch(function (err) {
+                swal.close();
+                console.log(err.message);
+            })
+        }
+    });
 });
 indexTmpl.helpers({
     schema(){
-        return customerBalanceSchema;
+        return invoiceSOBalance;
     }
 });
 indexTmpl.events({
@@ -69,7 +68,7 @@ invoiceDataTmpl.helpers({
     display(col){
         let data = '';
         this.displayFields.forEach(function (obj) {
-            if (obj.field == 'invoiceDate' || obj.field == 'lastPaymentDate') {
+            if (obj.field == 'orderDate' || obj.field == 'lastPaymentDate') {
                 if (col[obj.field] == 'None') {
                     data += `<td>${col[obj.field]}</td>`
                 } else {
@@ -92,7 +91,7 @@ invoiceDataTmpl.helpers({
                 }
             }else if(obj.field == '_id'){
                 let val = col[obj.field];
-                data += `<td>${val.substr(val.length - 10 , val.length -1)}</td>`
+                data += `<td>${val.substr(val.length - 9 , val.length -1)}</td>`
             }
             else {
                 data += `<td>${col[obj.field]}</td>`;
@@ -116,7 +115,7 @@ invoiceDataTmpl.helpers({
         for (let i = 0; i < fieldLength; i++) {
             string += '<td></td>'
         }
-        string += `<td style="border-top: 1px solid black;"><b>Total:</td></b><td style="border-top: 1px solid black;" class="text-right"><b>${numeral(totalDue).format('0,0.00')}</b></td><td style="border-top: 1px solid black;" class="text-right"><b>${numeral(totalPaid).format('0,0.00')}</b></td><td style="border-top: 1px solid black;" class="text-right"><b>${numeral(totalBalance).format('0,0.00')}</b></td>`;
+        string += `<td style="border-top: 1px solid black;">Total:</td><td class="text-right" style="border-top: 1px solid black;">${numeral(totalDue).format('0,0.00')}</td><td style="border-top: 1px solid black;" class="text-right">${numeral(totalPaid).format('0,0.00')}</td><td style="border-top: 1px solid black;" class="text-right">${numeral(totalBalance).format('0,0.00')}</td>`;
         return string;
     },
     capitalize(customerName){
@@ -126,7 +125,7 @@ invoiceDataTmpl.helpers({
 
 
 AutoForm.hooks({
-    termCustomerBalanceReport: {
+    invoiceSOBalanceReport: {
         onSubmit(doc){
             this.event.preventDefault();
             FlowRouter.query.unset();
@@ -144,9 +143,6 @@ AutoForm.hooks({
             }
             if(doc.branchId) {
                 params.branchId = doc.branchId.join(',');
-            }
-            if(doc.invoiceType){
-                params.iType=doc.invoiceType;
             }
             FlowRouter.query.set(params);
             paramsState.set(FlowRouter.query.params());
