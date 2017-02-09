@@ -114,7 +114,7 @@ AutoForm.hooks({
             FlowRouter.query.unset();
             let params = {};
             if (doc.date) {
-                let formatDate = moment(doc.date).format('DD/MM/YY');
+                let formatDate = moment(doc.date).format('YYYY-MM-DD');
                 params.date = `${formatDate}`;
             }
             if (doc.customer) {

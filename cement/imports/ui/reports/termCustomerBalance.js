@@ -130,7 +130,7 @@ AutoForm.hooks({
             let params = {};
             params.branchId = Session.get('currentBranch');
             if (doc.date) {
-                let formatDate = moment(doc.date).format('DD/MM/YY');
+                let formatDate = moment(doc.date).format('YYYY-MM-DD');
                 params.date = `${formatDate}`;
             }
             if (doc.customer) {
@@ -141,6 +141,9 @@ AutoForm.hooks({
             }
             if(doc.branchId) {
                 params.branchId = doc.branchId.join(',');
+            }
+            if(doc.invoiceType){
+                params.iType=doc.invoiceType;
             }
             FlowRouter.query.set(params);
             paramsState.set(FlowRouter.query.params());
