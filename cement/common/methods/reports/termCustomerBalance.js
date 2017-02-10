@@ -208,6 +208,7 @@ export const  termCustomerBalanceReport = new ValidatedMethod({
                         total: .1
                     }
                 },
+                {$sort: {invoiceDate: 1}},
                 {
                     $redact: {
                         $cond: {if: {$eq: ['$balance', 0]}, then: '$$PRUNE', else: '$$KEEP'}
@@ -217,7 +218,7 @@ export const  termCustomerBalanceReport = new ValidatedMethod({
                     $group: {
                         _id: '$invoiceDoc.customerId',
                         data: {
-                            $addToSet: '$$ROOT'
+                            $push: '$$ROOT'
                         },
                         dueDate: {$last: '$dueDate'},
                         invoiceDate: {$last: '$invoiceDate'},
@@ -237,12 +238,13 @@ export const  termCustomerBalanceReport = new ValidatedMethod({
                 },
                 {
                     $unwind: {path: '$customerDoc', preserveNullAndEmptyArrays: true}
-                },
+                },            
+                {$sort: {'customerDoc.name': 1}},    
                 {
                     $group: {
                         _id: null,
                         data: {
-                            $addToSet: '$$ROOT'
+                            $push: '$$ROOT'
                         },
                         grandDueAmount: {$sum: '$dueAmountSubTotal'},
                         grandPaidAmount: {$sum: '$paidAmount'},
