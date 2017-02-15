@@ -34,8 +34,8 @@ Meteor.methods({
             data.title = Company.findOne();
 
             /****** Header *****/
-            let exchangeData=Exchange.findOne({_id: params.exchangeDate});
-            params.exchangeData=moment(exchangeData.exDate).format("DD/MM/YYYY") + ' | ' + JSON.stringify(exchangeData.rates)
+            let exchangeData = Exchange.findOne({_id: params.exchangeDate});
+            params.exchangeData = moment(exchangeData.exDate).format("DD/MM/YYYY") + ' | ' + JSON.stringify(exchangeData.rates)
 
             data.header = params;
             /****** Content *****/
@@ -87,7 +87,6 @@ Meteor.methods({
             }
 
 
-
             if (self.accountType != null) {
                 selectorChartAccount.accountTypeId = {
                     $in: accountTypeList
@@ -102,10 +101,10 @@ Meteor.methods({
             var endingCr = 0;
 
             ChartAccount.find(selectorChartAccount, {
-                    sort: {
-                        code: 1
-                    }
-                })
+                sort: {
+                    code: 1
+                }
+            })
                 .forEach(function (obj) {
 
 
@@ -185,6 +184,7 @@ Meteor.methods({
                                             var convertDrcrOld = Meteor.call('exchange',
                                                 oldData.currencyId, baseCurrency, oldDataTran
                                                     .drcr, exchangeDate);
+                                            console.log(convertDrcrOld);
                                             balanceOld += convertDrcrOld;
                                         }
 
