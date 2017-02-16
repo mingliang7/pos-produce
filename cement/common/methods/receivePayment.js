@@ -3,6 +3,8 @@ import {Accounts} from 'meteor/accounts-base';
 import {ValidatedMethod} from 'meteor/mdg:validated-method';
 import {SimpleSchema} from 'meteor/aldeed:simple-schema';
 import {CallPromiseMixin} from 'meteor/didericis:callpromise-mixin';
+import {AccountIntegrationSetting} from '../../imports/api/collections/accountIntegrationSetting.js';
+import {AccountMapping} from '../../imports/api/collections/accountMapping.js';
 //collection
 import {Invoices} from '../../imports/api/collections/invoice.js'
 import {GroupInvoice} from '../../imports/api/collections/groupInvoice.js'
@@ -50,7 +52,75 @@ export const receivePayment = new ValidatedMethod({
                 };
                 let customer = Customers.findOne(obj.customerId);
                 obj.paymentType = customer.termId ? 'term' : 'group';
-                ReceivePayment.insert(obj);
+                ReceivePayment.insert(obj,function(err){
+                    if(!err){
+                        let setting = AccountIntegrationSetting.findOne();
+                        if (setting && setting.integrate) {
+                            let transaction = [];
+                            let data = obj;
+                            data.type = "ReceivePayment";
+                            let arChartAccount = AccountMapping.findOne({name: 'A/R'});
+                            let cashChartAccount = AccountMapping.findOne({name: 'Cash on Hand'});
+                            let saleDiscountChartAccount = AccountMapping.findOne({name: 'Sale Discount'});
+                            let codChartAccount = AccountMapping.findOne({name: 'Customer COD'});
+                            let benefitChartAccount = AccountMapping.findOne({name: 'Customer Benefit'});
+
+                            let discount = obj.discount == null ? 0 : obj.discount;
+                            let cod = obj.cod == null ? 0 : obj.cod;
+                            let benefit = obj.benefit == null ? 0 : obj.benefit;
+                            data.total = obj.paidAmount + discount + cod + benefit;
+                            //let discountAmount = obj.dueAmount * obj.discount / 100;
+                            //data.total = obj.paidAmount + discountAmount;
+
+                            let customerDoc = Customers.findOne({_id: obj.customerId});
+                            if (customerDoc) {
+                                data.name = customerDoc.name;
+                                data.des = data.des == "" || data.des == null ? ('ទទួលការបង់ប្រាក់ពីអតិថិជនៈ ' + data.name) : data.des;
+                            }
+
+                            transaction.push({
+                                account: cashChartAccount.account,
+                                dr: obj.paidAmount,
+                                cr: 0,
+                                drcr: obj.paidAmount
+                            });
+                            if (discount > 0) {
+                                transaction.push({
+                                    account: saleDiscountChartAccount.account,
+                                    dr: discount,
+                                    cr: 0,
+                                    drcr: discount
+                                });
+                            }
+                            if (cod > 0) {
+                                transaction.push({
+                                    account: codChartAccount.account,
+                                    dr: cod,
+                                    cr: 0,
+                                    drcr: cod
+                                });
+                            }
+                            if (benefit > 0) {
+                                transaction.push({
+                                    account: benefitChartAccount.account,
+                                    dr: benefit,
+                                    cr: 0,
+                                    drcr: benefit
+                                });
+                            }
+
+                            transaction.push({
+                                account: arChartAccount.account,
+                                dr: 0,
+                                cr: data.total,
+                                drcr: -data.total
+                            });
+                            data.transaction = transaction;
+                            data.journalDate = data.paymentDate;
+                            Meteor.call('insertAccountJournal', data);
+                        }
+                    }
+                });
                 if (obj.status == 'closed') {
                     selector.$set = {status: 'closed', closedAt: obj.paymentDate}
                 } else {
@@ -63,6 +133,7 @@ export const receivePayment = new ValidatedMethod({
                 } else {
                     GroupInvoice.direct.update(k, selector);
                 }
+
             }
             return true;
         }

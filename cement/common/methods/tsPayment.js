@@ -49,7 +49,11 @@ export const tsPaymentFn = new ValidatedMethod({
                 };
                 let customer = Customers.findOne(obj.customerId);
                 obj.paymentType = customer.termId ? 'term' : 'group';
-                TSPayment.insert(obj);
+                TSPayment.insert(obj, function(err) {
+                    if(!err) {
+                        //account integration go here
+                    }
+                });
                 if (obj.status == 'closed') {
                     selector.$set = {tsStatus: 'closed', closedTsAt: obj.paymentDate}
                 } else {

@@ -14,71 +14,7 @@ ReceivePayment.before.insert(function (userId, doc) {
 ReceivePayment.after.insert(function (userId, doc) {
     Meteor.defer(function () {
         //Account Integration
-        let setting = AccountIntegrationSetting.findOne();
-        if (setting && setting.integrate) {
-            let transaction = [];
-            let data = doc;
-            data.type = "ReceivePayment";
-            let arChartAccount = AccountMapping.findOne({name: 'A/R'});
-            let cashChartAccount = AccountMapping.findOne({name: 'Cash on Hand'});
-            let saleDiscountChartAccount = AccountMapping.findOne({name: 'Sale Discount'});
-            let codChartAccount = AccountMapping.findOne({name: 'Customer COD'});
-            let benefitChartAccount = AccountMapping.findOne({name: 'Customer Benefit'});
 
-            let discount = doc.discount == null ? 0 : doc.discount;
-            let cod = doc.cod == null ? 0 : doc.cod;
-            let benefit = doc.benefit == null ? 0 : doc.benefit;
-            data.total = doc.paidAmount + discount + cod + benefit;
-            //let discountAmount = doc.dueAmount * doc.discount / 100;
-            //data.total = doc.paidAmount + discountAmount;
-
-            let customerDoc = Customers.findOne({_id: doc.customerId});
-            if (customerDoc) {
-                data.name = customerDoc.name;
-                data.des = data.des == "" || data.des == null ? ('ទទួលការបង់ប្រាក់ពីអតិថិជនៈ ' + data.name) : data.des;
-            }
-
-            transaction.push({
-                account: cashChartAccount.account,
-                dr: doc.paidAmount,
-                cr: 0,
-                drcr: doc.paidAmount
-            });
-            if (discount > 0) {
-                transaction.push({
-                    account: saleDiscountChartAccount.account,
-                    dr: discount,
-                    cr: 0,
-                    drcr: discount
-                });
-            }
-            if (cod > 0) {
-                transaction.push({
-                    account: codChartAccount.account,
-                    dr: cod,
-                    cr: 0,
-                    drcr: cod
-                });
-            }
-            if (benefit > 0) {
-                transaction.push({
-                    account: benefitChartAccount.account,
-                    dr: benefit,
-                    cr: 0,
-                    drcr: benefit
-                });
-            }
-
-            transaction.push({
-                account: arChartAccount.account,
-                dr: 0,
-                cr: data.total,
-                drcr: -data.total
-            });
-            data.transaction = transaction;
-            data.journalDate = data.paymentDate;
-            Meteor.call('insertAccountJournal', data);
-        }
         //End Account Integration
     });
 });
