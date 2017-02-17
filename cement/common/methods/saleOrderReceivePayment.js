@@ -45,8 +45,9 @@ export const saleOrderReceivePayment = new ValidatedMethod({
                 };
                 let customer = Customers.findOne(obj.customerId);
                 obj.paymentType = customer.termId ? 'term' : 'group';
-                SaleOrderReceivePayment.insert(obj, function(err) {
+                SaleOrderReceivePayment.insert(obj, function(err,res) {
                     if(!err) {
+                        obj._id=res;
                         let setting = AccountIntegrationSetting.findOne();
                         if (setting && setting.integrate) {
                             let transaction = [];

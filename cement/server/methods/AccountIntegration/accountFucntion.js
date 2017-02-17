@@ -16,6 +16,8 @@ Meteor.methods({
         Meteor.call('api_journalInsert', data, function (err, res) {
             if (res) {
                 id = res;
+            } else {
+                throw new Meteor.Error(err.message);
             }
         });
         return id;
@@ -37,6 +39,8 @@ Meteor.methods({
         Meteor.call('api_journalUpdate', data, function (err, res) {
             if (res) {
                 isTrue = res;
+            } else {
+                throw new Meteor.Error(err.message);
             }
         });
         return isTrue;
@@ -48,6 +52,8 @@ Meteor.methods({
         Meteor.call('api_journalRemove', refId, refFrom, function (err, res) {
             if (res) {
                 isTrue = res;
+            } else {
+                throw new Meteor.Error(err);
             }
         });
         return isTrue;
