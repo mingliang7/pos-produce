@@ -130,5 +130,20 @@ export const invoiceEnterBillSchema = new SimpleSchema({
                 }
             }
         }
+    },
+    sortBy: {
+        type: String,
+        optional: true,
+        autoform: {
+            type: 'select',
+            options(){
+                return [
+                    {label: 'ID', value: '_id'},
+                    {label: 'Date', value: 'date'},
+                    {label: 'Name', value: 'name'},
+                    {label: 'Total', value: 'total'},
+                ]
+            }
+        }
     }
 });

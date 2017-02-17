@@ -39,6 +39,7 @@ Tracker.autorun(function () {
 
 indexTmpl.onCreated(function () {
     createNewAlertify('customerHistory');
+    createNewAlertify('showCustomerHistory', {size: 'lg'});
     paramsState.set(FlowRouter.query.params());
     this.fromDate = new ReactiveVar(moment().startOf('days').toDate());
     this.endDate = new ReactiveVar(moment().endOf('days').toDate());
@@ -77,6 +78,15 @@ invoiceDataTmpl.onRendered(function () {
     Meteor.setTimeout(function () {
         $("table.fixed-table").fixMe();
     },1000);
+});
+invoiceDataTmpl.events({
+    'click .displayRp'(event,instance){
+        let paymentDate = moment($(event.currentTarget).attr('value')).format('DD/MM/YYYY');
+        let data = invoiceData.get();
+        let payments = data.payments[paymentDate].payments;
+        console.log(payments)
+        alertify.showCustomerHistory(fa('List Receive Payments', ''), renderTemplate(Template.customerHistoryShowRp,payments));
+    }
 });
 invoiceDataTmpl.helpers({
     existPayment(paymentDate){
@@ -126,6 +136,28 @@ invoiceDataTmpl.helpers({
             return data;
         }
     },
+    displayByDay(date){
+        let paymentDate = moment(date).format('DD/MM/YYYY');
+        let data = invoiceData.get()
+        let paymentData = data.payments[paymentDate];
+        let paidAmount = 0;
+        let beginningBalance = 0; 
+        if(!_.isEmpty(paymentData)){
+            paymentData.paids.map(function(e){
+                paidAmount += e;
+            })
+            beginningBalance = paymentData.balance[paymentData.balance.length - 1];
+        }
+        return {paidAmount, beginningBalance};
+    },
+    firstIndex(index,date ,data){
+        let paymentDate = data[index - 1 ] && data[index - 1 ].date;
+        let moPaymentDate = moment(paymentDate).format('YYYY-MM-DD');
+        if(!moment(moPaymentDate).isSame(moment(date).format('YYYY-MM-DD'))){
+            return true;
+        }
+        return false;
+    },
     getBeginningBalance(index, balance = 0){
         let customerHistory = invoiceData.get();
         let currentMapDate = customerHistory.invoiceDateArr && customerHistory.invoiceDateArr[index];
@@ -155,7 +187,11 @@ invoiceDataTmpl.helpers({
     },
 });
 
-
+Template.customerHistoryShowRp.helpers({
+    data(){
+        return this;
+    }
+});
 AutoForm.hooks({
     customerHistoryReport: {
         onSubmit(doc){

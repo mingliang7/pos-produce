@@ -95,21 +95,31 @@
                         </tr>
                         {{#each col in field.data}}
                             <tr>
-                                <td>{{field.customer.name}}</td>
-                                <td>
-                                    {{moFormat col.date 'DD/MM/YYYY'}}
-                                </td>
-                                <td>
-                                    {{#if col.inv}}
-                                        {{concatInvoiceId col._id}}
-                                    {{else}}
-                                        {{col._id}}
+                                {{#if col.inv}}
+                                    <td>{{field.customer.name}}</td>
+                                    <td>
+                                        {{moFormat col.date 'DD/MM/YYYY'}}
+                                    </td>
+                                {{else}}
+                                    {{#if firstIndex @index col.date field.data}}
+                                        <td>{{field.customer.name}}</td>
+                                        <td>
+                                            {{moFormat col.date 'DD/MM/YYYY'}}
+                                        </td>
                                     {{/if}}
-                                </td>
+                                {{/if}}
+                                    {{#if col.inv}}
+                                        <td>
+                                            {{concatInvoiceId col._id}}
+                                        </td>
+                                    {{else}}
+                                        {{#if firstIndex @index col.date field.data}}
+                                            <td><a style="cursor: pointer;" class="displayRp" value="{{col.date}}">Receive Payment</a></td>
+                                        {{/if}}
+                                    {{/if}}
+                                
                                 {{#if col.inv}}
                                     <td>INV</td>
-                                {{else}}
-                                    <td>RP#{{concatInvoiceId col.invoiceId}}</td>
                                 {{/if}}
                                 {{#if col.inv}}
                                     {{#each item in col.firstItem}}
@@ -124,14 +134,19 @@
                                     <td class="text-right"><b>{{numFormat col.beginningBalance '0,0.00'}}</b></td>
                                     <!--<td class="text-right">{{numFormat col.total '0,0.00'}}</td>-->
                                 {{else}}
-                                    <td>{{item.itemName}}</td>
-                                    <td class="text-right"></td>
-                                    <td class="text-right"></td>
-                                    <td class="text-right"></td>
-                                    <td class="text-right"></td>
-                                    <td class="text-right"></td>
-                                    <td class="text-right">{{numFormat col.paidAmount '0,0.00'}}</td>
-                                    <td class="text-right"><b>{{numFormat col.beginningBalance '0,0.00'}}</b></td>
+                                    {{#if firstIndex @index col.date field.data}}
+                                        <td>{{item.itemName}}</td>
+                                        <td class="text-right"></td>
+                                        <td class="text-right"></td>
+                                        <td class="text-right"></td>
+                                        <td class="text-right"></td>
+                                        <td class="text-right"></td>
+                                        {{#with  displayByDay col.date @index}}
+                                            <td class="text-right"></td>
+                                            <td class="text-right">{{numFormat paidAmount '0,0.00'}}</td>
+                                            <td class="text-right"><b>{{numFormat beginningBalance '0,0.00'}}</b></td>
+                                        {{/with}}
+                                    {{/if}}
                                     <!--<td class="text-right">{{numFormat col.balanceAmount '0,0.00'}}</td>-->
                                 {{/if}}
 
@@ -174,4 +189,30 @@
         {{/with}}
         {{> ReportSignFooter}}
     </div>
+</template>
+
+
+<template name="customerHistoryShowRp">
+        <table class="table striped">
+            <thead>
+                <th>ID</th>
+                <th>Invoice ID</th>
+                <th>Voucher ID</th>
+                <th>Date</th>
+                <th>Paid</th>
+                <th>Balance</th>
+            </thead>
+            <tbody>
+            {{#each data}}
+                <tr>
+                    <td>{{_id}}</td>
+                    <td>{{invoiceId}}</td>
+                    <td>{{voucherId}}</td>
+                    <td>{{moFormat date 'DD/MM/YYYY'}}</td>
+                    <td>{{numFormat paidAmount '0,0.00'}}</td>
+                    <td>{{numFormat balanceAmount '0,0.00'}}</td>
+                </tr>
+            {{/each}}  
+            </tbody>
+        </table>
 </template>

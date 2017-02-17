@@ -3,8 +3,7 @@ import {ValidatedMethod} from 'meteor/mdg:validated-method';
 import {SimpleSchema} from 'meteor/aldeed:simple-schema';
 import {CallPromiseMixin} from 'meteor/didericis:callpromise-mixin';
 import {_} from 'meteor/erasaur:meteor-lodash';
-import {moment} from  'meteor/momentjs:moment';
-
+import {moment} from 'meteor/momentjs:moment';
 // Collection
 import {Company} from '../../../../core/imports/api/collections/company.js';
 import {Invoices} from '../../../imports/api/collections/invoice';
@@ -25,7 +24,9 @@ export const customerHistoryReport = new ValidatedMethod({
                 title: {},
                 fields: [],
                 displayFields: [],
-                content: [{index: 'No Result'}],
+                content: [{
+                    index: 'No Result'
+                }],
                 footer: {
                     totalBalance: 0
                 }
@@ -39,11 +40,23 @@ export const customerHistoryReport = new ValidatedMethod({
                 selector.branchId = {
                     $in: branchId
                 };
-                selector = ReportFn.checkIfUserHasRights({currentUser: Meteor.userId(), selector});
+                selector = ReportFn.checkIfUserHasRights({
+                    currentUser: Meteor.userId(),
+                    selector
+                });
             }
-            let exchange = Exchange.findOne({}, {sort: {_id: -1}});
-            let coefficient = exchangeCoefficient({exchange, fieldToCalculate: '$total'})
-            selector.invoiceType = {$eq: 'term'};
+            let exchange = Exchange.findOne({}, {
+                sort: {
+                    _id: -1
+                }
+            });
+            let coefficient = exchangeCoefficient({
+                exchange,
+                fieldToCalculate: '$total'
+            })
+            selector.invoiceType = {
+                $eq: 'term'
+            };
             var currentArrDate;
             if (params.date) {
                 currentArrDate = params.date;
@@ -66,9 +79,12 @@ export const customerHistoryReport = new ValidatedMethod({
             let totalPaidAmount = 0;
             let totalAmount = 0;
             let totalBalance = 0;
-            let invoices = Invoices.aggregate([
-                {$match: selector},
-                {$unwind: '$items'},
+            let invoices = Invoices.aggregate([{
+                    $match: selector
+                },
+                {
+                    $unwind: '$items'
+                },
                 {
                     $lookup: {
                         from: 'cement_item',
@@ -77,14 +93,27 @@ export const customerHistoryReport = new ValidatedMethod({
                         as: 'itemDoc'
                     }
                 },
-                {$unwind: {path: '$itemDoc', preserveNullAndEmptyArrays: true}},
+                {
+                    $unwind: {
+                        path: '$itemDoc',
+                        preserveNullAndEmptyArrays: true
+                    }
+                },
                 {
                     $group: {
                         _id: '$_id',
-                        total: {$last: '$total'},
-                        customerId: {$last: '$customerId'},
-                        invoiceDate: {$last: '$invoiceDate'},
-                        voucherId: {$last: '$voucherId'},
+                        total: {
+                            $last: '$total'
+                        },
+                        customerId: {
+                            $last: '$customerId'
+                        },
+                        invoiceDate: {
+                            $last: '$invoiceDate'
+                        },
+                        voucherId: {
+                            $last: '$voucherId'
+                        },
                         items: {
                             $push: {
                                 itemName: '$itemDoc.name',
@@ -104,7 +133,12 @@ export const customerHistoryReport = new ValidatedMethod({
                         as: 'customerDoc'
                     }
                 },
-                {$unwind: {path: '$customerDoc', preserveNullAndEmptyArrays: true}},
+                {
+                    $unwind: {
+                        path: '$customerDoc',
+                        preserveNullAndEmptyArrays: true
+                    }
+                },
                 {
                     $lookup: {
                         from: "cement_receivePayment",
@@ -181,6 +215,7 @@ export const customerHistoryReport = new ValidatedMethod({
 
                 });
             });
+
             for (let k in groupDateObj) {
                 let sortData = _.sortBy(groupDateObj[k].data, function (value) {
                     return new Date(value.date);
@@ -188,9 +223,10 @@ export const customerHistoryReport = new ValidatedMethod({
                 groupDateObj[k].data = sortData;
                 arr.push(groupDateObj[k]);
             }
-            let afterSortArr = arr.sort ( (a, b) => {
+            let afterSortArr = arr.sort((a, b) => {
                 return new Date(a.date) - new Date(b.date);
             });
+            let groupPaymentByDay = {};
             afterSortArr.forEach(function (doc) {
                 doc.data.forEach(function (o) {
                     if (o.type == 'invoice') {
@@ -199,16 +235,29 @@ export const customerHistoryReport = new ValidatedMethod({
                         o.balanceAmount = beginningBalance + o.total;
                         totalAmount += o.total;
                     } else {
+                        let paymentDate = moment(o.date).format('DD/MM/YYYY');
                         o.beginningBalance = beginningBalance - o.paidAmount;
                         o.balanceAmount = o.balance;
                         beginningBalance -= o.paidAmount;
                         totalPaidAmount += o.paidAmount;
+                         if (!groupPaymentByDay[paymentDate]) {
+                            groupPaymentByDay[paymentDate] = {
+                                paids: [o.paidAmount],
+                                balance: [beginningBalance],
+                                payments: [o]
+                            }
+                        } else {
+                            groupPaymentByDay[paymentDate].paids.push(o.paidAmount);
+                            groupPaymentByDay[paymentDate].balance.push(beginningBalance);
+                            groupPaymentByDay[paymentDate].payments.push(o);
+                        }
                     }
                 });
             });
 
             if (afterSortArr.length > 0) {
                 data.content = arr;
+                data.payments = groupPaymentByDay;
                 data.footer.totalAmount = totalAmount;
                 data.footer.totalPaidAmount = totalPaidAmount;
                 data.footer.totalBalance = totalAmount - totalPaidAmount;

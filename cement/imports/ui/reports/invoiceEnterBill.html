@@ -23,8 +23,11 @@
                                     </select>
                                 </div>
                             </div>
-                            {{#autoForm schema=schema id='invoiceEnterBillReport'}}
+                            {{#autoForm schema=schema id='invoiceEnterBillReport'}}                            
                                 <div class="row">
+                                    <div class="col-xs-2">
+                                        {{> afQuickField name="sortBy"}}                                    
+                                    </div>
                                     <div class="col-md-2">
                                         {{> afQuickField name="fromDate" label= 'From Date' value=fromDate}}
                                     </div>
@@ -37,7 +40,7 @@
                                     <div class="col-md-2">
                                         {{> afQuickField name="type" label="Invoice Type"}}
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-2">
                                         {{> afQuickField name="branchId"}}
                                     </div>
                                 </div>

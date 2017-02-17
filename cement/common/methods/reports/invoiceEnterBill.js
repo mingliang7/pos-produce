@@ -30,6 +30,7 @@ export const invoiceEnterBillReport = new ValidatedMethod({
                 footer: {}
             };
             let branchId = [];
+            let sortBy = {};
             if(params.branchId) {
                 branchId = params.branchId.split(',');
                 selector.branchId = {
@@ -61,6 +62,17 @@ export const invoiceEnterBillReport = new ValidatedMethod({
             /****** Title *****/
             data.title.company = Company.findOne();
             /****** Content *****/
+            if(params.sortBy){
+                if(params.sortBy == 'date'){
+                    sortBy.invoiceDate = 1;
+                }else if (params.sortBy == 'name'){
+                    sortBy['_customer.name'] =  1; 
+                }else if(params.sortBy == '_id'){
+                    sortBy._id = 1;
+                }else{
+                    sortBy.total = -1;
+                }
+            }
             let invoices = Invoices.aggregate([
                 {
                     $match: selector
@@ -112,6 +124,25 @@ export const invoiceEnterBillReport = new ValidatedMethod({
                     }
                 },
                 {
+                    $project: {
+                        _id: 1,
+                        _customer: 1,
+                        invoiceDate: 1,
+                        branchId: 1,
+                        dueDate: 1,
+                        stockLocationId: 1,
+                        subTotal: {$subtract: ['$subTotal', '$totalTransportFee']},
+                        total: 1,
+                        printId: 1,
+                        totalTransportFee: 1,
+                        totalDiscount: 1,
+                        status: 1,
+                        enterBills: 1,
+                        refBillId: 1,
+                        items:1
+                    }
+                },
+                {
                     $lookup: {
                         from: "core_branch",
                         localField: "branchId",
@@ -134,7 +165,7 @@ export const invoiceEnterBillReport = new ValidatedMethod({
                     $unwind: {path: '$stockLocation', preserveNullAndEmptyArrays: true},
                 },
                 {
-                    $sort: {_id: 1}
+                    $sort: sortBy
                 },
                 {
                     $group: {
