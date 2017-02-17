@@ -84,8 +84,14 @@ invoiceDataTmpl.events({
         let paymentDate = moment($(event.currentTarget).attr('value')).format('DD/MM/YYYY');
         let data = invoiceData.get();
         let payments = data.payments[paymentDate].payments;
-        console.log(payments)
-        alertify.showCustomerHistory(fa('List Receive Payments', ''), renderTemplate(Template.customerHistoryShowRp,payments));
+        let totalPaid = 0; 
+        let totalBalance = 0 ; 
+        payments.map(function(o){
+            totalPaid += o.paidAmount;
+            totalBalance += o.balanceAmount;
+        })
+        let dataObj = {totalPaid, totalBalance, payments}
+        alertify.showCustomerHistory(fa('List Receive Payments', ''), renderTemplate(Template.customerHistoryShowRp,dataObj));
     }
 });
 invoiceDataTmpl.helpers({
