@@ -43,8 +43,9 @@ export const payBill = new ValidatedMethod({
         }
         let vendor = Vendors.findOne(obj.vendorId)
         obj.paymentType = vendor.termId ? 'term' : 'group'
-        PayBills.insert(obj, function (err) {
+        PayBills.insert(obj, function (err,res) {
           if (!err) {
+            obj._id=res;
             let setting = AccountIntegrationSetting.findOne()
             if (setting && setting.integrate) {
               let transaction = []

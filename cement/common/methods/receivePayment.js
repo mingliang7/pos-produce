@@ -52,8 +52,9 @@ export const receivePayment = new ValidatedMethod({
                 };
                 let customer = Customers.findOne(obj.customerId);
                 obj.paymentType = customer.termId ? 'term' : 'group';
-                ReceivePayment.insert(obj,function(err){
+                ReceivePayment.insert(obj,function(err,res){
                     if(!err){
+                        obj._id=res;
                         let setting = AccountIntegrationSetting.findOne();
                         if (setting && setting.integrate) {
                             let transaction = [];

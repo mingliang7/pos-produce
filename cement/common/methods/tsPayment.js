@@ -8,6 +8,9 @@ import {Invoices} from '../../imports/api/collections/invoice.js'
 import {GroupInvoice} from '../../imports/api/collections/groupInvoice.js'
 import {TSPayment} from '../../imports/api/collections/tsPayment.js';
 import {Customers} from '../../imports/api/collections/customer';
+import {AccountIntegrationSetting} from '../../imports/api/collections/accountIntegrationSetting.js';
+import {AccountMapping} from '../../imports/api/collections/accountMapping.js';
+
 // Check user password
 export const tsPaymentFn = new ValidatedMethod({
     name: 'cement.tsPaymentFn',
@@ -49,9 +52,39 @@ export const tsPaymentFn = new ValidatedMethod({
                 };
                 let customer = Customers.findOne(obj.customerId);
                 obj.paymentType = customer.termId ? 'term' : 'group';
-                TSPayment.insert(obj, function(err) {
-                    if(!err) {
-                        //account integration go here
+                TSPayment.insert(obj, function (err,res) {
+                    if (!err) {
+                        obj._id=res;
+                        let setting = AccountIntegrationSetting.findOne();
+                        if (setting && setting.integrate) {
+                            let transaction = [];
+                            let data = obj;
+                            data.type = "TSPayment";
+                            let cashChartAccount = AccountMapping.findOne({name: 'Cash on Hand'});
+                            let TPChartAccount = AccountMapping.findOne({name: 'Transport Payable'});
+                            let customerDoc = Customers.findOne({_id: obj.customerId});
+                            if (customerDoc) {
+                                data.name = customerDoc.name;
+                                data.des = data.des == "" || data.des == null ? ('ទទួលការបង់ប្រាក់ពីអតិថិជនៈ ' + data.name) : data.des;
+                            }
+                            transaction.push(
+                                {
+                                    account: cashChartAccount.account,
+                                    dr: 0,
+                                    cr: obj.paidAmount,
+                                    drcr: -obj.paidAmount
+                                },
+                                {
+                                    account: TPChartAccount.account,
+                                    dr: obj.paidAmount,
+                                    cr: 0,
+                                    drcr: obj.paidAmount
+                                },
+                            );
+                            data.transaction = transaction;
+                            data.journalDate = data.paymentDate;
+                            Meteor.call('insertAccountJournal', data);
+                        }
                     }
                 });
                 if (obj.status == 'closed') {

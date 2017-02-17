@@ -43,8 +43,9 @@ export const purchaseOrderPaymentMethod = new ValidatedMethod({
                     branchId: branch
                 };
                 let vendor = Vendors.findOne(obj.vendorId);
-                PurchaseOrderPayment.insert(obj, function (err) {
+                PurchaseOrderPayment.insert(obj, function (err,res) {
                     if (!err) {
+                        obj._id=res;
                         //Account Integration
                         let setting = AccountIntegrationSetting.findOne();
                         if (setting && setting.integrate) {

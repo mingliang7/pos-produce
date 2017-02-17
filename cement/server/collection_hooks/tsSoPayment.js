@@ -188,15 +188,15 @@ TSSOPayment.before.insert(function (userId, doc) {
 //
 TSSOPayment.after.remove(function (userId, doc) {
     Meteor.call('insertRemovedTsSoPayment', doc);
-    // Meteor.defer(function () {
-    //     //Account Integration
-    //     let setting = AccountIntegrationSetting.findOne();
-    //     if (setting && setting.integrate) {
-    //         let data = {_id: doc._id, type: 'TSPayment'};
-    //         Meteor.call('removeAccountJournal', data);
-    //     }
-    //     //End Account Integration
-    // })
+    Meteor.defer(function () {
+        //Account Integration
+        let setting = AccountIntegrationSetting.findOne();
+        if (setting && setting.integrate) {
+            let data = {_id: doc._id, type: 'TSSOPayment'};
+            Meteor.call('removeAccountJournal', data);
+        }
+        //End Account Integration
+    })
 });
 function updateInvoiceOrInvoiceGroup({_id, selector, collection}) {
     collection.direct.update(_id, selector);
