@@ -184,7 +184,6 @@ Meteor.methods({
                                             var convertDrcrOld = Meteor.call('exchange',
                                                 oldData.currencyId, baseCurrency, oldDataTran
                                                     .drcr, exchangeDate);
-                                            console.log(convertDrcrOld);
                                             balanceOld += convertDrcrOld;
                                         }
 
