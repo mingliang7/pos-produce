@@ -82,5 +82,19 @@ export const customerBalanceSchema = new SimpleSchema({
                 ]
             }
         }
+    },
+    type: {
+        type: String,
+        optional: true,
+        defaultValue: 'active',
+        autoform: {
+            type: 'select-radio-inline',
+            options(){
+                return [
+                    {label: 'Active', value: 'active'},
+                    {label: 'All', value: 'all'},
+                ]
+            }
+        }
     }
 });

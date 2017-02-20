@@ -14,6 +14,9 @@
                             {{#autoForm schema=schema id='termCustomerBalanceReport'}}
                                 <div class="row">
                                     <div class="col-md-2">
+                                        {{> afQuickField name="type" label= 'Invoice Type' value="active"}}
+                                    </div>
+                                    <div class="col-md-2">
                                         {{> afQuickField name="date" label= 'As of date'}}
                                     </div>
                                     <div class="col-md-2">

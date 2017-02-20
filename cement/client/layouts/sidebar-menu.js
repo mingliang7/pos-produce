@@ -25,7 +25,7 @@ Template.Cement_sidebarMenu.helpers({
         return `/cement/report/groupCustomerBalance?date=${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}`;
     },
     termBalance() {
-        return `/cement/report/termCustomerBalance?date=${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}&branchId=${Session.get('currentBranch')}`;
+        return `/cement/report/termCustomerBalance?date=${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}&branchId=${Session.get('currentBranch')}&type=active`;
     },
     unpaidSoByCustomer() {
         return `/cement/report/invoiceSOBalance?date=${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}&branchId=${Session.get('currentBranch')}`;
