@@ -113,7 +113,6 @@ indexTmpl.helpers({
     dueAmount(){
         let total = this.total || 0;
         let lastPayment = getLastPayment(this._id);
-        console.log(lastPayment);
         return lastPayment == 0 ? `${numeral(total).format('0,0.00')}` : `${numeral(lastPayment).format('0,0.00')}`;
     },
     schema() {
@@ -125,11 +124,11 @@ indexTmpl.helpers({
         if (vendor && vendor.termId) {
             invoices = EnterBills.find({}, {
                 sort: {
-                    _id: 1
+                    payBillDate: 1
                 }
             });
         } else {
-            invoices = GroupBill.find({}, {sort: {_id: 1}});
+            invoices = GroupBill.find({}, {sort: {startDate: 1}});
         }
         if (invoices.count() > 0) {
             let arr = [];
@@ -208,7 +207,8 @@ indexTmpl.helpers({
         let advanceDiscountCollection = AdvanceDiscount.findOne({name: 'payBill'});
         let notContainAdvanceDiscount = !_.includes(advanceDiscountCollection && advanceDiscountCollection.advanceDiscount, 'discount');
         if (lastPaymentDate) {
-            if (moment(currentSelectDate).isBefore(lastPaymentDate) || lastPayment > 0 || notContainAdvanceDiscount) {
+            // if (moment(currentSelectDate).isBefore(lastPaymentDate) || lastPayment > 0 || notContainAdvanceDiscount) {
+            if (moment(currentSelectDate).isBefore(lastPaymentDate)  || notContainAdvanceDiscount) {
                 return true;
             } else {
                 return false;
@@ -435,7 +435,7 @@ indexTmpl.events({
         }
     },
     'change .discount'(event, instance){
-        let total = this.total;
+        let total = getLastPayment(this._id) || this.total;
         let discount = 0;
         let cod = $(event.currentTarget).parents('.invoice-parents').find('.cod').val();
         let benefit = $(event.currentTarget).parents('.invoice-parents').find('.benefit').val();
@@ -449,6 +449,9 @@ indexTmpl.events({
 
         } else {
             //trigger change on total
+            if(parseFloat(event.currentTarget.value) > total){
+                $(event.currentTarget).val(total);
+            }
             let valueAfterDiscount = (total - (cod + benefit + parseFloat(event.currentTarget.value)) ) ;
             $(event.currentTarget).parents('.invoice-parents').find('.total').val(valueAfterDiscount).change();
             $(event.currentTarget).parents('.invoice-parents').find('.actual-pay').val(numeral(valueAfterDiscount).format('0,0.00')).change();
@@ -509,7 +512,8 @@ indexTmpl.events({
         let discount = $(event.currentTarget).parents('.invoice-parents').find('.discount').val(); // get discount
         let cod = $(event.currentTarget).parents('.invoice-parents').find('.cod').val(); // get discount
         let benefit = $(event.currentTarget).parents('.invoice-parents').find('.benefit').val(); // get discount
-        if (event.currentTarget.value == '' || event.currentTarget.value == '0') {
+        // if (event.currentTarget.value == '' || event.currentTarget.value == '0') {
+        if (event.currentTarget.value == '') {
             if (_.has(selectedInvoices, this._id)) {
                 selectedInvoices.count -= 1;
                 delete selectedInvoices[this._id];
@@ -526,7 +530,7 @@ indexTmpl.events({
             selectedInvoices[this._id].cod = parseFloat(cod);
             selectedInvoices[this._id].benefit = parseFloat(benefit);
             selectedInvoices[this._id].receivedPay = parseFloat(event.currentTarget.value);
-            selectedInvoices[this._id].dueAmount = lastPayment == 0 ? this.total - discount : lastPayment;
+            selectedInvoices[this._id].dueAmount = lastPayment == 0 ? this.total - discount : lastPayment - discount;
             selectedInvoices[this._id].dueAmount = lastPayment == 0 ? selectedInvoices[this._id].dueAmount - cod : selectedInvoices[this._id].dueAmount;
             selectedInvoices[this._id].dueAmount = lastPayment == 0 ? selectedInvoices[this._id].dueAmount - benefit : selectedInvoices[this._id].dueAmount;
             $(event.currentTarget).parents('.invoice-parents').find('.select-invoice').prop('checked', true);

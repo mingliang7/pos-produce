@@ -75,5 +75,32 @@ export const groupBillReportSchema = new SimpleSchema({
                 ]
             }
         }
+    },
+    sortBy: {
+        type: String,
+        optional: true,
+        autoform: {
+            type: 'select',
+            options(){
+                return [
+                    {label: 'ID', value: '_id'},
+                    {label: 'Date', value: 'enterBillDate'},
+                    {label: 'Amount', value: 'total'}
+                ]
+            }
+        }
+    },
+    sortOrder: {
+        type: String,
+        optional: true,
+        autoform: {
+            type: 'select',
+            options(){
+                return [
+                    {label: 'Asc', value: '-1'},
+                    {label: 'Desc', value: '1'},
+                ]
+            }
+        }
     }
 });

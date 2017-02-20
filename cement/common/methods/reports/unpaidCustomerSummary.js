@@ -50,8 +50,7 @@ export const unpaidCustomerSummary = new ValidatedMethod({
                 data.title.date = moment(toDate).format('YYYY-MMM-DD hh:mm a');
                 data.title.exchange = `USD = ${coefficient.usd.$multiply[1]} $, KHR = ${coefficient.khr.$multiply[1]}<small> ៛</small>, THB = ${coefficient.thb.$multiply[1]} B`;
                 selector.$or = [
-                    {status: {$in: ['active', 'partial']}, invoiceDate: {$lte: toDate}},
-                    {invoiceDate: {$lte: toDate}, status: 'closed', closedAt: {$gt: toDate}}
+                    {invoiceDate: {$lte: toDate}, status: 'active'}
                 ];
             }
             if (params.customer && params.customer != '') {
@@ -66,36 +65,36 @@ export const unpaidCustomerSummary = new ValidatedMethod({
                 {
                     $match: selector
                 },
-                {
-                    $lookup: {
-                        from: 'cement_receivePayment',
-                        localField: '_id',
-                        foreignField: 'invoiceId',
-                        as: 'receivePaymentDoc'
-                    }
-                },
-                {
-                    $unwind: {
-                        path: '$receivePaymentDoc',
-                        preserveNullAndEmptyArrays: true
-                    }
-                },
-                {
-                    $project: {
-                        _id: 1,
-                        customerId: 1,
-                        invoiceId: 1,
-                        total: 1,
-                        receivePaymentDoc: {
-                            paidAmount: {
-                                $cond: [
-                                    {$lte: ["$receivePaymentDoc.paymentDate", toDate]}
-                                    , '$receivePaymentDoc.paidAmount', 0
-                                ]
-                            }
-                        }
-                    }
-                },
+                // {
+                //     $lookup: {
+                //         from: 'cement_receivePayment',
+                //         localField: '_id',
+                //         foreignField: 'invoiceId',
+                //         as: 'receivePaymentDoc'
+                //     }
+                // },
+                // {
+                //     $unwind: {
+                //         path: '$receivePaymentDoc',
+                //         preserveNullAndEmptyArrays: true
+                //     }
+                // },
+                // {
+                //     $project: {
+                //         _id: 1,
+                //         customerId: 1,
+                //         invoiceId: 1,
+                //         total: 1,
+                //         receivePaymentDoc: {
+                //             paidAmount: {
+                //                 $cond: [
+                //                     {$lte: ["$receivePaymentDoc.paymentDate", toDate]}
+                //                     , '$receivePaymentDoc.paidAmount', 0
+                //                 ]
+                //             }
+                //         }
+                //     }
+                // },
                 {
                     $lookup: {
                         from: 'cement_customers',

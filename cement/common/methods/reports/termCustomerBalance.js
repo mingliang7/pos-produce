@@ -53,8 +53,8 @@ export const  termCustomerBalanceReport = new ValidatedMethod({
                 data.title.date = moment(params.date).format('YYYY-MMM-DD');
                 data.title.exchange = `USD = ${coefficient.usd.$multiply[1]} $, KHR = ${coefficient.khr.$multiply[1]}<small> ៛</small>, THB = ${coefficient.thb.$multiply[1]} B`;
                 selector.$or = [
-                    {status: {$in: ['active', 'partial']}, invoiceDate: {$lte: date}},
-                    {invoiceDate: {$lte: date}, status: 'closed', closedAt: {$gt: date}}
+                    // {status: {$in: ['active', 'partial']}, invoiceDate: {$lte: date}},
+                    {invoiceDate: {$lte: date}, status: 'active'}
                 ];
             }
             if (params.customer && params.customer != '') {
@@ -96,33 +96,33 @@ export const  termCustomerBalanceReport = new ValidatedMethod({
             /****** Content *****/
             let invoices = Invoices.aggregate([
                 {$match: selector},
-                {
-                    $lookup: {
-                        from: "cement_receivePayment",
-                        localField: "_id",
-                        foreignField: "invoiceId",
-                        as: "paymentDoc"
-                    }
-                },
-                {
-                    $project: {
-                        _id: 1,
-                        status: 1,
-                        invoiceDate: 1,
-                        dueDate: 1,
-                        customerId: 1,
-                        total: 1,
-                        paymentDoc: {
-                            $filter: {
-                                input: '$paymentDoc',
-                                as: 'payment',
-                                cond: {$lte: ['$$payment.paymentDate', date]}
-                            }
-                        },
-                    }
-                },
-                {$unwind: {path: '$paymentDoc', preserveNullAndEmptyArrays: true}},
-                {$sort: {'paymentDoc.paymentDate': 1}},
+                // {
+                //     $lookup: {
+                //         from: "cement_receivePayment",
+                //         localField: "_id",
+                //         foreignField: "invoiceId",
+                //         as: "paymentDoc"
+                //     }
+                // },
+                // {
+                //     $project: {
+                //         _id: 1,
+                //         status: 1,
+                //         invoiceDate: 1,
+                //         dueDate: 1,
+                //         customerId: 1,
+                //         total: 1,
+                //         paymentDoc: {
+                //             $filter: {
+                //                 input: '$paymentDoc',
+                //                 as: 'payment',
+                //                 cond: {$lte: ['$$payment.paymentDate', date]}
+                //             }
+                //         },
+                //     }
+                // },
+                // {$unwind: {path: '$paymentDoc', preserveNullAndEmptyArrays: true}},
+                // {$sort: {'paymentDoc.paymentDate': 1}},
                 {
                   $project: {
                       _id: 1,

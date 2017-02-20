@@ -43,9 +43,27 @@ tabularOpts.columns = [
             return numeral(recalDueAmountWithDiscountCodAndBenefit).format('0,0.00');
         }
     },
-    {data: "discount", title: "Discount"},
-    {data: "cod", title: "COD"},
-    {data: "benefit", title: "Benefit"},
+    {
+        data: "discount", 
+        title: "Discount",
+        render: function(val){
+            return numeral(val).format('0,0.00');            
+        }
+    },
+    {
+        data: "cod", 
+        title: "COD",
+        render: function(val){
+            return numeral(val).format('0,0.00');            
+        }
+    },
+    {
+        data: "benefit", 
+        title: "Benefit",
+        render: function(val){
+            return numeral(val).format('0,0.00');            
+        }
+    },
     {
         data: "dueAmount",
         title: 'Due Amount',

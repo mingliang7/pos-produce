@@ -345,13 +345,13 @@ CementRoutes.route('/report/groupBillReport', {
 import '../imports/ui/reports/termCustomerBalance';
 CementRoutes.route('/report/termCustomerBalance', {
     name: 'cement.termCustomerBalance',
-    title: 'Customer Balance Report',
+    title: 'Unpaid By Customer',
     action: function (params, queryParams) {
         Layout.customReportLayout('Cement_termCustomerBalance');
     },
     breadcrumb:{
         // params:['vendorId'],
-        title: 'Customer Balance Report',
+        title: 'Unpaid By Customer Report',
         // icon: 'cart-plus',
         parent: 'cement.mainReport'
     }

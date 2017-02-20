@@ -14,6 +14,12 @@
                             {{#autoForm schema=schema id='groupBillReport'}}
                                 <div class="row">
                                     <div class="col-md-2">
+                                        {{> afQuickField name="sortBy"}}
+                                    </div>
+                                    <div class="col-md-2">
+                                        {{> afQuickField name="sortOrder"}}
+                                    </div>
+                                    <div class="col-md-2">
                                         {{> afQuickField name="fromDate" label= 'From Date'}}
                                     </div>
                                     <div class="col-md-2">

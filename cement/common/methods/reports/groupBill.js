@@ -27,6 +27,8 @@ export const groupBillReport = new ValidatedMethod({
                 footer: {}
             };
             let branch = [];
+            let sortObj = {};
+            let sortOrder = params.sortOrder && parseInt(params.sortOrder) || -1;
             let user = Meteor.users.findOne(Meteor.userId());
             // console.log(user);
             // let date = _.trim(_.words(params.date, /[^To]+/g));
@@ -35,7 +37,7 @@ export const groupBillReport = new ValidatedMethod({
                 selector.vendorOrCustomerId = params.vendor;
             }
             if (params.date) {
-                let dateAsArray = params.date.split(',')
+                let dateAsArray = params.date.split(',');
                 let fromDate = moment(dateAsArray[0]).toDate();
                 let toDate = moment(dateAsArray[1]).toDate();
                 data.title.date = moment(fromDate).format('YYYY-MMM-DD') + ' - ' + moment(toDate).format('YYYY-MMM-DD');
@@ -71,6 +73,11 @@ export const groupBillReport = new ValidatedMethod({
             /****** Title *****/
             data.title.company = Company.findOne();
             /****** Content *****/
+            if(params.sortBy) {
+                sortObj[`invoices.${params.sortBy}`] = sortOrder;
+            }else{
+                sortObj = {_id: sortOrder}
+            }
             let groups = GroupBill.aggregate([
                 {
                     $match: selector
@@ -86,6 +93,7 @@ export const groupBillReport = new ValidatedMethod({
                 },
                 {$unwind: {path: '$vendorDoc', preserveNullAndEmptyArrays: true}},
                 {$unwind: {path: '$invoices', preserveNullAndEmptyArrays: true}},
+                {$sort: sortObj},
                 {
                     $group: {
                         _id: '$_id',

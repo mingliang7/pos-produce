@@ -52,8 +52,8 @@ export const  orderSOBalanceReport = new ValidatedMethod({
                 data.title.date = moment(params.date).format('YYYY-MMM-DD');
                 data.title.exchange = `USD = ${coefficient.usd.$multiply[1]} $, KHR = ${coefficient.khr.$multiply[1]}<small> ៛</small>, THB = ${coefficient.thb.$multiply[1]} B`;
                 selector.$or = [
-                    {status: {$in: ['active', 'partial']}, orderDate: {$lte: date}},
-                    {orderDate: {$lte: date}, status: 'closed', closedAt: {$gt: date}}
+                    // {status: {$in: ['active', 'partial']}, orderDate: {$lte: date}},
+                    {orderDate: {$lte: date}, status: 'active'}
                 ];
             }
             if (params.customer && params.customer != '') {

@@ -102,6 +102,8 @@ AutoForm.hooks({
             this.event.preventDefault();
             FlowRouter.query.unset();
             let params = {};
+            params.sortBy = '_id';
+            params.sortOrder = '-1';
             if (doc.fromDate && doc.toDate) {
                 let fromDate = moment(doc.fromDate).format('YYYY-MM-DD HH:mm:ss');
                 let toDate = moment(doc.toDate).format('YYYY-MM-DD HH:mm:ss');
@@ -112,6 +114,12 @@ AutoForm.hooks({
             }
             if (doc.filter) {
                 params.filter = doc.filter.join(',');
+            }
+            if(doc.sortBy) {
+                params.sortBy = doc.sortBy;
+            }
+            if(doc.sortOrder) {
+                params.sortOrder = doc.sortOrder;
             }
             FlowRouter.query.set(params);
             paramsState.set(FlowRouter.query.params());
