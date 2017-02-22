@@ -13,6 +13,9 @@
                         <div class="inbox-head report-header">
                             {{#autoForm schema=schema id='invoiceSOBalanceReport'}}
                                 <div class="row">
+                                     <div class="col-md-2">
+                                        {{> afQuickField name="type" label= 'SO type' value="active"}}
+                                    </div>
                                     <div class="col-md-2">
                                         {{> afQuickField name="date" label= 'As of date'}}
                                     </div>

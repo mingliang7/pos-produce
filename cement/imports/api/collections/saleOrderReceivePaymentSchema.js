@@ -44,8 +44,7 @@ export const saleOrderReceivePaymentSchema = new SimpleSchema({
     },
     voucherId: {
         type: String,
-        optional: true,
-        label: 'Voucher #'
+        label: 'SO Number'
     },
     customerId: {
         type: String,

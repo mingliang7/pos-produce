@@ -51,10 +51,17 @@ export const  orderSOBalanceReport = new ValidatedMethod({
             if (params.date) {
                 data.title.date = moment(params.date).format('YYYY-MMM-DD');
                 data.title.exchange = `USD = ${coefficient.usd.$multiply[1]} $, KHR = ${coefficient.khr.$multiply[1]}<small> ៛</small>, THB = ${coefficient.thb.$multiply[1]} B`;
-                selector.$or = [
-                    // {status: {$in: ['active', 'partial']}, orderDate: {$lte: date}},
-                    {orderDate: {$lte: date}, status: 'active'}
-                ];
+                if(params.type == 'all'){
+                    selector.$or = [
+                                        {paymentStatus: {$in: ['active', 'partial']}, orderDate: {$lte: date}},
+                                        {orderDate: {$lte: date}, paymentStatus: 'closed', closedAt: {$gt: date}}
+                                    ];
+                }else{
+                    selector.$or = [
+                        // {status: {$in: ['active', 'partial']}, orderDate: {$lte: date}},
+                        {orderDate: {$lte: date}, status: 'active'}
+                    ];
+                }
             }
             if (params.customer && params.customer != '') {
                 selector.customerId = params.customer;
@@ -93,17 +100,30 @@ export const  orderSOBalanceReport = new ValidatedMethod({
             /****** Title *****/
             data.title.company = Company.findOne();
             /****** Content *****/
-            let orders = Order.aggregate([
-                {$match: selector},
-                {
-                    $lookup: {
-                        from: "cement_saleOrderReceivePayment",
-                        localField: "_id",
-                        foreignField: "orderId",
-                        as: "paymentDoc"
-                    }
-                },
-                {
+            let orders = [];
+            if(params.type == 'active'){
+                orders = Order.aggregate([
+                    {$match: selector},
+                    {
+                        $project: {
+                            _id: 1,
+                            status: 1,
+                            orderDate: 1,
+                            dueDate: 1,
+                            customerId: 1,
+                            total: 1,
+                            paymentDoc: {
+                                $filter: {
+                                    input: '$paymentDoc',
+                                    as: 'payment',
+                                    cond: {$lte: ['$$payment.paymentDate', date]}
+                                }
+                            },
+                        }
+                    },
+                    {$unwind: {path: '$paymentDoc', preserveNullAndEmptyArrays: true}},
+                    {$sort: {'paymentDoc.paymentDate': 1}},
+                    {
                     $project: {
                         _id: 1,
                         status: 1,
@@ -111,144 +131,283 @@ export const  orderSOBalanceReport = new ValidatedMethod({
                         dueDate: 1,
                         customerId: 1,
                         total: 1,
-                        paymentDoc: {
-                            $filter: {
-                                input: '$paymentDoc',
-                                as: 'payment',
-                                cond: {$lte: ['$$payment.paymentDate', date]}
-                            }
-                        },
-                    }
-                },
-                {$unwind: {path: '$paymentDoc', preserveNullAndEmptyArrays: true}},
-                {$sort: {'paymentDoc.paymentDate': 1}},
-                {
-                  $project: {
-                      _id: 1,
-                      status: 1,
-                      orderDate: 1,
-                      dueDate: 1,
-                      customerId: 1,
-                      total: 1,
-                      lastPaymentDate: {
-                          $cond: [
-                              {$lte: ['$paymentDoc.paymentDate', date]},
-                              '$paymentDoc.paymentDate', 'None'
-                              ]
-                      },
-                      dueAmount: {
-                          $cond: [
-                              {$lte: ['$paymentDoc.paymentDate', date]},
-                              '$paymentDoc.dueAmount', null
-                          ]
-                      },
-                      paidAmount: {
-                          $cond: [
-                              {$lte: ['$paymentDoc.paymentDate', date]},
-                              '$paymentDoc.paidAmount', null
-                          ]
-                      },
-                      paymentDoc: 1,
-                  }
-                },
-                {
-                    $group: {
-                        _id: '$_id',
-                        status: {$last: '$status'},
-                        dueDate: {$last: '$dueDate'},
-                        orderDoc: {$last: '$$ROOT'},
-                        lastPaymentDate: {$last: '$lastPaymentDate'},
-                        dueAmount: {
-                            $last: '$dueAmount'
-                        },
-                        paidAmount: {
-                            $last: '$paidAmount'
-                        },
-                        paymentDoc: {$last: '$paymentDoc'},
-                        total: {$last: '$total'},
-                        orderDate: {$last: '$orderDate'}
-                    }
-                },
-                {
-                    $project: {
-                        _id: 1,
-                        order: {$concat: 'order'},
-                        orderDoc: {
-                            customerId: 1,
-                            orderDate: 1
-                        },
-                        dueAmount: {
-                            $ifNull: ["$dueAmount", "$total"]
-                        },
-                        paidAmount: {
-                            $ifNull: ["$paidAmount", 0]
-                        },
-                        orderDate: 1,
-                        dueDate: 1,
                         lastPaymentDate: {
-                            $ifNull: ["$lastPaymentDate", "None"]
+                            $cond: [
+                                {$lte: ['$paymentDoc.paymentDate', date]},
+                                '$paymentDoc.paymentDate', 'None'
+                                ]
                         },
-                        status: 1,
-                        total: '$total'
+                        dueAmount: {
+                            $cond: [
+                                {$lte: ['$paymentDoc.paymentDate', date]},
+                                '$paymentDoc.dueAmount', null
+                            ]
+                        },
+                        paidAmount: {
+                            $cond: [
+                                {$lte: ['$paymentDoc.paymentDate', date]},
+                                '$paymentDoc.paidAmount', null
+                            ]
+                        },
+                        paymentDoc: 1,
                     }
-                },
-                {
+                    },
+                    {
+                        $group: {
+                            _id: '$_id',
+                            status: {$last: '$status'},
+                            dueDate: {$last: '$dueDate'},
+                            orderDoc: {$last: '$$ROOT'},
+                            lastPaymentDate: {$last: '$lastPaymentDate'},
+                            dueAmount: {
+                                $last: '$dueAmount'
+                            },
+                            paidAmount: {
+                                $last: '$paidAmount'
+                            },
+                            paymentDoc: {$last: '$paymentDoc'},
+                            total: {$last: '$total'},
+                            orderDate: {$last: '$orderDate'}
+                        }
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            order: {$concat: 'order'},
+                            orderDoc: {
+                                customerId: 1,
+                                orderDate: 1
+                            },
+                            dueAmount: {
+                                $ifNull: ["$dueAmount", "$total"]
+                            },
+                            paidAmount: {
+                                $ifNull: ["$paidAmount", 0]
+                            },
+                            orderDate: 1,
+                            dueDate: 1,
+                            lastPaymentDate: {
+                                $ifNull: ["$lastPaymentDate", "None"]
+                            },
+                            status: 1,
+                            total: '$total'
+                        }
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            order: 1,
+                            orderDoc: 1,
+                            dueAmount: 1,
+                            paidAmount: 1,
+                            balance: {$subtract: ["$dueAmount", "$paidAmount"]},
+                            orderDate: 1,
+                            dueDate: 1,
+                            lastPaymentDate: 1,
+                            status: 1,
+                            total: .1
+                        }
+                    },
+                    {
+                        $redact: {
+                            $cond: {if: {$eq: ['$balance', 0]}, then: '$$PRUNE', else: '$$KEEP'}
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: '$orderDoc.customerId',
+                            data: {
+                                $addToSet: '$$ROOT'
+                            },
+                            dueDate: {$last: '$dueDate'},
+                            orderDate: {$last: '$orderDate'},
+                            lastPaymentDate: {$last: '$lastPaymentDate'},
+                            dueAmountSubTotal: {$sum: '$dueAmount'},
+                            paidAmount: {$sum: '$paidAmount'},
+                            balance: {$sum: '$balance'}
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: "cement_customers",
+                            localField: "_id",
+                            foreignField: "_id",
+                            as: "customerDoc"
+                        }
+                    },
+                    {
+                        $unwind: {path: '$customerDoc', preserveNullAndEmptyArrays: true}
+                    },
+                    {
+                        $group: {
+                            _id: null,
+                            data: {
+                                $addToSet: '$$ROOT'
+                            },
+                            grandDueAmount: {$sum: '$dueAmountSubTotal'},
+                            grandPaidAmount: {$sum: '$paidAmount'},
+                            grandBalance: {$sum: '$balance'}
+                        }
+                    }
+                ]);
+            }else{
+                orders = Order.aggregate([
+                    {$match: selector},
+                    {
+                        $lookup: {
+                            from: "cement_saleOrderReceivePayment",
+                            localField: "_id",
+                            foreignField: "invoiceId",
+                            as: "paymentDoc"
+                        }
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            status: 1,
+                            orderDate: 1,
+                            dueDate: 1,
+                            customerId: 1,
+                            total: 1,
+                            paymentDoc: {
+                                $filter: {
+                                    input: '$paymentDoc',
+                                    as: 'payment',
+                                    cond: {$lte: ['$$payment.paymentDate', date]}
+                                }
+                            },
+                        }
+                    },
+                    {$unwind: {path: '$paymentDoc', preserveNullAndEmptyArrays: true}},
+                    {$sort: {'paymentDoc.paymentDate': 1}},
+                    {
                     $project: {
                         _id: 1,
-                        order: 1,
-                        orderDoc: 1,
-                        dueAmount: 1,
-                        paidAmount: 1,
-                        balance: {$subtract: ["$dueAmount", "$paidAmount"]},
+                        status: 1,
                         orderDate: 1,
                         dueDate: 1,
-                        lastPaymentDate: 1,
-                        status: 1,
-                        total: .1
-                    }
-                },
-                {
-                    $redact: {
-                        $cond: {if: {$eq: ['$balance', 0]}, then: '$$PRUNE', else: '$$KEEP'}
-                    }
-                },
-                {
-                    $group: {
-                        _id: '$orderDoc.customerId',
-                        data: {
-                            $addToSet: '$$ROOT'
+                        customerId: 1,
+                        total: 1,
+                        lastPaymentDate: {
+                            $cond: [
+                                {$lte: ['$paymentDoc.paymentDate', date]},
+                                '$paymentDoc.paymentDate', 'None'
+                                ]
                         },
-                        dueDate: {$last: '$dueDate'},
-                        orderDate: {$last: '$orderDate'},
-                        lastPaymentDate: {$last: '$lastPaymentDate'},
-                        dueAmountSubTotal: {$sum: '$dueAmount'},
-                        paidAmount: {$sum: '$paidAmount'},
-                        balance: {$sum: '$balance'}
-                    }
-                },
-                {
-                    $lookup: {
-                        from: "cement_customers",
-                        localField: "_id",
-                        foreignField: "_id",
-                        as: "customerDoc"
-                    }
-                },
-                {
-                    $unwind: {path: '$customerDoc', preserveNullAndEmptyArrays: true}
-                },
-                {
-                    $group: {
-                        _id: null,
-                        data: {
-                            $addToSet: '$$ROOT'
+                        dueAmount: {
+                            $cond: [
+                                {$lte: ['$paymentDoc.paymentDate', date]},
+                                '$paymentDoc.dueAmount', null
+                            ]
                         },
-                        grandDueAmount: {$sum: '$dueAmountSubTotal'},
-                        grandPaidAmount: {$sum: '$paidAmount'},
-                        grandBalance: {$sum: '$balance'}
+                        paidAmount: {
+                            $cond: [
+                                {$lte: ['$paymentDoc.paymentDate', date]},
+                                '$paymentDoc.paidAmount', null
+                            ]
+                        },
+                        paymentDoc: 1,
                     }
-                }
-            ]);
+                    },
+                    {
+                        $group: {
+                            _id: '$_id',
+                            status: {$last: '$status'},
+                            dueDate: {$last: '$dueDate'},
+                            orderDoc: {$last: '$$ROOT'},
+                            lastPaymentDate: {$last: '$lastPaymentDate'},
+                            dueAmount: {
+                                $last: '$dueAmount'
+                            },
+                            paidAmount: {
+                                $last: '$paidAmount'
+                            },
+                            paymentDoc: {$last: '$paymentDoc'},
+                            total: {$last: '$total'},
+                            orderDate: {$last: '$orderDate'}
+                        }
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            order: {$concat: 'order'},
+                            orderDoc: {
+                                customerId: 1,
+                                orderDate: 1
+                            },
+                            dueAmount: {
+                                $ifNull: ["$dueAmount", "$total"]
+                            },
+                            paidAmount: {
+                                $ifNull: ["$paidAmount", 0]
+                            },
+                            orderDate: 1,
+                            dueDate: 1,
+                            lastPaymentDate: {
+                                $ifNull: ["$lastPaymentDate", "None"]
+                            },
+                            status: 1,
+                            total: '$total'
+                        }
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            order: 1,
+                            orderDoc: 1,
+                            dueAmount: 1,
+                            paidAmount: 1,
+                            balance: {$subtract: ["$dueAmount", "$paidAmount"]},
+                            orderDate: 1,
+                            dueDate: 1,
+                            lastPaymentDate: 1,
+                            status: 1,
+                            total: .1
+                        }
+                    },
+                    {
+                        $redact: {
+                            $cond: {if: {$eq: ['$balance', 0]}, then: '$$PRUNE', else: '$$KEEP'}
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: '$orderDoc.customerId',
+                            data: {
+                                $addToSet: '$$ROOT'
+                            },
+                            dueDate: {$last: '$dueDate'},
+                            orderDate: {$last: '$orderDate'},
+                            lastPaymentDate: {$last: '$lastPaymentDate'},
+                            dueAmountSubTotal: {$sum: '$dueAmount'},
+                            paidAmount: {$sum: '$paidAmount'},
+                            balance: {$sum: '$balance'}
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: "cement_customers",
+                            localField: "_id",
+                            foreignField: "_id",
+                            as: "customerDoc"
+                        }
+                    },
+                    {
+                        $unwind: {path: '$customerDoc', preserveNullAndEmptyArrays: true}
+                    },
+                    {
+                        $group: {
+                            _id: null,
+                            data: {
+                                $addToSet: '$$ROOT'
+                            },
+                            grandDueAmount: {$sum: '$dueAmountSubTotal'},
+                            grandPaidAmount: {$sum: '$paidAmount'},
+                            grandBalance: {$sum: '$balance'}
+                        }
+                    }
+                ]);
+            }
             if (orders.length > 0) {
                 data.content = orders[0].data;
                 data.footer = {

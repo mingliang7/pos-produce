@@ -7,6 +7,7 @@ import {moment} from 'meteor/momentjs:moment';
 // Collection
 import {Company} from '../../../../core/imports/api/collections/company.js';
 import {Invoices} from '../../../imports/api/collections/invoice';
+import {Customers} from '../../../imports/api/collections/customer';
 import {Exchange} from '../../../../core/imports/api/collections/exchange';
 // lib func
 import ReportFn from '../../../imports/api/libs/report';
@@ -62,6 +63,7 @@ export const customerHistoryReport = new ValidatedMethod({
                 currentArrDate = params.date;
                 data.title.date = moment(currentArrDate).format('YYYY-MMM-DD');
                 data.title.exchange = `USD = ${coefficient.usd.$multiply[1]} $, KHR = ${coefficient.khr.$multiply[1]}<small> ៛</small>, THB = ${coefficient.thb.$multiply[1]} B`;
+                data.title.customer = params.customer && Customers.findOne(params.customer);                
                 selector.invoiceDate = {
                     $lte: moment(currentArrDate).endOf('days').toDate()
                 }
@@ -180,6 +182,7 @@ export const customerHistoryReport = new ValidatedMethod({
                     })
                 }
                 doc.paymentDoc.forEach(function (payment) {
+                    let formatPaymentDate = moment(payment.paymentDate).format('YYYY-MM-DD 00:00:00');
                     let queryDate = moment(currentArrDate).format('YYYY-MM-DD');
                     let paymentDate = moment(payment.paymentDate);
                     if (paymentDate.isSameOrBefore(queryDate)) {
@@ -194,7 +197,7 @@ export const customerHistoryReport = new ValidatedMethod({
                                     voucherId: payment.voucherId,
                                     type: 'receive-payment',
                                     rp: true,
-                                    date: moment(payment.paymentDate).toDate(),
+                                    date: moment(formatPaymentDate).toDate(),
                                     paidAmount: payment.paidAmount,
                                     balance: payment.balanceAmount
                                 }]
@@ -206,7 +209,7 @@ export const customerHistoryReport = new ValidatedMethod({
                                 voucherId: payment.voucherId,
                                 type: 'receive-payment',
                                 rp: true,
-                                date: moment(payment.paymentDate).toDate(),
+                                date: moment(formatPaymentDate).toDate(),
                                 paidAmount: payment.paidAmount,
                                 balance: payment.balanceAmount
                             })

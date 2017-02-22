@@ -65,12 +65,27 @@
                 {{data.title.date}}
             </p>
         </div>
-
+        <table>
+            <tbody>
+                <tr>
+                    <td class="text-left" style="padding: 5px;"><u>Customer:</u></td>
+                    <td class="text-left" style="padding: 5px;"><u>{{data.title.customer.name}}</u></td>
+                </tr>
+                <tr >
+                    <td class="text-left" style="padding: 5px;"><u>Telephone:</u></td>
+                    <td class="text-left" style="padding: 5px;"><u>{{data.title.customer.telephone}}</u></td>
+                </tr>
+                <tr>
+                    <td class="text-left" style="padding: 5px;"><u>Address:</u></td>                        
+                    <td class="text-left" style="padding: 5px;"><u>{{data.title.customer.address}}</u></td>                        
+                </tr>
+            </tbody>
+        </table>
         {{#with data}}
             <table class="table table-responsive table-striped fixed-table">
                 <thead>
                 <tr class="bg-aqua" style="border-top: 1px solid black ">
-                    <th>អតិថិជន</th>
+                    <!--<th>អតិថិជន</th>-->
                     <th>ថ្ងៃខែ</th>
                     <th>វិក័យប័ត្រ</th>
                     <th>បរិយាយ</th>
@@ -96,13 +111,12 @@
                         {{#each col in field.data}}
                             <tr>
                                 {{#if col.inv}}
-                                    <td>{{field.customer.name}}</td>
+                                    <!--<td>{{field.customer.name}}</td>-->
                                     <td>
                                         {{moFormat col.date 'DD/MM/YYYY'}}
                                     </td>
                                 {{else}}
                                     {{#if firstIndex @index col.date field.data}}
-                                        <td>{{field.customer.name}}</td>
                                         <td>
                                             {{moFormat col.date 'DD/MM/YYYY'}}
                                         </td>
@@ -174,7 +188,7 @@
                     {{/if}}
                 {{/each}}
                 <tr class="sub-body">
-                    <td colspan="5"></td>
+                    <td colspan="4"></td>
                     <td><b><u>Grand Total:</u></b></td>
                     <td colspan="3"></td>
                     <td style="border-top: 1px solid black;" class="text-right"><b>{{numFormat footer.totalAmount
@@ -197,7 +211,7 @@
             <thead>
                 <th>ID</th>
                 <th>Invoice ID</th>
-                <th>Voucher ID</th>
+                <th>Invoice Number</th>
                 <th>Date</th>
                 <th class="text-center">Paid</th>
                 <th class="text-center">Balance</th>

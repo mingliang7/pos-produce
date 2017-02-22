@@ -144,6 +144,9 @@ AutoForm.hooks({
             if(doc.branchId) {
                 params.branchId = doc.branchId.join(',');
             }
+            if(doc.type){
+                params.type = doc.type;
+            }
             FlowRouter.query.set(params);
             paramsState.set(FlowRouter.query.params());
             return false;

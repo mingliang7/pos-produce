@@ -738,7 +738,7 @@ let hooksObject = {
         if (_.isEmpty(invoicesObj)) {
             swal({
                 title: "Warning",
-                text: "Your payments can't be blank",
+                text: "Your payments and Invoice Number can't be blank",
                 type: "error",
                 confirmButtonClass: "btn-danger",
                 showConfirmButton: true,

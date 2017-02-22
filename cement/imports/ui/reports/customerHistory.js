@@ -114,7 +114,7 @@ invoiceDataTmpl.helpers({
     data(){
         if (invoiceData.get()) {
             let customerHistory = invoiceData.get();
-            let data = {content: [], footer: customerHistory.footer};
+            let data = {title: customerHistory.title, content: [], footer: customerHistory.footer};
             let content = customerHistory.content;
             if (content && content.length > 0) {
                 content.forEach(function (invoice) {
@@ -143,6 +143,7 @@ invoiceDataTmpl.helpers({
         }
     },
     displayByDay(date){
+        console.log(date)
         let paymentDate = moment(date).format('DD/MM/YYYY');
         let data = invoiceData.get()
         let paymentData = data.payments[paymentDate];
@@ -159,7 +160,7 @@ invoiceDataTmpl.helpers({
     firstIndex(index,date ,data){
         let paymentDate = data[index - 1 ] && data[index - 1 ].date;
         let moPaymentDate = moment(paymentDate).format('YYYY-MM-DD');
-        if(!moment(moPaymentDate).isSame(moment(date).format('YYYY-MM-DD'))){
+        if(!moment(moPaymentDate).isSame(moment(date).format('YYYY-MM-DD')) || data[index - 1].inv ){
             return true;
         }
         return false;
