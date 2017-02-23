@@ -33,6 +33,9 @@ Template.Cement_sidebarMenu.helpers({
     customerHistory() {
         return `/cement/report/customerHistory?date=${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}&branchId=${Session.get('currentBranch')}`;
     },
+    customerHistorySO() {
+        return `/cement/report/customerHistorySO?date=${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}&branchId=${Session.get('currentBranch')}`;
+    },
     saleOrderDetail() {
         return `/cement/report/sale-order-detail?date=${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}&branchId=${Session.get('currentBranch')}`;
     },

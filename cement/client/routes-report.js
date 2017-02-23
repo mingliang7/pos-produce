@@ -498,3 +498,17 @@ CementRoutes.route('/report/invoiceSOBalance', {
         parent: 'cement.home'
     }
 });
+
+import '../imports/ui/reports/customerHistorySO';
+CementRoutes.route('/report/customerHistorySO', {
+    name: 'cement.customerHistorySO',
+    title: 'Customer History SO',
+    action: function (params, queryParams) {
+        Layout.customReportLayout('Cement_customerHistorySO');
+    },
+    breadcrumb: {
+        title: 'Customer History SO',
+        icon: '',
+        parent: 'cement.home'
+    }
+});
