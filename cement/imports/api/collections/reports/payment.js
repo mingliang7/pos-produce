@@ -11,8 +11,7 @@ export const paymentSchema = new SimpleSchema({
             afFieldInput: {
                 type: "bootstrap-datetimepicker",
                 dateTimePickerOptions: {
-                    format: 'DD/MM/YYYY HH:mm:ss',
-
+                    format: 'DD/MM/YYYY',
                 }
             }
         }
@@ -24,8 +23,7 @@ export const paymentSchema = new SimpleSchema({
             afFieldInput: {
                 type: "bootstrap-datetimepicker",
                 dateTimePickerOptions: {
-                    format: 'DD/MM/YYYY HH:mm:ss',
-
+                    format: 'DD/MM/YYYY',
                 }
             }
         }
@@ -93,6 +91,19 @@ export const paymentSchema = new SimpleSchema({
                         label: 'Discount',
                         value: 'discount'
                     }
+                ]
+            }
+        }
+    },
+    sortBy: {
+        type: String,
+        autoform: {
+            type: 'select-radio-inline',
+            options(){
+                return [
+                    {label: 'ID',value: '_id'},
+                    {label: 'Invoice', value: 'invoiceId'},
+                    {label: 'Date', value: 'paymentDate'}
                 ]
             }
         }

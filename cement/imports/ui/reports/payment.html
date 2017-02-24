@@ -1,18 +1,21 @@
 <template name="Cement_paymentReport">
     <div class="panel-group" id="accordion1">
         <div class="panel panel-default">
-            <div class="panel-heading">
+            <div class="panel-heading no-print">
                 <h5 class="panel-title">
                     <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion1"
                        href="#accordion1_1">ចុចទីនេះដើម្បីបង្ហាញឬលាក់ Form</a>
                 </h5>
             </div>
-            <div id="accordion1_1" class="panel-collapse collapse in">
+            <div id="accordion1_1" class="no-print panel-collapse collapse in">
                 <div class="panel-body">
                     <div class="container-fluid">
                         <div class="inbox-head report-header">
                             {{#autoForm schema=schema id='receivePaymentReport'}}
                                 <div class="row">
+                                    <div class="col-md-2">
+                                        {{> afQuickField name="sortBy" label= 'Sort By' value="paymentDate"}}
+                                    </div>
                                     <div class="col-md-2">
                                         {{> afQuickField name="fromDate" label= 'From Date'}}
                                     </div>
@@ -33,25 +36,6 @@
                                             Run
                                         </button>
                                     </div>
-                                    <div class="col-md-3">
-                                        <a class="previous btn btn-default"><i class="fa fa-angle-left"> Previous
-                                            Page</i></a>
-                                        <select class="select" name="skip">
-                                            <option value="500">500</option>
-                                            <option value="1000">1000</option>
-                                            <option value="2000">2000</option>
-                                        </select>
-                                        <a class="next btn btn-default">Next Page <i class="fa fa-angle-right"></i></a>
-
-                                    </div>
-                                    <div class="col-md-2 pull-left">
-                                        <label for="" class="text-gray">Limit</label>
-                                        <select class="select" name="limit">
-                                            <option value="500">500</option>
-                                            <option value="1000">1000</option>
-                                            <option value="2000">2000</option>
-                                        </select>
-                                    </div>
                                 </div>
                             {{/autoForm}}
                         </div>
@@ -67,41 +51,24 @@
     <div class="container-fluid">
         <div class="col-md-4">
             <br>
-            <a class="btn btn-default print"><i class="fa fa-print" aria-hidden="true"></i> Print</a>
+            <a class="btn btn-default printRP no-print "><i class="fa fa-print" aria-hidden="true" ></i> Print</a>
         </div>
     </div>
     <div class="container-fluid" id="to-print">
         {{#with company}}
-            <div class="col-xs-12">
-                <h3 class="text-center">{{khName}}</h3>
-                <h4 class="text-center">{{enName}}</h4>
-                <h5 class="text-center">{{khAddress}}</h5>
-                <h5 class="text-center"><i class="fa fa-phone-square"></i> {{telephone}}</h5>
-                <br>
-            </div>
+            <p>
+                <h4 class="text-center">{{khName}}</h4>
+                <h5 class="text-center">{{enName}}</h5>
+            </p>
         {{/with}}
-        <div class="col-md-12" align="center"><h3>RECEIVE PAYMENT REPORT</h3></div>
-        <div class="row">
-            <div class="col-xs-12">
-                <hr>
-
-                <div class="row">
-                    <div class="col-xs-3 ">
-                        <address class="">
-                            <strong>Date:</strong>
-                            {{data.title.date}}
-                        </address>
-                    </div>
-                    <div class="col-xs-6 text-right">
-                        <!-- <address>
-                             <strong>Order Date:</strong><br>
-                             March 7, 2014<br><br>
-                         </address>-->
-                    </div>
-                </div>
-
-            </div>
-        </div>
+        <p>
+            <h5 class="text-center text-aqua">RECEIVE PAYMENT REPORT</h5>
+        </p>
+        <hr>
+        <small>
+            <strong>Date:</strong>
+            {{data.title.date}}
+        </small>
         <table class="table table-striped">
             <thead>
             <tr>
@@ -112,17 +79,14 @@
             </thead>
             <tbody>
             {{#with data}}
-                {{#each col in content}}
-                    {{#each field in col.data}}
-                        <tr>
-                            {{{display field}}}
-                        </tr>
-                    {{/each}}
+                {{#each field in content}}
                     <tr>
-                        {{{getTotal col.dueAmount col.paidAmount col.balanceAmount}}}
+                        {{{display field}}}
                     </tr>
                 {{/each}}
-
+                    <tr>
+                        {{{getTotal footer.actualDueAmount footer.discount footer.dueAmount footer.paidAmount footer.balanceAmount}}}
+                    </tr>
             {{/with}}
             </tbody>
         </table>

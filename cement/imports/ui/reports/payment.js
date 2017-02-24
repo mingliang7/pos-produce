@@ -47,8 +47,8 @@ indexTmpl.helpers({
     }
 });
 indexTmpl.events({
-    'click .print'(event, instance){
-        $('#to-print').printThis();
+    'click .printRP'(event, instance){
+       window.print();
     },
     'click .next'(event, instance){
         let currentParams = FlowRouter.query.params();
@@ -89,20 +89,18 @@ receivePaymentTmpl.helpers({
     },
     data(){
         if (receivePayment.get()) {
-            debugger
             return receivePayment.get();
         }
     },
-
     display(col){
         let data = '';
         this.displayFields.forEach(function (obj) {
             if (obj.field == 'paymentDate') {
-                data += `<td>${moment(col[obj.field]).format('YYYY-MM-DD HH:mm:ss')}</td>`
+                data += `<td>${moment(col[obj.field]).format('YYYY-MM-DD')}</td>`
             } else if (obj.field == 'customerId') {
                 data += `<td>${col._customer.name}</td>`
-            } else if (obj.field == 'actualDueAmount' || obj.field == 'dueAmount' || obj.field == 'paidAmount' || obj.field == 'balanceAmount') {
-                data += `<td>${numeral(col[obj.field]).format('0,0.00')}</td>`
+            } else if (obj.field == 'discount' || obj.field == 'actualDueAmount' || obj.field == 'dueAmount' || obj.field == 'paidAmount' || obj.field == 'balanceAmount') {
+                data += `<td class="text-right">${numeral(col[obj.field]).format('0,0.00')}</td>`
             }
             else {
                 data += `<td>${col[obj.field]}</td>`;
@@ -110,15 +108,15 @@ receivePaymentTmpl.helpers({
         });
         return data;
     },
-    getTotal(dueAmount, paidAmount, balanceAmount){
+    getTotal(actualDueAmount,discount,dueAmount, paidAmount, balanceAmount){
         let string = '';
-        let fieldLength = this.displayFields.length - 4;
+        let fieldLength = this.displayFields.length - 6;
         for (let i = 0; i < fieldLength; i++) {
             string += '<td></td>'
         }
-        string += `<td><b>Total:</td></b><td><b>${numeral(dueAmount).format('0,0.00')}</b></td>`;
-        string += `<td><b>${numeral(paidAmount).format('0,0.00')}</b></td>`;
-        string += `<td><b>${numeral(balanceAmount).format('0,0.00')}</b></td>`;
+        string += `<td><b>Total:</td></b><td class="text-right"><b>${numeral(actualDueAmount).format('0,0.00')}</b></td><td class="text-right"><b>${numeral(discount).format('0,0.00')}</b></td><td class="text-right"><b>${numeral(dueAmount).format('0,0.00')}</b></td>`;
+        string += `<td class="text-right"><b>${numeral(paidAmount).format('0,0.00')}</b></td>`;
+        string += `<td class="text-right"><b>${numeral(balanceAmount).format('0,0.00')}</b></td>`;
         return string;
     }
 });
@@ -130,9 +128,10 @@ AutoForm.hooks({
             this.event.preventDefault();
             FlowRouter.query.unset();
             let params = {};
+            params.branchId = Session.get('currentBranch');
             if (doc.fromDate && doc.toDate) {
-                let fromDate = moment(doc.fromDate).format('YYYY-MM-DD HH:mm:ss');
-                let toDate = moment(doc.toDate).format('YYYY-MM-DD HH:mm:ss');
+                let fromDate = moment(doc.fromDate).endOf('days').format('YYYY-MM-DD HH:mm:ss');
+                let toDate = moment(doc.toDate).endOf('days').format('YYYY-MM-DD HH:mm:ss');
                 params.date = `${fromDate},${toDate}`;
             }
             if (doc.customer) {
@@ -140,6 +139,9 @@ AutoForm.hooks({
             }
             if (doc.filter) {
                 params.filter = doc.filter.join(',');
+            }
+            if(doc.sortBy){
+                params.sortBy = doc.sortBy;
             }
             FlowRouter.query.set(params);
             paramsState.set(FlowRouter.query.params());

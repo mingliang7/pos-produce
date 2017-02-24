@@ -18,9 +18,6 @@ export const receivePaymentReport = new ValidatedMethod({
         if (!this.isSimulation) {
             Meteor._sleepForMs(200);
             let selector = {};
-            let project = {};
-            let skip = 0;
-            let limit = 500;
             let data = {
                 title: {},
                 fields: [],
@@ -28,22 +25,27 @@ export const receivePaymentReport = new ValidatedMethod({
                 content: [{index: 'No Result'}],
                 footer: {}
             };
-
+            let sortBy = {paymentDate: 1};
+            if(params.sortBy){
+                let sort = params.sortBy;
+                if(sort == '_id'){
+                    sortBy._id = 1;
+                }else if(sort == 'invoiceId'){
+                    sortBy.invoiceId = 1
+                }else{
+                    sortBy.paymentDate = 1
+                }
+            }
             // let date = _.trim(_.words(params.date, /[^To]+/g));
             selector.status = {
                 $in: ['partial', 'closed']
             }
-            if (params.skip) {
-                skip = parseInt(params.skip);
-            }
-            if (params.limit) {
-                limit = parseInt(params.limit) <= 0 ? 500 : parseInt(params.limit);
-            }
+            selector.branchId = params.branchId;
             if (params.date) {
                 let dateAsArray = params.date.split(',')
                 let fromDate = moment(dateAsArray[0]).toDate();
                 let toDate = moment(dateAsArray[1]).toDate();
-                data.title.date = moment(fromDate).format('YYYY-MMM-DD hh:mm a') + ' - ' + moment(toDate).format('YYYY-MMM-DD hh:mm a');
+                data.title.date = moment(fromDate).format('DD/MM/YYYY') + ' - ' + moment(toDate).format('DD/MM/YYYY');
                 selector.paymentDate = {$gte: fromDate, $lte: toDate};
             }
             if (params.customer && params.customer != '') {
@@ -59,12 +61,18 @@ export const receivePaymentReport = new ValidatedMethod({
                         project['_customer'] = '$_customer'
                     }
                 }
+                data.fields.push({field: 'Actual Due'}); //map Due Amount field for default
+                data.fields.push({field: 'Discount'}); //map Due Amount field for default
                 data.fields.push({field: 'Due Amount'}); //map Due Amount field for default
                 data.fields.push({field: 'Paid Amount'}); //map Paid Amount field for default
                 data.fields.push({field: 'Balance Amount'}); //map Balance Amount field for default
+                data.displayFields.push({field: 'actualDueAmount'});
+                data.displayFields.push({field: 'discount'});
                 data.displayFields.push({field: 'dueAmount'});
                 data.displayFields.push({field: 'paidAmount'});
                 data.displayFields.push({field: 'balanceAmount'});
+                project['actualDueAmount'] = '$actualDueAmount'; //get total projection for default
+                project['discount'] = '$discount'; //get total projection for default
                 project['dueAmount'] = '$dueAmount'; //get total projection for default
                 project['paidAmount'] = '$paidAmount';
                 project['balanceAmount'] = '$balanceAmount';
@@ -75,12 +83,32 @@ export const receivePaymentReport = new ValidatedMethod({
                     'paymentDate': '$paymentDate',
                     'customerId': '$customerId',
                     '_customer': '$_customer',
+                    'actualDueAmount': '$actualDueAmount',
+                    'discount': '$discount',
                     'dueAmount': '$dueAmount',
                     'paidAmount': '$paidAmount',
                     'balanceAmount': '$balanceAmount'
                 };
-                data.fields = [{field: '#ID'}, {field: '#Invoice'}, {field: 'Date'}, {field: 'Customer'}, {field: 'Due Amount'}, {field: 'Paid Amount'}, {field: 'Balance Amount'}];
-                data.displayFields = [{field: '_id'}, {field: 'invoiceId'}, {field: 'paymentDate'}, {field: 'customerId'}, {field: 'dueAmount'}, {field: 'paidAmount'}, {field: 'balanceAmount'}];
+                data.fields = [
+                    {field: '#ID'}, 
+                    {field: '#Invoice'}, 
+                    {field: 'Date'},
+                    {field: 'Customer'}, 
+                    {field: 'Acutal Due'},
+                    {field: 'Discount'},
+                    {field: 'Due Amount'},
+                    {field: 'Paid Amount'},
+                    {field: 'Balance Amount'}];
+                data.displayFields = [
+                    {field: '_id'}, 
+                    {field: 'invoiceId'}, 
+                    {field: 'paymentDate'}, 
+                    {field: 'customerId'},
+                    {field: 'actualDueAmount'}, 
+                    {field: 'discount'}, 
+                    {field: 'dueAmount'}, 
+                    {field: 'paidAmount'}, 
+                    {field: 'balanceAmount'}];
             }
             /****** Title *****/
             data.title.company = Company.findOne();
@@ -90,11 +118,9 @@ export const receivePaymentReport = new ValidatedMethod({
                 {
                     $match: selector
                 },
-                {$skip: skip},
-                {$limit: limit},
                 {
                     $lookup: {
-                        from: 'Cement_customers',
+                        from: 'cement_customers',
                         localField: 'customerId',
                         foreignField: '_id',
                         as: '_customer'
@@ -104,16 +130,7 @@ export const receivePaymentReport = new ValidatedMethod({
                 {
                     $project: {
                         actualDueAmount: {
-                            $divide: [
-                                '$dueAmount',
-                                {
-                                    $subtract: [1,
-                                        {
-                                            $divide: ['$discount', 100]
-                                        }
-                                    ]
-                                }
-                            ]
+                            $add: ['$dueAmount', '$discount']
                         },
                         _customer: 1,
                         _id: 1,
@@ -129,10 +146,13 @@ export const receivePaymentReport = new ValidatedMethod({
                     }
                 },
                 {
+                    $sort: sortBy
+                },
+                {
                     $group: {
                         _id: null,
                         data: {
-                            $addToSet: project
+                            $push: project
                         },
                         dueAmount: {
                             $sum: '$dueAmount'
@@ -142,13 +162,22 @@ export const receivePaymentReport = new ValidatedMethod({
                         },
                         paidAmount: {
                             $sum: '$paidAmount'
+                        },
+                        actualDueAmount: {
+                            $sum: '$actualDueAmount'
+                        },
+                        discount:{
+                            $sum: '$discount'
                         }
                     }
                 }]);
             if (receivePayments.length > 0) {
-                let sortData = _.sortBy(receivePayments[0].data, '_id');
-                receivePayments[0].data = sortData
-                data.content = receivePayments;
+                data.content = receivePayments[0].data;
+                data.footer.dueAmount=receivePayments[0].dueAmount;
+                data.footer.balanceAmount=receivePayments[0].balanceAmount;
+                data.footer.paidAmount=receivePayments[0].paidAmount;
+                data.footer.actualDueAmount=receivePayments[0].actualDueAmount;
+                data.footer.discount=receivePayments[0].discount;
             }
             return data
         }
