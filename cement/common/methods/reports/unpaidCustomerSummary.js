@@ -51,7 +51,7 @@ export const unpaidCustomerSummary = new ValidatedMethod({
                 data.title.exchange = `USD = ${coefficient.usd.$multiply[1]} $, KHR = ${coefficient.khr.$multiply[1]}<small> ៛</small>, THB = ${coefficient.thb.$multiply[1]} B`;
                 selector.$or = [
                    {status: {$in: ['active', 'partial']}, invoiceDate: {$lte: toDate}},
-                   {invoiceDate: {$lte: toDate}, status: 'closed', closedAt: {$gt: toDate}}
+                   {invoiceDate: {$lte: toDate}, status: 'closed', closedAt: {$gt: toDate}},
                ];
             }
             if (params.customer && params.customer != '') {
@@ -96,6 +96,24 @@ export const unpaidCustomerSummary = new ValidatedMethod({
                         }
                     }
                 },
+
+                {
+                  $group: {
+                      _id: '$_id',
+                      customerId: {$last: '$customerId'},
+                      customerDoc: {$last: '$customerDoc'},
+                      total: {$last: '$total'},
+                      paidAmount: {$sum: '$receivePaymentDoc.paidAmount'},
+                  }
+                },
+                {
+                  $project: {
+                      _id: 1,
+                      customerId: 1,
+                      customerDoc: 1,
+                      total: {$subtract: ['$total', '$paidAmount']}
+                  }
+                },
                 {
                     $lookup: {
                         from: 'cement_customers',
@@ -108,20 +126,10 @@ export const unpaidCustomerSummary = new ValidatedMethod({
                     $unwind: {path: '$customerDoc', preserveNullAndEmptyArrays: true}
                 },
                 {
-                  $group: {
-                      _id: '$_id',
-                      customerId: {$last: '$customerId'},
-                      customerDoc: {$last: '$customerDoc'},
-                      total: {$last: '$total'},
-                      paidAmount: {$sum: '$paidAmount'},
-                  }
-                },
-
-                {
                     $group: {
                         _id: '$customerId',
                         customerDoc: {$last: '$customerDoc'},
-                        total: {$sum: {$subtract: ["$total", "$paidAmount"]}}
+                        total: {$sum: '$total'}
                     }
                 },
                 {

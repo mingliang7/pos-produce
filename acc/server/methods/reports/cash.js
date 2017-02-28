@@ -64,6 +64,10 @@ Meteor.methods({
                 selector.branchId = self.branchId;
             }
 
+            if(self.transactionType!="All"){
+                selector.refFrom=self.transactionType;
+            }
+
 
             /*if (!_.isArray(self.accountType)) {
              var accountTypeList = self.accountType.split(',');
@@ -134,6 +138,9 @@ Meteor.methods({
                     if (self.branchId != "All") {
                         selectorGetLastDate.branchId = self.branchId;
                     }
+
+
+
                     /* if (self.chartAccount != "All") {
                      selectorGetLastDate.closeChartAccountId = self.chartAccount;
                      }*/
@@ -154,6 +161,8 @@ Meteor.methods({
                     if (self.branchId != "All") {
                         selectorGetLastBalance.branchId = self.branchId;
                     }
+
+
                     selectorGetLastBalance.closeChartAccountId = obj._id;
                     var lastBalanceClose = 0;
                     if (lastDate != null) {
@@ -184,6 +193,10 @@ Meteor.methods({
                     }
                     if (self.branchId != "All") {
                         selectorAdvanced.branchId = self.branchId;
+                    }
+
+                    if(self.transactionType!="All"){
+                        selectorAdvanced.refFrom=self.transactionType;
                     }
 
                     var resultLast1 = Journal.find(selectorAdvanced).fetch();

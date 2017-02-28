@@ -183,7 +183,7 @@ export const customerHistoryReport = new ValidatedMethod({
                 }
                 doc.paymentDoc.forEach(function (payment) {
                     let formatPaymentDate = moment(payment.paymentDate).format('YYYY-MM-DD 00:00:00');
-                    let queryDate = moment(currentArrDate).format('YYYY-MM-DD');
+                    let queryDate = moment(currentArrDate).endOf('days').format('YYYY-MM-DD');
                     let paymentDate = moment(payment.paymentDate);
                     if (paymentDate.isSameOrBefore(queryDate)) {
                         let groupPayDate = moment(payment.paymentDate).format('MM-YYYY');
@@ -234,9 +234,9 @@ export const customerHistoryReport = new ValidatedMethod({
                 doc.data.forEach(function (o) {
                     if (o.type == 'invoice') {
                         o.beginningBalance = o.total + beginningBalance;
-                        beginningBalance += o.total;
                         o.balanceAmount = beginningBalance + o.total;
                         totalAmount += o.total;
+                        beginningBalance += o.total;
                     } else {
                         let paymentDate = moment(o.date).format('DD/MM/YYYY');
                         o.beginningBalance = beginningBalance - o.paidAmount;

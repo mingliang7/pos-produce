@@ -102,7 +102,7 @@ export const  termCustomerBalanceReport = new ValidatedMethod({
             data.title.company = Company.findOne();
             /****** Content *****/
             let invoices = [];
-            if(params.type = 'active'){
+            if(params.type == 'active'){
                 invoices = Invoices.aggregate([
                         {$match: selector},
                         {
@@ -236,15 +236,42 @@ export const  termCustomerBalanceReport = new ValidatedMethod({
                     ]);
             }else{
                 invoices = Invoices.aggregate([
-                    {$match: selector},
+                    {
+                        $match: selector
+                    },
                     {
                         $lookup: {
-                            from: "cement_receivePayment",
-                            localField: "_id",
-                            foreignField: "invoiceId",
-                            as: "paymentDoc"
+                            from: 'cement_receivePayment',
+                            localField: '_id',
+                            foreignField: 'invoiceId',
+                            as: 'paymentDoc'
                         }
                     },
+
+                    {
+                        $project: {
+                            _id: 1,
+                            customerId: 1,
+                            invoiceId: 1,
+                            invoiceDate: 1,
+                            dueDate: 1,
+                            total: 1,
+                            paymentDoc: {
+                                $filter: {
+                                    input: '$paymentDoc',
+                                    as: 'payment',
+                                    cond: {$lte: ['$$payment.paymentDate', date]}
+                                }
+                            }
+                        }
+                    },
+                    {
+                        $unwind: {
+                            path: '$paymentDoc',
+                            preserveNullAndEmptyArrays: true
+                        }
+                    },
+                    {$sort: {'paymentDoc.paymentDate': 1}},
                     {
                         $project: {
                             _id: 1,
@@ -253,45 +280,9 @@ export const  termCustomerBalanceReport = new ValidatedMethod({
                             dueDate: 1,
                             customerId: 1,
                             total: 1,
-                            paymentDoc: {
-                                $filter: {
-                                    input: '$paymentDoc',
-                                    as: 'payment',
-                                    cond: {$lte: ['$$payment.paymentDate', date]}
-                                }
-                            },
+                            lastPaymentDate: '$paymentDoc.paymentDate',
+                            paymentDoc: 1,
                         }
-                    },
-                    {$unwind: {path: '$paymentDoc', preserveNullAndEmptyArrays: true}},
-                    {$sort: {'paymentDoc.paymentDate': 1}},
-                    {
-                    $project: {
-                        _id: 1,
-                        status: 1,
-                        invoiceDate: 1,
-                        dueDate: 1,
-                        customerId: 1,
-                        total: 1,
-                        lastPaymentDate: {
-                            $cond: [
-                                {$lte: ['$paymentDoc.paymentDate', date]},
-                                '$paymentDoc.paymentDate', 'None'
-                                ]
-                        },
-                        dueAmount: {
-                            $cond: [
-                                {$lte: ['$paymentDoc.paymentDate', date]},
-                                '$paymentDoc.dueAmount', null
-                            ]
-                        },
-                        paidAmount: {
-                            $cond: [
-                                {$lte: ['$paymentDoc.paymentDate', date]},
-                                '$paymentDoc.paidAmount', null
-                            ]
-                        },
-                        paymentDoc: 1,
-                    }
                     },
                     {
                         $group: {
@@ -301,10 +292,10 @@ export const  termCustomerBalanceReport = new ValidatedMethod({
                             invoiceDoc: {$last: '$$ROOT'},
                             lastPaymentDate: {$last: '$lastPaymentDate'},
                             dueAmount: {
-                                $last: '$dueAmount'
+                                $last: '$paymentDoc.dueAmount'
                             },
                             paidAmount: {
-                                $last: '$paidAmount'
+                                $last: '$paymentDoc.paidAmount'
                             },
                             paymentDoc: {$last: '$paymentDoc'},
                             total: {$last: '$total'},
@@ -335,24 +326,18 @@ export const  termCustomerBalanceReport = new ValidatedMethod({
                         }
                     },
                     {
-                        $project: {
-                            _id: 1,
-                            invoice: 1,
-                            invoiceDoc: 1,
-                            dueAmount: 1,
-                            paidAmount: 1,
-                            balance: {$subtract: ["$dueAmount", "$paidAmount"]},
-                            invoiceDate: 1,
-                            dueDate: 1,
-                            lastPaymentDate: 1,
-                            status: 1,
-                            total: .1
-                        }
-                    },
-                    {$sort: {invoiceDate: 1}},
-                    {
-                        $redact: {
-                            $cond: {if: {$eq: ['$balance', 0]}, then: '$$PRUNE', else: '$$KEEP'}
+                        $group: {
+                            _id: '$_id',
+                            invoice: {$last: '$invoice'},
+                            invoiceDoc: {$last: '$invoiceDoc'},
+                            dueAmount: {$last: '$dueAmount'},
+                            paidAmount: {$last: '$paidAmount'},
+                            balance: {$last: {$subtract: ["$dueAmount", "$paidAmount"]}},
+                            invoiceDate: {$last: '$invoiceDate'},
+                            dueDate: {$last: '$dueDate'},
+                            lastPaymentDate: {$last: '$lastPaymentDate'},
+                            status: {$last: '$status'},
+                            total: {$last: '$total'}
                         }
                     },
                     {
@@ -379,8 +364,8 @@ export const  termCustomerBalanceReport = new ValidatedMethod({
                     },
                     {
                         $unwind: {path: '$customerDoc', preserveNullAndEmptyArrays: true}
-                    },            
-                    {$sort: {'customerDoc.name': 1}},    
+                    },
+                    {$sort: {'customerDoc.name': 1}},
                     {
                         $group: {
                             _id: null,
