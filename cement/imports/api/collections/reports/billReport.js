@@ -12,12 +12,12 @@ Tracker.autorun(function () {
 export const billReportSchema = new SimpleSchema({
     fromDate: {
         type: Date,
-        defaultValue: moment().toDate(),
+        defaultValue: moment().startOf('days').toDate(),
         autoform: {
             afFieldInput: {
                 type: "bootstrap-datetimepicker",
                 dateTimePickerOptions: {
-                    format: 'DD/MM/YYYY HH:mm:ss',
+                    format: 'DD/MM/YYYY',
 
                 }
             }
@@ -25,12 +25,12 @@ export const billReportSchema = new SimpleSchema({
     },
     toDate: {
         type: Date,
-        defaultValue: moment().toDate(),
+        defaultValue: moment().endOf('days').toDate(),
         autoform: {
             afFieldInput: {
                 type: "bootstrap-datetimepicker",
                 dateTimePickerOptions: {
-                    format: 'DD/MM/YYYY HH:mm:ss',
+                    format: 'DD/MM/YYYY',
 
                 }
             }
@@ -124,4 +124,11 @@ export const billReportSchema = new SimpleSchema({
             }
         }
     },
+    checkWithAccount: {
+        type: Boolean,
+        defaultValue: true,
+        autoform: {
+            type: 'boolean-select'
+        }
+    }
 });

@@ -66,16 +66,19 @@ export const receivePaymentReport = new ValidatedMethod({
                 data.fields.push({field: 'Due Amount'}); //map Due Amount field for default
                 data.fields.push({field: 'Paid Amount'}); //map Paid Amount field for default
                 data.fields.push({field: 'Balance Amount'}); //map Balance Amount field for default
+                data.fields.push({field: 'JournalId'}); //map Balance Amount field for default
                 data.displayFields.push({field: 'actualDueAmount'});
                 data.displayFields.push({field: 'discount'});
                 data.displayFields.push({field: 'dueAmount'});
                 data.displayFields.push({field: 'paidAmount'});
                 data.displayFields.push({field: 'balanceAmount'});
+                data.displayFields.push({field: 'journalDoc._id'});
                 project['actualDueAmount'] = '$actualDueAmount'; //get total projection for default
                 project['discount'] = '$discount'; //get total projection for default
                 project['dueAmount'] = '$dueAmount'; //get total projection for default
                 project['paidAmount'] = '$paidAmount';
                 project['balanceAmount'] = '$balanceAmount';
+                project['journalDoc'] = '$journalDoc';
             } else {
                 project = {
                     '_id': '$_id',
@@ -87,7 +90,8 @@ export const receivePaymentReport = new ValidatedMethod({
                     'discount': '$discount',
                     'dueAmount': '$dueAmount',
                     'paidAmount': '$paidAmount',
-                    'balanceAmount': '$balanceAmount'
+                    'balanceAmount': '$balanceAmount',
+                    'journalDoc': '$journalDoc'
                 };
                 data.fields = [
                     {field: '#ID'}, 
@@ -98,7 +102,8 @@ export const receivePaymentReport = new ValidatedMethod({
                     {field: 'Discount'},
                     {field: 'Due Amount'},
                     {field: 'Paid Amount'},
-                    {field: 'Balance Amount'}];
+                    {field: 'Balance Amount'},
+                    {field: 'JournalId'}]
                 data.displayFields = [
                     {field: '_id'}, 
                     {field: 'invoiceId'}, 
@@ -108,7 +113,16 @@ export const receivePaymentReport = new ValidatedMethod({
                     {field: 'discount'}, 
                     {field: 'dueAmount'}, 
                     {field: 'paidAmount'}, 
-                    {field: 'balanceAmount'}];
+                    {field: 'balanceAmount'},
+                    {field: 'journalDoc'}]
+            }
+            if(params.checkWithAccount == 'false'){
+                data.displayFields = data.displayFields.filter(function(e){
+                    return e.field != 'journalDoc';
+                })
+                data.fields = data.fields.filter(function(e){
+                    return e.field != 'JournalId';                    
+                })
             }
             /****** Title *****/
             data.title.company = Company.findOne();
@@ -124,6 +138,14 @@ export const receivePaymentReport = new ValidatedMethod({
                         localField: 'customerId',
                         foreignField: '_id',
                         as: '_customer'
+                    }
+                },
+                {
+                    $lookup: {
+                        from: 'accJournal',
+                        localField: '_id',
+                        foreignField: 'refId',
+                        as: 'journalDoc'
                     }
                 },
                 {$unwind: {path: '$_customer', preserveNullAndEmptyArrays: true}},
@@ -142,7 +164,8 @@ export const receivePaymentReport = new ValidatedMethod({
                         status: 1,
                         dueAmount: 1,
                         balanceAmount: 1,
-                        paidAmount: 1
+                        paidAmount: 1,
+                        journalDoc: 1
                     }
                 },
                 {

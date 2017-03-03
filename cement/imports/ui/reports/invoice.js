@@ -31,7 +31,6 @@ Tracker.autorun(function () {
                 }, 200);
             }).catch(function (err) {
             swal.close();
-            console.log(err.message);
         })
     }
 });
@@ -46,8 +45,8 @@ indexTmpl.helpers({
     }
 });
 indexTmpl.events({
-    'click .print'(event, instance){
-        $('#to-print').printThis();
+    'click .print-invoice'(event, instance){
+        window.print();
     },
     'click .printReport'(event,instance){
         window.print();
@@ -72,22 +71,32 @@ invoiceDataTmpl.helpers({
             } else if (obj.field == 'customerId') {
                 data += `<td>${col._customer.name}</td>`
             } else if (obj.field == 'total') {
-                data += `<td>${numeral(col[obj.field]).format('0,0.00')}</td>`
+                data += `<td class="text-right">${numeral(col[obj.field]).format('0,0.00')}</td>`
+            } else if (obj.field == 'journalDoc'){
+                let arr = [];
+                col[obj.field].map(function(e){ arr.push(e._id)})
+                if(arr.length > 1){
+                    data += `<td class="text-right" style="background: yellow;">${arr.length > 0 ? arr.join(' | ') : 'Not Send'}</td>`                
+                }else if (arr.length <=0){
+                    data += `<td class="text-right" style="background: red; color: #fff">${arr.length > 0 ? arr.join(' | ') : 'Not Send ' + '<button class="rewrite btn btn-default btn-sm">Rewrite</button>'}</td>`                                    
+                }else{
+                    data += `<td class="text-right">${arr.length > 0 ? arr.join(' | ') : 'Not Send'}</td>`                
+                }
             }
             else {
                 data += `<td>${col[obj.field]}</td>`;
             }
         });
-
         return data;
     },
     getTotal(total){
         let string = '';
-        let fieldLength = this.displayFields.length - 2;
+        let checkWithAccountExist = this.displayFields.find(x => x.field == 'journalDoc');
+        let fieldLength = this.displayFields.length - (checkWithAccountExist ? 3 : 2);
         for (let i = 0; i < fieldLength; i++) {
             string += '<td></td>'
         }
-        string += `<td><b>Total:</td></b><td><b>${numeral(total).format('0,0.00')}</b></td>`;
+        string += `<td><b>Total:</td></b><td class="text-right"><b>${numeral(total).format('0,0.00')}</b></td>`;
         return string;
     }
 });
@@ -110,6 +119,7 @@ AutoForm.hooks({
             if (doc.filter) {
                 params.filter = doc.filter.join(',');
             }
+            params.checkWithAccount = `${doc.checkWithAccount}`;
             FlowRouter.query.set(params);
             paramsState.set(FlowRouter.query.params());
             return false;

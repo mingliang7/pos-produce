@@ -1,9 +1,10 @@
 import {SimpleSchema} from 'meteor/aldeed:simple-schema';
 import {AutoForm} from 'meteor/aldeed:autoform';
 import {moment} from 'meteor/momentjs:moment';
+import {SelectOpts} from "../../../../../core/imports/ui/libs/select-opts";
 
 
-export const paymentSchema = new SimpleSchema({
+export const saleOrderSummarySchema = new SimpleSchema({
     fromDate: {
         type: Date,
         defaultValue: moment().toDate(),
@@ -12,6 +13,7 @@ export const paymentSchema = new SimpleSchema({
                 type: "bootstrap-datetimepicker",
                 dateTimePickerOptions: {
                     format: 'DD/MM/YYYY',
+
                 }
             }
         }
@@ -24,6 +26,7 @@ export const paymentSchema = new SimpleSchema({
                 type: "bootstrap-datetimepicker",
                 dateTimePickerOptions: {
                     format: 'DD/MM/YYYY',
+
                 }
             }
         }
@@ -59,58 +62,42 @@ export const paymentSchema = new SimpleSchema({
                         value: '_id'
                     },
                     {
-                        label: '#Invoice',
-                        value: 'invoiceId'
-                    },
-                    {
-                        label: 'Payment Type',
-                        value: 'paymentType'
-                    },
-                    {
-                        label: 'Customer',
-                        value: 'customerId'
+                        label: 'Representative',
+                        value: 'repId'
                     },
                     {
                         label: 'Date',
-                        value: 'paymentDate'
+                        value: 'orderDate'
                     },
-
                     {
                         label: 'Status',
                         value: 'status'
-                    },
-                    {
-                        label: 'Penalty',
-                        value: 'penalty'
-                    },
-                    {
-                        label: 'Actual Amount',
-                        value: 'actualDueAmount'
-                    },
-                    {
-                        label: 'Discount',
-                        value: 'discount'
                     }
                 ]
             }
         }
     },
-    sortBy: {
-        type: String,
+    branchId: {
+        type: [String],
+        optional: true,
+        label: function () {
+            return TAPi18n.__('core.welcome.branch');
+        },
         autoform: {
-            type: 'select-radio-inline',
-            options(){
-                return [
-                    {label: 'ID',value: '_id'},
-                    {label: 'Invoice', value: 'invoiceId'},
-                    {label: 'Date', value: 'paymentDate'}
-                ]
+            type: "universe-select",
+            multiple: true,
+            options: function () {
+                return Meteor.isClient && SelectOpts.branchForCurrentUser(false);
+            },
+            afFieldInput: {
+                value: function () {
+                    return Meteor.isClient && Session.get('currentBranch');
+                }
             }
         }
     },
     checkWithAccount: {
         type: Boolean,
-        optional: true,
         defaultValue: true,
         autoform: {
             type: 'boolean-select'

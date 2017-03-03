@@ -51,6 +51,9 @@ Template.Cement_sidebarMenu.helpers({
     invoiceSummary() {
         return `/cement/report/invoice?date=${moment().startOf('days').format('YYYY-MM-DD HH:mm:ss')},${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}`;
     },
+    saleOrderSummary() {
+        return `/cement/report/saleOrderSummary?date=${moment().startOf('days').format('YYYY-MM-DD HH:mm:ss')},${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}`;
+    },
     invoiceByItem() {
         return `/cement/report/invoiceByItemReport?date=${moment().startOf('days').format('YYYY-MM-DD HH:mm:ss')},${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}&branchId=${Session.get('currentBranch')}`;
     },
@@ -75,6 +78,9 @@ Template.Cement_sidebarMenu.helpers({
     },
     groupBill() {
         return `/cement/report/groupBillReport?date=${moment().startOf('days').format('YYYY-MM-DD HH:mm:ss')},${moment().startOf('days').format('YYYY-MM-DD HH:mm:ss')}&branch=${Session.get('currentBranch')}`;
+    },
+    payBillHistory() {
+        return `/cement/report/payBillHistory?date=${moment().startOf('days').format('YYYY-MM-DD HH:mm:ss')},${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}`;
     },
     payEnterBill() {
         return '#'

@@ -32,7 +32,6 @@ Tracker.autorun(function () {
                 }, 200);
             }).catch(function (err) {
             swal.close();
-            console.log(err.message);
         })
     }
 });
@@ -98,19 +97,30 @@ receivePaymentTmpl.helpers({
             if (obj.field == 'paymentDate') {
                 data += `<td>${moment(col[obj.field]).format('YYYY-MM-DD')}</td>`
             } else if (obj.field == 'customerId') {
-                data += `<td>${col._customer.name}</td>`
+                data += `<td>${col._customer && col._customer.name}</td>`
             } else if (obj.field == 'discount' || obj.field == 'actualDueAmount' || obj.field == 'dueAmount' || obj.field == 'paidAmount' || obj.field == 'balanceAmount') {
                 data += `<td class="text-right">${numeral(col[obj.field]).format('0,0.00')}</td>`
-            }
+            }else if (obj.field == 'journalDoc'){
+                let arr = [];
+                col[obj.field].map(function(e){ arr.push(e._id)})
+                if(arr.length > 1){
+                    data += `<td class="text-right" style="background: yellow;">${arr.length > 0 ? arr.join(' | ') : 'Not Send'}</td>`                
+                }else if (arr.length <=0){
+                    data += `<td class="text-right" style="background: red; color: #fff">${arr.length > 0 ? arr.join(' | ') : 'Not Send '+ '<button class="rewrite btn btn-default btn-sm">Rewrite</button>'}</td>`                                    
+                }
+                else{
+                    data += `<td class="text-right">${arr.length > 0 ? arr.join(' | ') : 'Not Send'}</td>`                
+                }            }
             else {
-                data += `<td>${col[obj.field]}</td>`;
+                data += `<td >${col[obj.field]}</td>`;
             }
         });
         return data;
     },
     getTotal(actualDueAmount,discount,dueAmount, paidAmount, balanceAmount){
         let string = '';
-        let fieldLength = this.displayFields.length - 6;
+        let checkWithAccountExist = this.displayFields.find(x => x.field == 'journalDoc');
+        let fieldLength = this.displayFields.length -  (checkWithAccountExist ? 7 : 6);
         for (let i = 0; i < fieldLength; i++) {
             string += '<td></td>'
         }
@@ -143,6 +153,7 @@ AutoForm.hooks({
             if(doc.sortBy){
                 params.sortBy = doc.sortBy;
             }
+            params.checkWithAccount = `${doc.checkWithAccount}`;
             FlowRouter.query.set(params);
             paramsState.set(FlowRouter.query.params());
             return false;

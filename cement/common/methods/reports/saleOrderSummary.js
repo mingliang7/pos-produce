@@ -7,11 +7,11 @@ import {moment} from  'meteor/momentjs:moment';
 
 // Collection
 import {Company} from '../../../../core/imports/api/collections/company.js';
-import {Invoices} from '../../../imports/api/collections/invoice';
+import {Order} from '../../../imports/api/collections/order';
 // lib func
 import {correctFieldLabel} from '../../../imports/api/libs/correctFieldLabel';
-export const invoiceReport = new ValidatedMethod({
-    name: 'cement.invoiceReport',
+export const saleOrderSummary = new ValidatedMethod({
+    name: 'cement.saleOrderSummary',
     mixins: [CallPromiseMixin],
     validate: null,
     run(params) {
@@ -30,14 +30,13 @@ export const invoiceReport = new ValidatedMethod({
             let user = Meteor.users.findOne(Meteor.userId());
             // console.log(user);
             // let date = _.trim(_.words(params.date, /[^To]+/g));
-            selector.invoiceType = {$ne: 'saleOrder'};
             selector.status = {$in: ['active', 'partial', 'closed']};
             if (params.date) {
                 let dateAsArray = params.date.split(',')
                 let fromDate = moment(dateAsArray[0]).toDate();
                 let toDate = moment(dateAsArray[1]).toDate();
                 data.title.date = moment(fromDate).format('YYYY-MMM-DD hh:mm a') + ' - ' + moment(toDate).format('YYYY-MMM-DD hh:mm a');
-                selector.invoiceDate = {$gte: fromDate, $lte: toDate};
+                selector.orderDate = {$gte: fromDate, $lte: toDate};
             }
             if (params.customer && params.customer != '') {
                 selector.customerId = params.customer;
@@ -59,7 +58,7 @@ export const invoiceReport = new ValidatedMethod({
             }else{
                 project = {
                     '_id': '$_id',
-                    'invoiceDate': '$invoiceDate',
+                    'orderDate': '$orderDate',
                     'customerId': '$customerId',
                     '_customer': '$_customer',
                     'status': '$status',
@@ -76,7 +75,7 @@ export const invoiceReport = new ValidatedMethod({
                     ];
                 data.displayFields = [
                     {field: '_id'}, 
-                    {field: 'invoiceDate'}, 
+                    {field: 'orderDate'}, 
                     {field: 'customerId'}, 
                     {field: 'status'}, 
                     {field: 'total'},
@@ -96,7 +95,7 @@ export const invoiceReport = new ValidatedMethod({
             data.title.company = Company.findOne();
 
             /****** Content *****/
-            let invoices = Invoices.aggregate([
+            let orders = Order.aggregate([
                 {
                     $match: selector
                 },
@@ -123,7 +122,7 @@ export const invoiceReport = new ValidatedMethod({
                     }
                 },
                 {
-                    $sort: {invoiceDate: 1}
+                    $sort: {orderDate: 1}
                 },
                 {
                     $group: {
@@ -136,8 +135,8 @@ export const invoiceReport = new ValidatedMethod({
                         }
                     }
                 }]);
-            if (invoices.length > 0) {
-                data.content = invoices;
+            if (orders.length > 0) {
+                data.content = orders;
             }
             return data
         }

@@ -77,7 +77,7 @@ CementRoutes.route('/report', {
 import '../imports/ui/reports/invoice';
 CementRoutes.route('/report/invoice', {
     name: 'cement.invoiceReport',
-    title: 'Invoice Report',
+    title: 'Sale Summary',
     action: function (params, queryParams) {
         Layout.customReportLayout('Cement_invoiceReport');
     },
@@ -510,5 +510,35 @@ CementRoutes.route('/report/customerHistorySO', {
         title: 'Customer History SO',
         icon: '',
         parent: 'cement.home'
+    }
+});
+
+import '../imports/ui/reports/saleOrderSummary';
+CementRoutes.route('/report/saleOrderSummary', {
+    name: 'cement.saleOrderSummary',
+    title: 'Sale Order Summary',
+    action: function (params, queryParams) {
+        Layout.customReportLayout('Cement_saleOrderSummary');
+    },
+    breadcrumb:{
+        // params:['vendorId'],
+        title: 'Sale Order Summary Report',
+        // icon: 'cart-plus',
+        parent: 'cement.mainReport'
+    }
+});
+
+import '../imports/ui/reports/payBillHistory';
+CementRoutes.route('/report/payBillHistory', {
+    name: 'cement.payBillHistory',
+    title: 'Pay Bill  History',
+    action: function (params, queryParams) {
+        Layout.customReportLayout('Cement_payBillHistory');
+    },
+    breadcrumb:{
+        // params:['vendorId'],
+        title: 'Vendor History Report',
+        // icon: 'cart-plus',
+        parent: 'cement.mainReport'
     }
 });

@@ -3,27 +3,26 @@ import {createNewAlertify} from '../../../../core/client/libs/create-new-alertif
 import {reactiveTableSettings} from '../../../../core/client/libs/reactive-table-settings.js';
 import {renderTemplate} from '../../../../core/client/libs/render-template.js';
 //page
-import './billReport.html';
+import './saleOrderSummary.html';
 //import DI
 import  'printthis';
 //import collection
-import {billReportSchema} from '../../api/collections/reports/billReport';
-
+import {saleOrderSummarySchema} from '../../api/collections/reports/saleOrderSummary';
 //methods
-import {billReport} from '../../../common/methods/reports/bill';
+import {saleOrderSummary} from '../../../common/methods/reports/saleOrderSummary';
 //state
 let paramsState = new ReactiveVar();
 let invoiceData = new ReactiveVar();
 //declare template
-let indexTmpl = Template.Cement_billReport,
-    invoiceDataTmpl = Template.billReportData;
+let indexTmpl = Template.Cement_saleOrderSummary,
+    invoiceDataTmpl = Template.saleOrderSummaryData;
 Tracker.autorun(function () {
     if (paramsState.get()) {
         swal({
             title: "Pleas Wait",
             text: "Fetching Data....", showConfirmButton: false
         });
-        billReport.callPromise(paramsState.get())
+        saleOrderSummary.callPromise(paramsState.get())
             .then(function (result) {
                 invoiceData.set(result);
                 setTimeout(function () {
@@ -31,23 +30,25 @@ Tracker.autorun(function () {
                 }, 200);
             }).catch(function (err) {
             swal.close();
-            console.log(err.message);
         })
     }
 });
 
 indexTmpl.onCreated(function () {
-    createNewAlertify('invoiceReport');
+    createNewAlertify('saleOrderSummary');
     paramsState.set(FlowRouter.query.params());
 });
 indexTmpl.helpers({
     schema(){
-        return billReportSchema;
+        return saleOrderSummarySchema;
     }
 });
 indexTmpl.events({
-    'click .print'(event, instance){
-        $('#to-print').printThis();
+    'click .print-invoice'(event, instance){
+        window.print();
+    },
+    'click .printReport'(event,instance){
+        window.print();
     }
 });
 invoiceDataTmpl.helpers({
@@ -63,57 +64,56 @@ invoiceDataTmpl.helpers({
 
     display(col){
         let data = '';
-        debugger
         this.displayFields.forEach(function (obj) {
-            if (obj.field == 'enterBillDate') {
+            if (obj.field == 'orderDate') {
                 data += `<td>${moment(col[obj.field]).format('YYYY-MM-DD HH:mm:ss')}</td>`
-            } else if (obj.field == 'vendorId') {
-                data += `<td>${col._vendor.name}</td>`
+            } else if (obj.field == 'customerId') {
+                data += `<td>${col._customer.name}</td>`
             } else if (obj.field == 'total') {
-                data += `<td>${numeral(col[obj.field]).format('0,0.00')}</td>`
-            }else if (obj.field == 'journalDoc'){
+                data += `<td class="text-right">${numeral(col[obj.field]).format('0,0.00')}</td>`
+            } else if (obj.field == 'journalDoc'){
                 let arr = [];
                 col[obj.field].map(function(e){ arr.push(e._id)})
                 if(arr.length > 1){
-                    data += `<td class="text-right" style="background: yellow;">${arr.length > 0 ? arr.join(' | ') : 'Not Send'}</td>`                
+                    data += `<td class="text-right" style="background: yellow;">${arr.length > 0 ? arr.join(' | ') : 'Not Send'}</td>`
                 }else if (arr.length <=0){
-                    data += `<td class="text-right" style="background: red; color: #fff">${arr.length > 0 ? arr.join(' | ') : 'Not Send ' + '<button class="rewrite btn btn-default btn-sm">Rewrite</button>'}</td>`                                    
+                    data += `<td class="text-right" style="background: red; color: #fff">${arr.length > 0 ? arr.join(' | ') : 'Not Send ' + '<button class="rewrite btn btn-default btn-sm">Rewrite</button>'}</td>`
                 }else{
-                    data += `<td class="text-right">${arr.length > 0 ? arr.join(' | ') : 'Not Send'}</td>`                
+                    data += `<td class="text-right">${arr.length > 0 ? arr.join(' | ') : 'Not Send'}</td>`
                 }
             }
             else {
                 data += `<td>${col[obj.field]}</td>`;
             }
         });
-
         return data;
     },
     getTotal(total){
         let string = '';
-        let fieldLength = this.displayFields.length - 2;
+        let checkWithAccountExist = this.displayFields.find(x => x.field == 'journalDoc');
+        let fieldLength = this.displayFields.length - (checkWithAccountExist ? 3 : 2);
         for (let i = 0; i < fieldLength; i++) {
             string += '<td></td>'
         }
-        string += `<td><b>Total:</td></b><td><b>${numeral(total).format('0,0.00')}</b></td>`;
+        string += `<td><b>Total:</td></b><td class="text-right"><b>${numeral(total).format('0,0.00')}</b></td>`;
         return string;
     }
 });
 
 
 AutoForm.hooks({
-    billReport: {
+    saleOrderSummary: {
         onSubmit(doc){
             this.event.preventDefault();
             FlowRouter.query.unset();
             let params = {};
             if (doc.fromDate && doc.toDate) {
-                let fromDate = moment(doc.fromDate).startOf('days').format('YYYY-MM-DD HH:mm:ss');
-                let toDate = moment(doc.toDate).endOf('days').format('YYYY-MM-DD HH:mm:ss');
+                let fromDate = moment(doc.fromDate).format('YYYY-MM-DD HH:mm:ss');
+                let toDate = moment(doc.toDate).format('YYYY-MM-DD HH:mm:ss');
                 params.date = `${fromDate},${toDate}`;
             }
-            if (doc.vendorId) {
-                params.vendorId = doc.vendorId;
+            if (doc.customer) {
+                params.customer = doc.customer
             }
             if (doc.filter) {
                 params.filter = doc.filter.join(',');

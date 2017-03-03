@@ -187,7 +187,40 @@ SelectOptMethods.customer = new ValidatedMethod({
         }
     }
 });
+SelectOptMethods.vendorByBranch = new ValidatedMethod({
+    name: 'cement.selectOptMethods.vendorByBranch',
+    validate: null,
+    run(options) {
+        if (!this.isSimulation) {
+            this.unblock();
 
+            let list = [];
+            let searchText = options.searchText;
+            let values = options.values;
+            let params = options.params || {};
+            let selector = {};
+            if (!_.isEmpty(params)) {
+                selector = params;
+            }
+            if (searchText) {
+                selector.$or = [
+                    {_id: {$regex: searchText, $options: 'i'}},
+                    {name: {$regex: searchText, $options: 'i'}}
+                ];
+            } else if (values.length) {
+                selector._id = {$in: values};
+            }
+            let data = Vendors.find(selector, {limit: 10});
+            data.forEach(function (value) {
+                let termOrGroup = value._term ? ` (Term ${value._term.name})` : ` (Group ${value._paymentGroup.name})`;
+                // let label = value._id + ' : ' + value.name + termOrGroup;
+                let label = value.name
+                list.push({label: label, value: value._id});
+            });
+            return list;
+        }
+    }
+});
 SelectOptMethods.saleOrder = new ValidatedMethod({
     name: 'cement.selectOptMethods.saleOrder',
     validate: null,

@@ -30,7 +30,7 @@ export const billReport = new ValidatedMethod({
             let user = Meteor.users.findOne(Meteor.userId());
             // console.log(user);
             // let date = _.trim(_.words(params.date, /[^To]+/g));
-            selector.billType = {$ne: 'group'};
+            // selector.billType = {$ne: 'group'};
             selector.status = {$in: ['active', 'partial', 'closed']};
             if (params.date) {
                 let dateAsArray = params.date.split(',')
@@ -53,18 +53,31 @@ export const billReport = new ValidatedMethod({
                     }
                 }
                 data.fields.push({field: 'Total'}); //map total field for default
+                data.fields.push({field: 'JournalId'}); //map total field for default
                 data.displayFields.push({field: 'total'});
+                data.displayFields.push({field: 'journalDoc'});
                 project['total'] = '$total'; //get total projection for default
+                project['journalDoc'] = '$journalDoc'; //get total projection for default
             } else {
                 project = {
                     '_id': '$_id',
                     'enterBillDate': '$enterBillDate',
                     'vendorId': '$vendorId',
                     '_vendor': '$_vendor',
-                    'total': '$total'
+                    'total': '$total',
+                    'type': '$billType',
+                    'journalDoc': '$journalDoc'
                 };
-                data.fields = [{field: '#ID'}, {field: 'Date'}, {field: 'Vendor'}, {field: 'Total'}];
-                data.displayFields = [{field: '_id'}, {field: 'enterBillDate'}, {field: 'vendorId'}, {field: 'total'}];
+                data.fields = [{field: '#ID'}, {field: 'Date'}, {field: 'Vendor'}, {field: 'Type'},{field: 'Total'},{field: 'JournalId'}];
+                data.displayFields = [{field: '_id'}, {field: 'enterBillDate'},{field: 'vendorId'},{field: 'type'}, {field: 'total'},{field: 'journalDoc'}];
+            }
+            if(params.checkWithAccount == 'false'){
+                data.displayFields = data.displayFields.filter(function(e){
+                    return e.field != 'journalDoc';
+                })
+                data.fields = data.fields.filter(function(e){
+                    return e.field != 'JournalId';                    
+                })
             }
 
             /****** Title *****/
@@ -77,7 +90,15 @@ export const billReport = new ValidatedMethod({
                 },
                 {
                     $lookup: {
-                        from: 'Cement_vendors',
+                        from: 'accJournal',
+                        localField: '_id',
+                        foreignField: 'refId',
+                        as: 'journalDoc'
+                    }
+                },
+                {
+                    $lookup: {
+                        from: 'cement_vendors',
                         localField: 'vendorId',
                         foreignField: '_id',
                         as: '_vendor'
