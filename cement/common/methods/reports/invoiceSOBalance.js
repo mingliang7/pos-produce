@@ -59,7 +59,7 @@ export const  orderSOBalanceReport = new ValidatedMethod({
                 }else{
                     selector.$or = [
                         // {status: {$in: ['active', 'partial']}, orderDate: {$lte: date}},
-                        {orderDate: {$lte: date}, status: 'active'}
+                        {orderDate: { $lte: date }, paymentStatus:{ $in:[ 'active'] }}
                     ];
                 }
             }
