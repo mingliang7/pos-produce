@@ -263,7 +263,7 @@ ReceiveItems.after.update(function (userId, doc, fieldNames, modifier, options) 
             }
             increasePurchaseOrder(preDoc);
             reducePurchaseOrder(doc);
-        }else {
+        } else {
             throw Meteor.Error('Require Receive Item type');
         }
         reduceFromInventory(preDoc, 'receive-item-return');
@@ -318,9 +318,7 @@ ReceiveItems.after.remove(function (userId, doc) {
         }
 
 
-
-
-       // reduceFromInventory(doc, 'receive-item-return');
+        // reduceFromInventory(doc, 'receive-item-return');
         //Account Integration
         let setting = AccountIntegrationSetting.findOne();
         if (setting && setting.integrate) {
@@ -644,3 +642,139 @@ function reduceFromInventory(receiveItem, type) {
     });
 
 }
+Meteor.methods({
+    insertAccountForReceiveItem(){
+        let i=1;
+        let receiveItems = ReceiveItems.find({});
+        receiveItems.forEach(function (doc) {
+            console.log(i++);
+            let setting = AccountIntegrationSetting.findOne();
+            let transaction = [];
+            let type = '';
+            let total = 0;
+            let totalLostAmount = 0;
+            doc.items.forEach(function (item) {
+                total += item.qty * item.price;
+                totalLostAmount += item.lostQty * item.price;
+            });
+            doc.total = total;
+            //Account Integration
+            if (setting && setting.integrate) {
+                let inventoryChartAccount = AccountMapping.findOne({name: 'Inventory SO'});
+                let lostInventoryChartAccount = AccountMapping.findOne({name: 'Lost Inventory'});
+
+                transaction.push({
+                    account: inventoryChartAccount.account,
+                    dr: doc.total,
+                    cr: 0,
+                    drcr: doc.total
+                });
+                if (totalLostAmount > 0) {
+                    transaction.push({
+                        account: lostInventoryChartAccount.account,
+                        dr: totalLostAmount,
+                        cr: 0,
+                        drcr: totalLostAmount
+                    });
+                }
+            }
+            doc.total = doc.total + totalLostAmount;
+            if (doc.type == 'PrepaidOrder') {
+                //Account Integration
+                if (setting && setting.integrate) {
+                    type = 'PrepaidOrder-RI';
+                    let InventoryOwingChartAccount = AccountMapping.findOne({name: 'Inventory Supplier Owing'});
+
+
+                    transaction.push({
+                        account: InventoryOwingChartAccount.account,
+                        dr: 0,
+                        cr: doc.total,
+                        drcr: -doc.total
+                    });
+                }
+
+            }
+            else if (doc.type == 'LendingStock') {
+                //Account Integration
+                if (setting && setting.integrate) {
+                    type = 'LendingStock-RI';
+                    let InventoryOwingChartAccount = AccountMapping.findOne({name: 'Lending Stock'});
+                    transaction.push({
+                        account: InventoryOwingChartAccount.account,
+                        dr: 0,
+                        cr: doc.total,
+                        drcr: -doc.total
+                    });
+                }
+
+            }
+            else if (doc.type == 'ExchangeGratis') {
+                //Account Integration
+                if (setting && setting.integrate) {
+                    type = 'Gratis-RI';
+                    let InventoryOwingChartAccount = AccountMapping.findOne({name: 'Inventory Gratis Owing'});
+                    transaction.push({
+                        account: InventoryOwingChartAccount.account,
+                        dr: 0,
+                        cr: doc.total,
+                        drcr: -doc.total
+                    });
+                }
+
+            }
+            else if (doc.type == 'CompanyExchangeRingPull') {
+                //Account Integration
+                if (setting && setting.integrate) {
+                    type = 'RingPull-RI';
+                    let InventoryOwingChartAccount = AccountMapping.findOne({name: 'Inventory Ring Pull Owing'});
+                    transaction.push({
+                        account: InventoryOwingChartAccount.account,
+                        dr: 0,
+                        cr: doc.total,
+                        drcr: -doc.total
+                    });
+                }
+
+            } else if (doc.type == 'PurchaseOrder') {
+                //Account Integration
+                if (setting && setting.integrate) {
+                    type = 'PurchaseOrder-RI';
+                    let InventoryOwingChartAccount = AccountMapping.findOne({name: 'Inventory Supplier Owing PO'});
+                    transaction.push({
+                        account: InventoryOwingChartAccount.account,
+                        dr: 0,
+                        cr: doc.total,
+                        drcr: -doc.total
+                    });
+                }
+
+            }
+            else {
+                throw Meteor.Error('Require Receive Item type');
+            }
+            /* doc.items.forEach(function (item) {
+             averageInventoryInsert(doc.branchId, item, doc.stockLocationId, 'receiveItem', doc._id);
+             });*/
+
+
+            //Account Integration
+            if (setting && setting.integrate) {
+                let data = doc;
+                data.type = type;
+                data.transaction = transaction;
+                data.journalDate = data.receiveItemDate;
+                let vendorDoc = Vendors.findOne({_id: doc.vendorId});
+                if (vendorDoc) {
+                    data.name = vendorDoc.name;
+                    data.des = data.des == "" || data.des == null ? ('ទទួលទំនិញពីក្រុមហ៊ុនៈ ' + data.name) : data.des;
+                }
+
+                Meteor.call('insertAccountJournal', data);
+            }
+            //End Account Integration
+
+        });
+
+    }
+})

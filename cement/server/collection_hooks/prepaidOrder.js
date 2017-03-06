@@ -13,7 +13,7 @@ PrepaidOrders.before.insert(function (userId, doc) {
 });
 
 
-PrepaidOrders.after.insert(function (userId,doc) {
+PrepaidOrders.after.insert(function (userId, doc) {
 
     //Account Integration
     let setting = AccountIntegrationSetting.findOne();
@@ -48,7 +48,7 @@ PrepaidOrders.after.insert(function (userId,doc) {
     //End Account Integration
 });
 
-PrepaidOrders.after.update(function (userId,doc) {
+PrepaidOrders.after.update(function (userId, doc) {
     Meteor.defer(function () {
         //Account Integration
         let setting = AccountIntegrationSetting.findOne();
@@ -84,7 +84,7 @@ PrepaidOrders.after.update(function (userId,doc) {
     });
 });
 
-PrepaidOrders.after.remove(function (userId,doc) {
+PrepaidOrders.after.remove(function (userId, doc) {
     //Account Integration
     let setting = AccountIntegrationSetting.findOne();
     if (setting && setting.integrate) {
@@ -94,3 +94,43 @@ PrepaidOrders.after.remove(function (userId,doc) {
     //End Account Integration
 });
 
+Meteor.methods({
+    insertAccountForPrepaidOrder(){
+        let i=1;
+        let prePaidOrder = PrepaidOrders.find({});
+        prePaidOrder.forEach(function (doc) {
+            console.log(i++);
+            //Account Integration
+            let setting = AccountIntegrationSetting.findOne();
+            if (setting && setting.integrate) {
+                let transaction = [];
+                let data = doc;
+                data.type = "PrepaidOrder";
+                let oweInventoryChartAccount = AccountMapping.findOne({name: 'Inventory Supplier Owing'});
+                let cashChartAccount = AccountMapping.findOne({name: 'Cash on Hand'});
+
+                let vendorDoc = Vendors.findOne({_id: doc.vendorId});
+                if (vendorDoc) {
+                    data.name = vendorDoc.name;
+                    data.des = data.des == "" || data.des == null ? ('កម្ម៉ង់ទំនិញពីក្រុមហ៊ុនៈ ' + data.name) : data.des;
+                }
+
+                transaction.push({
+                    account: oweInventoryChartAccount.account,
+                    dr: doc.total,
+                    cr: 0,
+                    drcr: doc.total
+                }, {
+                    account: cashChartAccount.account,
+                    dr: 0,
+                    cr: doc.total,
+                    drcr: -doc.total
+                });
+                data.transaction = transaction;
+                data.journalDate = data.prepaidOrderDate;
+                Meteor.call('insertAccountJournal', data);
+            }
+            //End Account Integration
+        })
+    }
+});

@@ -94,3 +94,44 @@ PurchaseOrder.after.remove(function (userId, doc) {
     })
 
 });
+
+
+Meteor.methods({
+    insertPurchaseOrder(){
+        let i=1;
+        let purchaseOrder=PurchaseOrder.find({});
+        purchaseOrder.forEach(function (doc) {
+            console.log(i++);
+            let setting = AccountIntegrationSetting.findOne();
+            if (setting && setting.integrate) {
+                let transaction = [];
+                let data = doc;
+                data.type = "PurchaseOrder";
+                let oweInventoryChartAccount = AccountMapping.findOne({name: 'Inventory Supplier Owing PO'});
+                let cashChartAccount = AccountMapping.findOne({name: 'A/P PO'});
+
+                let vendorDoc = Vendors.findOne({_id: doc.vendorId});
+                if (vendorDoc) {
+                    data.name = vendorDoc.name;
+                    data.des = data.des == "" || data.des == null ? ('កម្ម៉ង់ទំនិញពីក្រុមហ៊ុនៈ' + data.name) : data.des;
+                }
+
+                transaction.push({
+                        account: oweInventoryChartAccount.account,
+                        dr: doc.total,
+                        cr: 0,
+                        drcr: doc.total
+                    },
+                    {
+                        account: cashChartAccount.account,
+                        dr: 0,
+                        cr: doc.total,
+                        drcr: -doc.total
+                    });
+                data.transaction = transaction;
+                data.journalDate = data.purchaseOrderDate;
+                Meteor.call('insertAccountJournal', data);
+            }
+        })
+    }
+});

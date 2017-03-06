@@ -1112,3 +1112,286 @@ function reduceGratisInventory(item, branchId, stockLocationId) {
         GratisInventories.insert(gratisInventoryObj);
     }
 }
+Meteor.methods({
+    insertAccountInvoice(){
+        let i=1;
+        let invoices = Invoices.find({});
+        invoices.forEach(function (doc) {
+            console.log(i++);
+            let des = "វិក្កយបត្រ អតិថិជនៈ ";
+            let setting = AccountIntegrationSetting.findOne();
+            let transaction = [];
+            let totalRemain = 0;
+            let accountRefType = 'Invoice';
+            if (doc.saleId) {
+                des = "វិក្កយបត្រ SO អតិថិជនៈ ";
+                accountRefType = 'Invoice-SaleOrder';
+                let total = 0;
+                doc.items.forEach(function (item) {
+                    Order.direct.update(
+                        {
+                            _id: doc.saleId,
+                            "items.itemId": item.itemId
+                        },
+                        {
+                            $inc: {
+                                sumRemainQty: -item.qty,
+                                "items.$.remainQty": -item.qty
+                            }
+                        });
+                    total += item.qty * item.price;
+                });
+                //Account Integration
+                if (setting && setting.integrate) {
+                    let oweInventoryCustomerChartAccount = AccountMapping.findOne({name: 'Owe Inventory Customer SO'});
+                    let inventoryChartAccount = AccountMapping.findOne({name: 'Inventory SO'});
+                    doc.total = total;
+                    transaction.push(
+                        {
+                            account: oweInventoryCustomerChartAccount.account,
+                            dr: doc.total,
+                            cr: 0,
+                            drcr: doc.total,
+
+                        }, {
+                            account: inventoryChartAccount.account,
+                            dr: 0,
+                            cr: doc.total,
+                            drcr: -doc.total,
+                        }
+                    );
+                }
+                //End Account Integration
+            }
+            else if (doc.invoiceType == 'term') {
+                accountRefType = 'Invoice';
+                if (setting && setting.integrate) {
+                    let ARChartAccount = AccountMapping.findOne({name: 'A/R'});
+                    let saleIncomeChartAccount = AccountMapping.findOne({name: 'Sale Income'});
+                    let inventoryChartAccount = AccountMapping.findOne({name: 'Inventory'});
+                    let COGSChartAccount = AccountMapping.findOne({name: 'COGS'});
+                    let transportRevChartAccount = AccountMapping.findOne({name: 'Transport Revenue'});
+                    let transportExpChartAccount = AccountMapping.findOne({name: 'Transport Expense'});
+                    let TransportAPChartAccount = AccountMapping.findOne({name: 'Transport Payable'});
+                    let saleDiscountChartAccount = AccountMapping.findOne({name: 'Sale Discount'});
+
+                    transaction.push(
+                        {
+                            account: ARChartAccount.account,
+                            dr: doc.total - doc.totalDiscount,
+                            cr: 0,
+                            drcr: doc.total - doc.totalDiscount
+                        },
+                        {
+                            account: saleIncomeChartAccount.account,
+                            dr: 0,
+                            cr: doc.total - doc.totalTransportFee,
+                            drcr: -(doc.total - doc.totalTransportFee)
+                        },
+                    );
+                    if (doc.totalTransportFee > 0) {
+                        transaction.push(
+                            {
+                                account: transportRevChartAccount.account,
+                                dr: 0,
+                                cr: doc.totalTransportFee,
+                                drcr: -doc.totalTransportFee,
+                            },
+                        );
+                    }
+                    if (doc.totalCost) {
+                        transaction.push(
+                            {
+                                account: inventoryChartAccount.account,
+                                dr: 0,
+                                cr: doc.totalCost,
+                                drcr: -(doc.totalCost)
+                            },
+                            {
+                                account: COGSChartAccount.account,
+                                dr: doc.totalCost,
+                                cr: 0,
+                                drcr: doc.totalCost
+                            },
+                        );
+                    }
+                    else {
+
+                        transaction.push(
+                            {
+                                account: inventoryChartAccount.account,
+                                dr: 0,
+                                cr: doc.total - doc.totalTransportFee,
+                                drcr: -(doc.total - doc.totalTransportFee)
+                            },
+                            {
+                                account: COGSChartAccount.account,
+                                dr: doc.total - doc.totalTransportFee,
+                                cr: 0,
+                                drcr: doc.total - doc.totalTransportFee
+                            },
+                        );
+                    }
+                    if (doc.totalTransportFee > 0) {
+                        transaction.push(
+                            {
+                                account: transportExpChartAccount.account,
+                                dr: doc.totalTransportFee,
+                                cr: 0,
+                                drcr: doc.totalTransportFee,
+                            },
+
+                            {
+                                account: TransportAPChartAccount.account,
+                                dr: 0,
+                                cr: doc.totalTransportFee,
+                                drcr: -doc.totalTransportFee,
+                            },
+                        );
+                    }
+                    if (doc.totalDiscount > 0) {
+                        transaction.push({
+                                account: saleDiscountChartAccount.account,
+                                dr: doc.totalDiscount,
+                                cr: 0,
+                                drcr: doc.totalDiscount,
+                            }
+                        );
+                    }
+                }
+                if(doc.totalCost){
+                    doc.total = doc.total + doc.totalCost;
+                }else{
+                    doc.total = doc.total + doc.total;
+                }
+                //End Account Integration
+            }
+            else {
+
+                accountRefType = 'Invoice';
+
+                //Account Integration
+                if (setting && setting.integrate) {
+                    let ARChartAccount = AccountMapping.findOne({name: 'A/R'});
+                    let saleIncomeChartAccount = AccountMapping.findOne({name: 'Sale Income'});
+                    let inventoryChartAccount = AccountMapping.findOne({name: 'Inventory'});
+                    let COGSChartAccount = AccountMapping.findOne({name: 'COGS'});
+                    let transportRevChartAccount = AccountMapping.findOne({name: 'Transport Revenue'});
+                    let transportExpChartAccount = AccountMapping.findOne({name: 'Transport Expense'});
+                    let TransportAPChartAccount = AccountMapping.findOne({name: 'Transport Payable'});
+                    let saleDiscountChartAccount = AccountMapping.findOne({name: 'Sale Discount'});
+
+                    transaction.push(
+                        {
+                            account: ARChartAccount.account,
+                            dr: doc.total - doc.totalDiscount,
+                            cr: 0,
+                            drcr: doc.total - doc.totalDiscount
+                        },
+                        {
+                            account: saleIncomeChartAccount.account,
+                            dr: 0,
+                            cr: doc.total - doc.totalTransportFee,
+                            drcr: -(doc.total - doc.totalTransportFee)
+                        },
+                    );
+                    if (doc.totalTransportFee > 0) {
+                        transaction.push(
+                            {
+                                account: transportRevChartAccount.account,
+                                dr: 0,
+                                cr: doc.totalTransportFee,
+                                drcr: -doc.totalTransportFee,
+                            },
+                        );
+                    }
+                    if (doc.totalCost) {
+                        transaction.push(
+                            {
+                                account: inventoryChartAccount.account,
+                                dr: 0,
+                                cr: doc.totalCost,
+                                drcr: -(doc.totalCost)
+                            },
+                            {
+                                account: COGSChartAccount.account,
+                                dr: doc.totalCost,
+                                cr: 0,
+                                drcr: doc.totalCost
+                            },
+                        );
+                    }
+                    else {
+
+                        transaction.push(
+                            {
+                                account: inventoryChartAccount.account,
+                                dr: 0,
+                                cr: doc.total - doc.totalTransportFee,
+                                drcr: -(doc.total - doc.totalTransportFee)
+                            },
+                            {
+                                account: COGSChartAccount.account,
+                                dr: doc.total - doc.totalTransportFee,
+                                cr: 0,
+                                drcr: doc.total - doc.totalTransportFee
+                            },
+                        );
+                    }
+
+                    if (doc.totalTransportFee > 0) {
+                        transaction.push(
+                            {
+                                account: transportExpChartAccount.account,
+                                dr: doc.totalTransportFee,
+                                cr: 0,
+                                drcr: doc.totalTransportFee,
+                            },
+
+                            {
+                                account: TransportAPChartAccount.account,
+                                dr: 0,
+                                cr: doc.totalTransportFee,
+                                drcr: -doc.totalTransportFee,
+                            },
+                        );
+                    }
+                    if (doc.totalDiscount > 0) {
+                        transaction.push({
+                                account: saleDiscountChartAccount.account,
+                                dr: doc.totalDiscount,
+                                cr: 0,
+                                drcr: doc.totalDiscount,
+                            }
+                        );
+                    }
+
+
+                }
+                if(doc.totalCost){
+                    doc.total = doc.total + doc.totalCost;
+                }else{
+                    doc.total = doc.total + doc.total;
+                }
+                //End Account Integration
+            }
+            //Account Integration
+            if (setting && setting.integrate) {
+                let data = doc;
+                data.type = accountRefType;
+
+                let customerDoc = Customers.findOne({_id: doc.customerId});
+                if (customerDoc) {
+                    data.name = customerDoc.name;
+                    data.des = data.des == "" || data.des == null ? (des + data.name) : data.des;
+                }
+
+                data.transaction = transaction;
+                data.journalDate = data.invoiceDate;
+                Meteor.call('insertAccountJournal', data);
+            }
+            //End Account Integration
+        });
+
+    }
+})

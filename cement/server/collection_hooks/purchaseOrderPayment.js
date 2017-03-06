@@ -110,3 +110,76 @@ PurchaseOrderPayment.after.remove(function (userId, doc) {
         //End Account Integration
     })
 });
+
+Meteor.methods({
+    insertAccountForPurchaseOrderPayment(){
+        let i=1;
+        let purchaseOrderPayment=PurchaseOrderPayment.find({});
+        purchaseOrderPayment.forEach(function (doc) {
+            console.log(i++);
+            let setting = AccountIntegrationSetting.findOne();
+            if (setting && setting.integrate) {
+                let transaction = [];
+                let data = doc;
+                data.type = "PayPurchaseOrder";
+                let apChartAccount = AccountMapping.findOne({name: 'A/P PO'});
+                let cashChartAccount = AccountMapping.findOne({name: 'Cash on Hand'});
+                let purchaseDiscountChartAccount = AccountMapping.findOne({name: 'PO Discount'});
+                let codPOChartAccount = AccountMapping.findOne({name: 'Vendor COD PO'});
+                let benefitPOChartAccount = AccountMapping.findOne({name: 'Vendor Benefit PO'});
+                //let discountAmount = doc.dueAmount * doc.discount / 100;
+
+                let discount = doc.discount == null ? 0 : doc.discount;
+                let cod = doc.cod == null ? 0 : doc.cod;
+                let benefit = doc.benefit == null ? 0 : doc.benefit;
+                data.total = doc.paidAmount + discount + cod + benefit;
+
+                let vendorDoc = Vendors.findOne({_id: doc.vendorId});
+                if (vendorDoc) {
+                    data.name = vendorDoc.name;
+                    data.des = data.des == "" || data.des == null ? ('បង់ប្រាក់ឱ្យក្រុមហ៊ុនៈ ' + data.name) : data.des;
+                }
+
+                transaction.push({
+                    account: apChartAccount.account,
+                    dr: data.total,
+                    cr: 0,
+                    drcr: data.total
+                }, {
+                    account: cashChartAccount.account,
+                    dr: 0,
+                    cr: doc.paidAmount,
+                    drcr: -doc.paidAmount
+                });
+                if (discount > 0) {
+                    transaction.push({
+                        account: purchaseDiscountChartAccount.account,
+                        dr: 0,
+                        cr: discount,
+                        drcr: -discount
+                    });
+                }
+                if (cod > 0) {
+                    transaction.push({
+                        account: codPOChartAccount.account,
+                        dr: 0,
+                        cr: cod,
+                        drcr: -cod
+                    });
+                }
+                if (benefit > 0) {
+                    transaction.push({
+                        account: benefitPOChartAccount.account,
+                        dr: 0,
+                        cr: benefit,
+                        drcr: -benefit
+                    });
+                }
+                data.transaction = transaction;
+                data.journalDate = data.paymentDate;
+                Meteor.call('insertAccountJournal', data);
+            }
+
+        })
+    }
+})

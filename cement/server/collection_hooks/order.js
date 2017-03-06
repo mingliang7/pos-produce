@@ -336,3 +336,103 @@ Order.after.remove(function (userId, doc) {
     })
 
 });
+
+Meteor.methods({
+    insertAccountForSaleOrder(){
+        let saleOrder=Order.find({});
+        let i=1;
+        saleOrder.forEach(function (doc) {
+            console.log(i++);
+            //Account Integration
+            let setting = AccountIntegrationSetting.findOne();
+            if (setting && setting.integrate) {
+                let transaction = [];
+                let data = doc;
+                let total = doc.total + doc.total;
+                data.type = "SaleOrder";
+                let ARChartAccount = AccountMapping.findOne({name: 'A/R SO'});
+                let saleIncomeChartAccount = AccountMapping.findOne({name: 'Sale Income SO'});
+                let transportRevChartAccount = AccountMapping.findOne({name: 'Transport Revenue'});
+                let oweInventoryChartAccount = AccountMapping.findOne({name: 'Owe Inventory Customer SO'});
+                let COGSChartAccount = AccountMapping.findOne({name: 'COGS SO'});
+                let transportExpChartAccount = AccountMapping.findOne({name: 'Transport Expense'});
+                let APChartAccount = AccountMapping.findOne({name: 'Transport Payable'});
+                let saleDiscountChartAccount = AccountMapping.findOne({name: 'SO Discount'});
+
+                let customerDoc = Customers.findOne({_id: doc.customerId});
+                if (customerDoc) {
+                    data.name = customerDoc.name;
+                    data.des = data.des == "" || data.des == null ? ('កម្ម៉ង់ទិញទំនិញពីអតិថិជនៈ ' + data.name) : data.des;
+                }
+
+
+                transaction.push(
+                    {
+                        account: ARChartAccount.account,
+                        dr: data.total - data.totalDiscount,
+                        cr: 0,
+                        drcr: data.total - data.totalDiscount
+                    },
+                    {
+                        account: saleIncomeChartAccount.account,
+                        dr: 0,
+                        cr: data.total - data.totalTransportFee,
+                        drcr: -(data.total - data.totalTransportFee)
+                    },
+                );
+                if (data.totalTransportFee > 0) {
+                    transaction.push({
+                            account: transportRevChartAccount.account,
+                            dr: 0,
+                            cr: data.totalTransportFee,
+                            drcr: -data.totalTransportFee,
+                        },
+                    );
+                }
+
+                transaction.push({
+                        account: oweInventoryChartAccount.account,
+                        dr: 0,
+                        cr: data.total - data.totalTransportFee,
+                        drcr: -(data.total - data.totalTransportFee)
+                    },
+                    {
+                        account: COGSChartAccount.account,
+                        dr: data.total - data.totalTransportFee,
+                        cr: 0,
+                        drcr: data.total - data.totalTransportFee
+                    },
+                );
+                if (data.totalTransportFee > 0) {
+                    transaction.push({
+                            account: transportExpChartAccount.account,
+                            dr: data.totalTransportFee,
+                            cr: 0,
+                            drcr: data.totalTransportFee,
+                        },
+                        {
+                            account: APChartAccount.account,
+                            dr: 0,
+                            cr: data.totalTransportFee,
+                            drcr: -data.totalTransportFee,
+                        },
+                    );
+                }
+                if (data.totalDiscount > 0) {
+                    transaction.push({
+                            account: saleDiscountChartAccount.account,
+                            dr: data.totalDiscount,
+                            cr: 0,
+                            drcr: data.totalDiscount,
+                        }
+                    );
+                }
+                data.transaction = transaction;
+                data.total = total;
+                data.journalDate = data.orderDate;
+                Meteor.call('insertAccountJournal', data);
+            }
+
+        })
+    }
+})
