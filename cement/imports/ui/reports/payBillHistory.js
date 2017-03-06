@@ -151,7 +151,6 @@ invoiceDataTmpl.helpers({
         }
     },
     displayByDay(date){
-        console.log(date)
         let paymentDate = moment(date).format('DD/MM/YYYY');
         let data = invoiceData.get()
         let paymentData = data.payments[paymentDate];

@@ -75,81 +75,102 @@ export const unpaidCustomerSummary = new ValidatedMethod({
                     }
                 },
                 {
-                    $unwind: {
-                        path: '$receivePaymentDoc',
-                        preserveNullAndEmptyArrays: true
-                    }
-                },
-                {
                     $project: {
                         _id: 1,
                         customerId: 1,
                         invoiceId: 1,
                         total: 1,
                         receivePaymentDoc: {
-                            paidAmount: {
-                                $cond: [
-                                    {$lte: ["$receivePaymentDoc.paymentDate", toDate]}
-                                    , '$receivePaymentDoc.paidAmount', 0
-                                ]
+                            $filter: {
+                                input: '$receivePaymentDoc',
+                                as: 'payment',
+                                cond: { $lte: ['$$payment.paymentDate', toDate] }
                             }
-                        }
-                    }
-                },
-
-                {
-                  $group: {
-                      _id: '$_id',
-                      customerId: {$last: '$customerId'},
-                      customerDoc: {$last: '$customerDoc'},
-                      total: {$last: '$total'},
-                      paidAmount: {$sum: '$receivePaymentDoc.paidAmount'},
-                  }
-                },
-                {
-                  $project: {
-                      _id: 1,
-                      customerId: 1,
-                      customerDoc: 1,
-                      total: {$subtract: ['$total', '$paidAmount']}
-                  }
-                },
-                {
-                    $lookup: {
-                        from: 'cement_customers',
-                        localField: 'customerId',
-                        foreignField: '_id',
-                        as: 'customerDoc'
+                        },
                     }
                 },
                 {
-                    $unwind: {path: '$customerDoc', preserveNullAndEmptyArrays: true}
+                    $unwind: { path: '$receivePaymentDoc', preserveNullAndEmptyArrays: true }
+                },
+                { $sort: { 'receivePaymentDoc._id': 1 } },
+                {
+                    $group: {
+                        _id: '$_id',
+                        customerId: { $last: '$customerId' },
+                        status: { $last: '$status' },
+                        dueAmount: {
+                            $last: '$receivePaymentDoc.dueAmount'
+                        },
+                        paidAmount: {
+                            $last: '$receivePaymentDoc.paidAmount'
+                        },
+                        total: { $last: '$total' },
+                    }
+                },
+                {
+                    $project: {
+                        _id: 1,
+                        customerId: 1,
+                        dueAmount: {
+                            $ifNull: ["$dueAmount", "$total"]
+                        },
+                        paidAmount: {
+                            $ifNull: ["$paidAmount", 0]
+                        },
+                        invoiceDate: 1,
+                        dueDate: 1,
+                        lastPaymentDate: {
+                            $ifNull: ["$lastPaymentDate", "None"]
+                        },
+                        status: 1,
+                        total: '$total'
+                    }
+                },
+                {
+                    $group: {
+                        _id: '$_id',
+                        customerId: {$last: '$customerId'},
+                        dueAmount: { $last: '$dueAmount' },
+                        paidAmount: { $last: '$paidAmount' },
+                        balance: { $last: { $subtract: ["$dueAmount", "$paidAmount"] } },
+                        total: { $last: '$total' }
+                    }
                 },
                 {
                     $group: {
                         _id: '$customerId',
-                        customerDoc: {$last: '$customerDoc'},
-                        total: {$sum: '$total'}
+                        dueDate: { $last: '$dueDate' },
+                        invoiceDate: { $last: '$invoiceDate' },
+                        lastPaymentDate: { $last: '$lastPaymentDate' },
+                        dueAmountSubTotal: { $sum: '$dueAmount' },
+                        paidAmount: { $sum: '$paidAmount' },
+                        total: { $sum: '$balance' }
                     }
                 },
                 {
-                    $sort: {'customerDoc.name': 1}
+                    $lookup: {
+                        from: 'cement_customers',
+                        localField: '_id',
+                        foreignField: '_id',
+                        as: 'customerDoc'
+                    }
                 },
+                {$unwind: {path: '$customerDoc', preserveNullAndEmptyArrays: true}},
+                {$sort: {'customerDoc.name': 1}},
                 {
                     $group: {
                         _id: null,
                         data: {
                             $push: '$$ROOT'
                         },
-                        grandTotal: {$sum: '$total'},
+                        total: {$sum: '$total'}
                     }
                 }
-
             ]);
             if (invoices.length > 0) {
                 data.content = invoices[0].data;
                 data.footer = {
-                    grandTotal: invoices[0].grandTotal,
+                    grandTotal: invoices[0].total,
                 }
             }
             return data
