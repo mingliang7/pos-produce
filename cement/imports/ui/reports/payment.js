@@ -104,7 +104,7 @@ receivePaymentTmpl.helpers({
             }else if (obj.field == 'journalDoc'){
                 let arr = [];
                 col[obj.field].map(function(e){
-                     arr.push(
+                     e.refFrom == 'ReceivePayment' && arr.push(
                         "<a class='cursor-pointer journalId'" + 'journalId="'+ e._id + '">' + e._id + "</a>"
                      )
                 })
