@@ -38,6 +38,7 @@ Tracker.autorun(function () {
 
 indexTmpl.onCreated(function () {
     createNewAlertify('invoiceReport');
+    createNewAlertify('showJournal');
     paramsState.set(FlowRouter.query.params());
 });
 indexTmpl.helpers({
@@ -63,7 +64,6 @@ invoiceDataTmpl.helpers({
 
     display(col){
         let data = '';
-        debugger
         this.displayFields.forEach(function (obj) {
             if (obj.field == 'enterBillDate') {
                 data += `<td>${moment(col[obj.field]).format('YYYY-MM-DD HH:mm:ss')}</td>`
@@ -73,7 +73,11 @@ invoiceDataTmpl.helpers({
                 data += `<td>${numeral(col[obj.field]).format('0,0.00')}</td>`
             }else if (obj.field == 'journalDoc'){
                 let arr = [];
-                col[obj.field].map(function(e){ arr.push(e._id)})
+                col[obj.field].map(function(e){
+                     e.refFrom == 'EnterBill' && arr.push(
+                        "<a class='cursor-pointer journalId'" + 'journalId="'+ e._id + '">' + e._id + "</a>"
+                     )
+                })
                 if(arr.length > 1){
                     data += `<td class="text-right" style="background: yellow;">${arr.length > 0 ? arr.join(' | ') : 'Not Send'}</td>`                
                 }else if (arr.length <=0){
@@ -99,7 +103,16 @@ invoiceDataTmpl.helpers({
         return string;
     }
 });
-
+invoiceDataTmpl.events({
+    'click .journalId'(event,instance){
+       let journalId = $(event.currentTarget).attr('journalId');
+       $.blockUI();
+       Meteor.call('getJournal', {_id: journalId}, function (err, data) {
+           alertify.showJournal(fa("eye", "Journal"), renderTemplate(Template.acc_journalShow, data).html);
+       })
+       $.unblockUI();
+    }
+});
 
 AutoForm.hooks({
     billReport: {

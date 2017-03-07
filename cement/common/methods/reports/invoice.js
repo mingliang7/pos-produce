@@ -30,7 +30,7 @@ export const invoiceReport = new ValidatedMethod({
             let user = Meteor.users.findOne(Meteor.userId());
             // console.log(user);
             // let date = _.trim(_.words(params.date, /[^To]+/g));
-            selector.invoiceType = {$ne: 'saleOrder'};
+            // selector.invoiceType = {$ne: 'saleOrder'};
             selector.status = {$in: ['active', 'partial', 'closed']};
             if (params.date) {
                 let dateAsArray = params.date.split(',')
