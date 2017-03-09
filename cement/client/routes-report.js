@@ -542,3 +542,18 @@ CementRoutes.route('/report/payBillHistory', {
         parent: 'cement.mainReport'
     }
 });
+
+import '../imports/ui/reports/vendorGroupHistory';
+CementRoutes.route('/report/vendorGroupHistory', {
+    name: 'cement.vendorGroupHistory',
+    title: 'Vendor Group History',
+    action: function (params, queryParams) {
+        Layout.customReportLayout('Cement_vendorGroupHistory');
+    },
+    breadcrumb:{
+        // params:['vendorId'],
+        title: 'Vendor Group History Report',
+        // icon: 'cart-plus',
+        parent: 'cement.mainReport'
+    }
+});

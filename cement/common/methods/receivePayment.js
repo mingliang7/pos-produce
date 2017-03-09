@@ -28,8 +28,8 @@ export const receivePayment = new ValidatedMethod({
         invoicesObj, paymentDate, branch, voucherId
     }) {
         if (!this.isSimulation) {
-            console.log(invoicesObj);
             for (let k in invoicesObj) {
+                Meteor._sleepForMs(100);
                 let selector = {};
                 let currentDate = moment(currentPaymentDate).format('HH:mm:ss');
                 let currentPaymentDate = moment(paymentDate).format('YYYY-MM-DD');

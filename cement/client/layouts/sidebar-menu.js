@@ -82,6 +82,9 @@ Template.Cement_sidebarMenu.helpers({
     payBillHistory() {
         return `/cement/report/payBillHistory?date=${moment().startOf('days').format('YYYY-MM-DD HH:mm:ss')},${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}`;
     },
+    vendorGroupHistory() {
+        return `/cement/report/vendorGroupHistory?date=${moment().startOf('days').format('YYYY-MM-DD HH:mm:ss')},${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}`;
+    },
     payEnterBill() {
         return '#'
     },
