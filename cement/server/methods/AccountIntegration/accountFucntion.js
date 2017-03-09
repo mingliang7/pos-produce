@@ -23,7 +23,6 @@ Meteor.methods({
         return id;
     },
     updateAccountJournal(doc){
-
         let isTrue = false;
         let data = {};
         data.journalDate = doc.journalDate;
@@ -37,7 +36,7 @@ Meteor.methods({
         data.transaction = doc.transaction;
         data.cusAndVenname = doc.name;
         Meteor.call('api_journalUpdate', data, function (err, res) {
-            if (res) {
+            if (!err) {
                 isTrue = res;
             } else {
                 throw new Meteor.Error(err.message);
@@ -50,7 +49,7 @@ Meteor.methods({
         let refId = doc._id;
         let refFrom = doc.type;
         Meteor.call('api_journalRemove', refId, refFrom, function (err, res) {
-            if (res) {
+            if (!err) {
                 isTrue = res;
             } else {
                 throw new Meteor.Error(err);
