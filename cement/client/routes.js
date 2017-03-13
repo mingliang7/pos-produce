@@ -825,3 +825,16 @@ CementRoutes.route('/tsSoPayment-list', {
         parent: 'cement.home'
     }
 });
+import '../imports/ui/pages/closing'
+CementRoutes.route('/closing', {
+    name: 'cement.closing',
+    title: 'Closing',
+    action: function (params,queryParams) {
+        Layout.main('Cement_closing');
+    },
+    breadcrumb: {
+        title: 'Closing',
+        icon: '',
+        parent: 'cement.home'
+    }
+});
