@@ -47,6 +47,7 @@ Module.Cement = {
         'setting-credit-validation',
         'setting-white-list-customer',
         'setting-penalty',
+        'setting-closing',
         'setting-unit',
         'setting-account-integration',
         'setting-stock-location-mapping',

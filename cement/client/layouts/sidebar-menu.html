@@ -642,11 +642,13 @@
                         </a>
                     </li>
                 {{/if}}
-                <!--<li class="{{isActiveRoute name='cement.accountMapping'}}">-->
-                <!--<a href="{{pathFor 'cement.accountMapping'}}">-->
-                <!--<i class="fa fa-angle-right"></i> <span>Account Mapping</span>-->
-                <!--</a>-->
-                <!--</li>-->
+                {{#if isInRole 'setting-closing' 'Cement'}}
+                    <li class="{{isActiveRoute name='cement.closing'}}">
+                        <a href="{{pathFor 'cement.closing'}}">
+                            <i class="fa fa-angle-right"></i> <span>Closing</span>
+                        </a>>
+                    </li>
+                {{/if}}
                 {{#if isInRole 'setting-stock-location-mapping' 'Cement'}}
                     <li class="{{isActiveRoute name='cement.stockAndAccountMapping'}}">
                         <a href="{{pathFor 'cement.stockAndAccountMapping'}}">
