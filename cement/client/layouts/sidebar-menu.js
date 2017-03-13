@@ -118,5 +118,8 @@ Template.Cement_sidebarMenu.helpers({
     },
     transferMoney() {
         return `/cement/report/transferMoneyReport?date=${moment().startOf('days').format('YYYY-MM-DD HH:mm:ss')},${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}&fromBranch=${Session.get('currentBranch')}`;
-    }
+    },
+    purchaseOrder() {
+        return `/cement/report/purchaseOrderReport?date=${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}&branch=${Session.get('currentBranch')}`;
+    },
 });
