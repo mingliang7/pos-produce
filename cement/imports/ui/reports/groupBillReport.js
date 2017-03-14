@@ -45,7 +45,7 @@ indexTmpl.helpers({
 });
 indexTmpl.events({
     'click .print'(event, instance){
-        $('#to-print').printThis();
+        window.print();
     }
 });
 invoiceDataTmpl.helpers({

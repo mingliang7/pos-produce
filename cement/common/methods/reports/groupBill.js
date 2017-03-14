@@ -82,7 +82,64 @@ export const groupBillReport = new ValidatedMethod({
                 {
                     $match: selector
                 },
-
+                {$unwind: {path: '$invoices', preserveNullAndEmptyArrays: true}},
+                {$unwind: {path: '$invoices.items', preserveNullAndEmptyArrays: true}},
+                {
+                    $lookup: {
+                        from: 'cement_item',
+                        localField: 'invoices.items.itemId',
+                        foreignField: '_id',
+                        as: 'invoices.items.itemDoc'
+                    }
+                },
+                {$unwind: {path: '$invoices.items.itemDoc', preserveNullAndEmptyArrays: true}},
+                {
+                    $group: {
+                        _id: {_id: '$_id', invoiceId: '$invoices._id'},
+                        vendorOrCustomerId: {$last: '$vendorOrCustomerId'},
+                        startDate: {$last: '$startDate'},
+                        endDate: {$last: '$endDate'},
+                        total: {$last: '$total'},
+                        status: {$last: '$status'},
+                        invoices: {
+                            $last: {
+                                _id: '$invoices._id',
+                                invoiceId: '$invoices.invoiceId', 
+                                enterBillDate: '$invoices.enterBillDate',
+                                total: '$invoices.total'
+                            }
+                        },
+                        items: {$push: '$invoices.items'}
+                    }
+                },
+                {
+                    $project: {
+                        _id: 1,
+                        vendorOrCustomerId: 1,
+                        startDate: 1, 
+                        endDate: 1,
+                        total: 1,
+                        status: 1,
+                        invoices: {
+                            _id: 1,
+                            invoiceId: 1,
+                            enterBillDate: 1,
+                            total: 1,
+                            items: '$items'
+                        }
+                    }
+                },
+                {
+                    $group: {
+                        _id: '$_id._id',
+                        vendorOrCustomerId: {$last: '$vendorOrCustomerId'},
+                        startDate:{$last: '$startDate'},
+                        endDate: {$last: '$endDate'},
+                        total: {$last: '$total'},
+                        status: {$last: '$status'},
+                        invoices: {$push: '$invoices'}
+                    }
+                },
                 {
                     $lookup: {
                         from: "cement_vendors",
