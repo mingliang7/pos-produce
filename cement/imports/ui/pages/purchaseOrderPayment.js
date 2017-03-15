@@ -13,7 +13,8 @@ import {purchaseOrderPaymentMethod} from '../../../common/methods/purchaseOrderP
 
 //page
 import './purchaseOrderPayment.html';
-//methods
+//libs
+import RangeDate from '../../api/libs/date';
 
 let indexTmpl = Template.Cement_purchaseOrderPayment;
 let currentPaymentDate = new ReactiveVar(moment().toDate());
@@ -55,6 +56,7 @@ indexTmpl.onCreated(function () {
     Session.set('balance', 0)
 });
 indexTmpl.onRendered(function () {
+    RangeDate.checkMinPlusOneDay($('[name="paymentDate"]'));
     paymentDate($('[name="paymentDate"]'));
 });
 indexTmpl.onDestroyed(function () {

@@ -14,7 +14,8 @@ import {payBill} from '../../../common/methods/payBill';
 
 //page
 import './payBill.html';
-//methods
+//libs
+import RangeDate from '../../api/libs/date';
 
 let indexTmpl = Template.Cement_payBill;
 let currentPaymentDate = new ReactiveVar(moment().toDate());
@@ -66,6 +67,7 @@ indexTmpl.onCreated(function () {
 });
 indexTmpl.onRendered(function () {
     paymentDate($('[name="paymentDate"]'));
+    RangeDate.checkMinPlusOneDay($('[name="paymentDate"]'));
 });
 indexTmpl.onDestroyed(function () {
     Session.set('vendorIdState', undefined);

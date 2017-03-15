@@ -17,7 +17,7 @@ import {renderTemplate} from '../../../../core/client/libs/render-template.js';
 import {destroyAction} from '../../../../core/client/libs/destroy-action.js';
 import {displaySuccess, displayError} from '../../../../core/client/libs/display-alert.js';
 import {__} from '../../../../core/common/libs/tapi18n-callback-helper.js';
-
+import RangeDate from '../../api/libs/date';
 // Component
 import '../../../../core/client/components/loading.js';
 import '../../../../core/client/components/column-action.js';
@@ -147,6 +147,9 @@ newTmpl.onCreated(function () {
             this.description.set('');
         }
     });
+});
+newTmpl.onRendered(function(){
+    RangeDate.checkMinPlusOneDay($('[name="orderDate"]'));
 });
 editTmpl.onCreated(function () {
     Session.set('isPurchased', false);

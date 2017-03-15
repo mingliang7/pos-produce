@@ -72,7 +72,6 @@
 <!--Update-->
 <template name="Cement_purchaseOrderEdit">
     <div class="box-body">
-        {{#if Template.subscriptionsReady}}
             {{#autoForm collection=collection id="Cement_purchaseOrderEdit" doc=data type="update"}}
                 <div class="row">
                     <div class="col-md-4">
@@ -108,13 +107,8 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
-
             {{/autoForm}}
-        {{else}}
-            {{> loading}}
-        {{/if}}
     </div>
 </template>
 

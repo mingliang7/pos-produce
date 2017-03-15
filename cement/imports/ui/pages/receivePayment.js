@@ -15,7 +15,8 @@ import {receivePayment} from '../../../common/methods/receivePayment';
 //page
 import './receivePayment.html';
 import './penalty.html';
-//methods
+//libs
+import RangeDate from '../../api/libs/date';
 let countLateInvoice = new ReactiveVar(0);
 let currentPaymentDate = new ReactiveVar(moment().toDate());
 let isPenalty = new ReactiveVar(true);
@@ -23,6 +24,7 @@ let indexTmpl = Template.Cement_receivePayment,
     showInvoiceTmpl = Template.Cement_invoiceShowInPayment;
 
 indexTmpl.onRendered(function () {
+    RangeDate.checkMinPlusOneDay($('[name="paymentDate"]'));
     paymentDate($('[name="paymentDate"]'));
 });
 

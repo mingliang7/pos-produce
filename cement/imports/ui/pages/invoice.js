@@ -17,7 +17,7 @@ import {renderTemplate} from '../../../../core/client/libs/render-template.js';
 import {destroyAction} from '../../../../core/client/libs/destroy-action.js';
 import {displaySuccess, displayError} from '../../../../core/client/libs/display-alert.js';
 import {__} from '../../../../core/common/libs/tapi18n-callback-helper.js';
-
+import RangeDate from '../../api/libs/date';
 // Component
 import '../../../../core/client/components/loading.js';
 import '../../../../core/client/components/column-action.js';
@@ -199,6 +199,8 @@ newTmpl.onCreated(function () {
 });
 // New
 newTmpl.onRendered(function () {
+    RangeDate.checkMinPlusOneDay($('[name="invoiceDate"]'));
+    RangeDate.checkMinPlusOneDay($('[name="dueDate"]'));
     dpChange($('[name="invoiceDate"]'));
 });
 newTmpl.events({
@@ -433,6 +435,8 @@ editTmpl.onCreated(function () {
 });
 
 editTmpl.onRendered(function () {
+    RangeDate.checkMinPlusOneDay($('[name="invoiceDate"]'));
+    RangeDate.checkMinPlusOneDay($('[name="dueDate"]'));
     dpChange($('[name="invoiceDate"]'));
 });
 editTmpl.events({

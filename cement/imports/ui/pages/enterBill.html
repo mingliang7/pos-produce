@@ -113,7 +113,6 @@
 <!--Update-->
 <template name="Cement_enterBillEdit">
     <div class="box-body">
-        {{#if Template.subscriptionsReady}}
             {{#autoForm collection=collection id="Cement_enterBillEdit" doc=data type="update"}}
                 <div class="row" style="background: rgb(227, 234, 243); padding: 10px; margin: 0;">
                     <div class="col-md-3 hidden">
@@ -187,11 +186,7 @@
                 <div class="col-md-3">
                     {{> afQuickField name="des"}}
                 </div>
-
             {{/autoForm}}
-        {{else}}
-            {{> loading}}
-        {{/if}}
     </div>
 </template>
 

@@ -17,7 +17,7 @@ import {renderTemplate} from '../../../../core/client/libs/render-template.js';
 import {destroyAction} from '../../../../core/client/libs/destroy-action.js';
 import {displaySuccess, displayError} from '../../../../core/client/libs/display-alert.js';
 import {__} from '../../../../core/common/libs/tapi18n-callback-helper.js';
-
+import RangeDate from '../../api/libs/date';
 // Component
 import '../../../../core/client/components/loading.js';
 import '../../../../core/client/components/column-action.js';
@@ -170,6 +170,10 @@ newTmpl.onCreated(function () {
     });
 });
 // New
+newTmpl.onRendered(function(){
+    RangeDate.checkMinPlusOneDay($('[name="enterBillDate"]'));
+    RangeDate.checkMinPlusOneDay($('[name="dueDate"]'));     
+});
 newTmpl.events({
     'change [name=vendorId]'(event, instance){
         if (event.currentTarget.value != '') {
@@ -323,6 +327,10 @@ editTmpl.onCreated(function () {
     Meteor.call('getRepList', (err, result) => {
         this.repOptions.set(result);
     });
+});
+editTmpl.onRendered(function(){
+    RangeDate.checkMinPlusOneDay($('[name="enterBillDate"]'));    
+    RangeDate.checkMinPlusOneDay($('[name="dueDate"]'));    
 });
 editTmpl.events({
 

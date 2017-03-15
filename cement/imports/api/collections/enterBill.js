@@ -81,7 +81,7 @@ EnterBills.schema = new SimpleSchema({
             afFieldInput: {
                 type: "bootstrap-datetimepicker",
                 dateTimePickerOptions: {
-                    format: 'DD/MM/YYYY HH:mm:ss',
+                    format: 'DD/MM/YYYY',
 
                 },
                 value(){
@@ -101,7 +101,7 @@ EnterBills.schema = new SimpleSchema({
             afFieldInput: {
                 type: "bootstrap-datetimepicker",
                 dateTimePickerOptions: {
-                    format: 'DD/MM/YYYY HH:mm:ss'
+                    format: 'DD/MM/YYYY'
                 }
             }
         }

@@ -17,7 +17,7 @@ import {renderTemplate} from '../../../../core/client/libs/render-template.js';
 import {destroyAction} from '../../../../core/client/libs/destroy-action.js';
 import {displaySuccess, displayError} from '../../../../core/client/libs/display-alert.js';
 import {__} from '../../../../core/common/libs/tapi18n-callback-helper.js';
-
+import RangeDate from '../../api/libs/date';
 // Component
 import '../../../../core/client/components/loading.js';
 import '../../../../core/client/components/column-action.js';
@@ -136,6 +136,9 @@ newTmpl.events({
         }
     }
 });
+newTmpl.onRendered(function(){
+    RangeDate.checkMinPlusOneDay($('[name="purchaseOrderDate"]'));
+});
 newTmpl.helpers({
     vendorInfo() {
         let vendorInfo = Session.get('vendorInfo');
@@ -179,7 +182,9 @@ editTmpl.onCreated(function () {
         this.subscribe('cement.purchaseOrder', {_id: this.data._id});
     });
 });
-
+editTmpl.onRendered(function(){
+    RangeDate.checkMinPlusOneDay($('[name="purchaseOrderDate"]'));
+});
 editTmpl.helpers({
     collection(){
         return PurchaseOrder;
