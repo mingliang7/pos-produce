@@ -102,5 +102,19 @@ export const groupBillReportSchema = new SimpleSchema({
                 ]
             }
         }
+    },
+    status: {
+        type: [String],
+        optional: true,
+        autoform: {
+            type: 'select-checkbox-inline',
+            options(){
+                return [
+                    {label: 'Active',value: 'active'},
+                    {label: 'Partial',value: 'partial'},
+                    {label: 'Closed',value: 'closed'}
+                ]
+            }
+        }
     }
 });

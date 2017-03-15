@@ -121,6 +121,9 @@ AutoForm.hooks({
             if(doc.sortOrder) {
                 params.sortOrder = doc.sortOrder;
             }
+            if(doc.status){
+                params.status = doc.status.join(',');
+            }
             FlowRouter.query.set(params);
             paramsState.set(FlowRouter.query.params());
             return false;

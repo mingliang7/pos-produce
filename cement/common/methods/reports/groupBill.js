@@ -32,7 +32,9 @@ export const groupBillReport = new ValidatedMethod({
             let user = Meteor.users.findOne(Meteor.userId());
             // console.log(user);
             // let date = _.trim(_.words(params.date, /[^To]+/g));
-            selector.status = {$in: ['active', 'closed']};
+            if(params.status){
+                selector.status = {$in: params.status.split(',')};
+            }
             if(params.vendor && params.vendor != '') {
                 selector.vendorOrCustomerId = params.vendor;
             }
@@ -104,6 +106,7 @@ export const groupBillReport = new ValidatedMethod({
                         invoices: {
                             $last: {
                                 _id: '$invoices._id',
+                                voucherId: '$invoices.voucherId',
                                 invoiceId: '$invoices.invoiceId', 
                                 enterBillDate: '$invoices.enterBillDate',
                                 total: '$invoices.total'
@@ -123,6 +126,7 @@ export const groupBillReport = new ValidatedMethod({
                         invoices: {
                             _id: 1,
                             invoiceId: 1,
+                            voucherId: {$ifNull: ["$invoices.voucherId", "$invoices._id"]},
                             enterBillDate: 1,
                             total: 1,
                             items: '$items'
