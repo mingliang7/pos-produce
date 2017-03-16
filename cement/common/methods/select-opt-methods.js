@@ -9,6 +9,7 @@ import {Branch} from '../../../core/imports/api/collections/branch.js'
 import {Customers} from '../../imports/api/collections/customer.js';
 import {Item} from '../../imports/api/collections/item.js';
 import {Order} from '../../imports/api/collections/order.js';
+import {PurchaseOrder} from '../../imports/api/collections/purchaseOrder';
 import {Reps} from '../../imports/api/collections/rep.js';
 import {StockLocations} from '../../imports/api/collections/stockLocation.js';
 import {Vendors} from '../../imports/api/collections/vendor';
@@ -243,6 +244,41 @@ SelectOptMethods.saleOrder = new ValidatedMethod({
                     selector._id = {$in: values};
                 }
                 let data = Order.find(selector, {limit: 20});
+                data.forEach(function (value) {
+                    list.push(
+                        {
+                            label: `${value._id} | ${value.voucherId || ''} | $${numeral(value.total).format('0,0.00')}`,
+                            value: value._id
+                        }
+                    );
+                });
+            }
+            return list;
+        }
+    }
+});
+SelectOptMethods.purchaseOrderDetail = new ValidatedMethod({
+    name: 'cement.selectOptMethods.purchaseOrderDetail',
+    validate: null,
+    run(options) {
+        if (!this.isSimulation) {
+            this.unblock();
+            let list = [];
+            let searchText = options.searchText;
+            let values = options.values;
+            let params = options.params || {};
+            let selector = {};
+            if (!_.isEmpty(params)) {
+                selector = params;
+                if (searchText) {
+                    selector.$or = [
+                        {_id: {$regex: searchText, $options: 'i'}},
+                        {voucherId: {$regex: searchText, $options: 'i'}}
+                    ];
+                } else if (values.length) {
+                    selector._id = {$in: values};
+                }
+                let data = PurchaseOrder.find(selector, {limit: 20});
                 data.forEach(function (value) {
                     list.push(
                         {

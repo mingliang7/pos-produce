@@ -1,4 +1,4 @@
-<template name="Cement_saleOrderDetail">
+<template name="Cement_purchaseOrderDetail">
     <div class="panel-group" id="accordion1">
         <div class="panel panel-default">
             <div class="no-print panel-heading">
@@ -11,19 +11,22 @@
                 <div class="panel-body">
                     <div class="container-fluid">
                         <div class="inbox-head report-header">
-                            {{#autoForm schema=schema id='saleOrderDetailReport'}}
+                            {{#autoForm schema=schema id='purchaseOrderDetailReport'}}
                                 <div class="row">
                                     <div class="col-xs-1">
                                         {{> afQuickField name="status" value="active"}}
                                     </div>
                                     <div class="col-xs-3">
+                                        {{> afQuickField name="vendor" label="Vendor"}}
+                                    </div>
+                                    <div class="col-xs-3">
                                         {{> afQuickField name="customer" label="Customer"}}
                                     </div>
                                     <div class="col-xs-3">
-                                        {{> afQuickField name="saleOrder" label="SO"}}
+                                        {{> afQuickField name="purchaseOrder" label="PO"}}
                                     </div>
                                     <div class="col-xs-3">
-                                        {{> afQuickField name="itemId" label="Item" options=getSaleOrderItem}}
+                                        {{> afQuickField name="itemId" label="Item" options=getPurchaseOrderItem}}
                                     </div>
                                 </div>
                                 <button class="btn btn-primary"><i class="fa fa-play" aria-hidden="true"></i> Run
@@ -34,12 +37,12 @@
                     </div>
                 </div>
             </div>
-            {{>saleOrderDetailData}}
+            {{>purchaseOrderDetailData}}
         </div>
     </div>
 </template>
 
-<template name="saleOrderDetailData">
+<template name="purchaseOrderDetailData">
     <div class="container-fluid">
         <div class="row">
             <div class="col-xs-4">
@@ -56,10 +59,9 @@
         {{/with}}
         <div class="col-xs-12" align="center">
             <h4 text-aqua>
-                <u>របាយការណ៍ SO លំអិត</u>
+                <u>របាយការណ៍ PO លំអិត</u>
             </h4>
         </div>
-
         {{#with data}}
             <table class="table table-responsive table-striped fixed-table">
                 <thead>
@@ -67,7 +69,7 @@
                     <th>Date</th>
                     <th>Cust</th>
                     <th>INV</th>
-                    <th>RE-SO</th>
+                    <th>RE-PO</th>
                     <th>Item</th>
                     <th class="text-center">StockOrder</th>
                     <th class="text-center">StockReceive</th>

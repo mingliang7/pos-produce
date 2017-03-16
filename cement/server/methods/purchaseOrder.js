@@ -1,4 +1,5 @@
 import {PurchaseOrder} from '../../imports/api/collections/purchaseOrder';
+import {Item} from '../../imports/api/collections/item';
 Meteor.methods({
     getPurchaseOrderDetail({_id}){
         let purchaseOrder = PurchaseOrder.aggregate([
@@ -41,5 +42,15 @@ Meteor.methods({
             return purchaseOrder[0];
         }
         return {};
+    },
+    getPurchaseOrderItemList({purchaseOrderId}){
+        let purchaseOrder = PurchaseOrder.findOne(purchaseOrderId);
+        let list = [];
+        purchaseOrder.items.forEach(function (item) {
+            let itemDoc = Item.findOne(item.itemId);
+            item.name = itemDoc && itemDoc.name || '';
+            list.push({label: item.name, value: item.itemId});
+        });
+        return list;
     }
 });

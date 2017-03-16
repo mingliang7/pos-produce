@@ -4,7 +4,7 @@ import {moment} from 'meteor/momentjs:moment';
 import {SelectOpts} from '../../../../../core/imports/ui/libs/select-opts.js';
 
 
-export const saleDetailSchema = new SimpleSchema({
+export const purchaseOrderDetailSchema = new SimpleSchema({
     status: {
         type: String,
         autoform: {
@@ -44,35 +44,53 @@ export const saleDetailSchema = new SimpleSchema({
             }
         }
     },
-    customer: {
+    vendor: {
         type: String,
+        optional: true,
         autoform: {
             type: 'universe-select',
             afFieldInput: {
                 uniPlaceholder: '(Select One)',
-                optionsMethod: 'cement.selectOptMethods.customer',
+                optionsMethod: 'cement.selectOptMethods.vendorByBranch',
                 optionsMethodParams: function () {
                     if (Meteor.isClient) {
-                        let currentBranch = Session.get('currentBranch');
-                        return {branchId: currentBranch, paymentType: 'Term'};
+                        return {paymentType: {$ne: 'Term'}};
                     }
                 }
             }
         }
     },
-    saleOrder: {
+    customer: {
+        type: String,
+        optional: true,
+        autoform: {
+            type: 'universe-select',
+            afFieldInput: {
+                uniPlaceholder: 'All',
+                optionsMethod: 'cement.selectOptMethods.customer',
+                optionsMethodParams: function () {
+                    if (Meteor.isClient) {
+                        let currentBranch = Session.get('currentBranch');
+                        return {branchId: currentBranch};
+                    }
+                }
+            }
+        }
+    },
+    purchaseOrder: {
         type: String,
         autoform: {
             type: 'universe-select',
             afFieldInput: {
                 uniPlaceholder: '(Select One)',
-                optionsMethod: 'cement.selectOptMethods.saleOrder',
+                optionsMethod: 'cement.selectOptMethods.purchaseOrderDetail',
                 optionsMethodParams: function () {
                     if (Meteor.isClient) {
                         let customerId = AutoForm.getFieldValue('customer');
+                        let vendorId = AutoForm.getFieldValue('vendor');
                         let status = AutoForm.getFieldValue('status') || 'active';
-                        if(customerId) {
-                            return {status: status , customerId: customerId};
+                        if(vendorId && customerId) {
+                            return {vendorId: vendorId, status: status , customerId: customerId};
                         }
                         return {};
                     }

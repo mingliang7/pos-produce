@@ -572,3 +572,18 @@ CementRoutes.route('/report/purchaseOrderReport', {
         parent: 'cement.mainReport'
     }
 });
+
+import '../imports/ui/reports/purchaseOrderDetail';
+CementRoutes.route('/report/purchaseOrderDetailReport', {
+    name: 'cement.purchaseOrderDetailReport',
+    title: 'Purchase Order Detail Report',
+    action: function (params, queryParams) {
+        Layout.customReportLayout('Cement_purchaseOrderDetail');
+    },
+    breadcrumb:{
+        // params:['vendorId'],
+        title: 'Purchase Order Detail Report',
+        // icon: 'cart-plus',
+        parent: 'cement.mainReport'
+    }
+});

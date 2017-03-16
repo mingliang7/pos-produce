@@ -122,4 +122,7 @@ Template.Cement_sidebarMenu.helpers({
     purchaseOrder() {
         return `/cement/report/purchaseOrderReport?date=${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}&branch=${Session.get('currentBranch')}`;
     },
+     purchaseOrderDetail() {
+        return `/cement/report/purchaseOrderDetailReport`;
+    },
 });
