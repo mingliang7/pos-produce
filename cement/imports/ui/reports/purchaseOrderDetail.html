@@ -101,7 +101,7 @@
                             {{numFormat field.remainQty '0,0.00'}}
                         </td>
                         <td class="text-right">{{numFormat field.price '0,0.00'}}</td>
-                        <td class="text-right">{{numFormat field.amount '0,0.00'}}</td>
+                        <td class="text-right">{{checkRemain field.remainQty field.amount}}</td>
                     </tr>
                 {{/each}}
                 </tbody>

@@ -122,6 +122,12 @@ invoiceDataTmpl.helpers({
         let doc = Session.get('currentUserStockAndAccountMappingDoc');
         return doc.company;
     },
+    checkRemain(remain, amount){
+        if(remain > 0){
+            return numeral(amount).format('0,0.00');
+        }
+        return 0;
+    }
 });
 
 
