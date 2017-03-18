@@ -28,7 +28,7 @@ tabularOpts.columns = [
         data: "paymentDate",
         title: "Date",
         render: function (val) {
-            return moment(val).format('YYYY-MM-DD HH:mm')
+            return moment(val).format('DD/MM/YYYY HH:mm')
         }
     },
     {

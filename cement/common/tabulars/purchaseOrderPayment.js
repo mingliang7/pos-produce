@@ -27,7 +27,7 @@ tabularOpts.columns = [
         data: "billDate",
         title: "Date",
         render: function (val) {
-            return moment(val).format('YYYY-MM-DD HH:mm')
+            return moment(val).format('DD/MM/YYYY')
         }
     },
     {

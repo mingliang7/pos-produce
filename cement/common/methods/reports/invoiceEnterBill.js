@@ -72,6 +72,8 @@ export const invoiceEnterBillReport = new ValidatedMethod({
                 }else{
                     sortBy.total = -1;
                 }
+            }else{
+                sortBy.invoiceDate = 1;
             }
             let invoices = Invoices.aggregate([
                 {

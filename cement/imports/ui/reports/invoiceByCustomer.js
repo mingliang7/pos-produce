@@ -117,7 +117,7 @@ invoiceDataTmpl.helpers({
         this.displayFields.forEach(function (obj) {
             console.log(col);
             if (obj.field == 'invoiceDate') {
-                data += `<td>${moment(col[obj.field]).format('YYYY-MM-DD ')}</td>`
+                data += `<td>${moment(col[obj.field]).format('DD/MM/YYYY ')}</td>`
             } else if (obj.field == 'total') {
                 data += `<td class="text-right">${numeral(col[obj.field]).format('0,0.00')}</td>`
             } else {

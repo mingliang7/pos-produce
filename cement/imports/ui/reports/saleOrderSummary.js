@@ -66,7 +66,7 @@ invoiceDataTmpl.helpers({
         let data = '';
         this.displayFields.forEach(function (obj) {
             if (obj.field == 'orderDate') {
-                data += `<td>${moment(col[obj.field]).format('YYYY-MM-DD HH:mm:ss')}</td>`
+                data += `<td>${moment(col[obj.field]).format('DD/MM/YYYYY')}</td>`
             } else if (obj.field == 'customerId') {
                 data += `<td>${col._customer.name}</td>`
             } else if (obj.field == 'total') {

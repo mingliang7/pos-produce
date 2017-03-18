@@ -185,7 +185,7 @@ indexTmpl.helpers({
     lastPaymentDate(){
         let lastPaymentDate = getLastPaymentDate(this._id);
         if (lastPaymentDate) {
-            return `<br><span class="label label-success"><i class="fa fa-money"></i> Last Paid: ${moment(lastPaymentDate).format('YYYY-MM-DD HH:mm:ss')}</span>`;
+            return `<br><span class="label label-success"><i class="fa fa-money"></i> Last Paid: ${moment(lastPaymentDate).format('DD/MM/YYYY')}</span>`;
         }
         return '';
     },
@@ -227,7 +227,7 @@ indexTmpl.helpers({
                 } else {
                     swal(
                         'ច្រានចោល!',
-                        `វិក័យប័ត្រលេខ #${_id} បានបង់ប្រាក់ថ្ងៃចុងក្រោយ ${moment(lastPaymentDate).format('YYYY-MM-DD HH:mm:ss')} ប៉ុន្តែអ្នកបានជ្រើសរើសថ្ងៃទី ${moment(currentSelectDate).format('YYYY-MM-DD HH:mm:ss')}`,
+                        `វិក័យប័ត្រលេខ #${_id} បានបង់ប្រាក់ថ្ងៃចុងក្រោយ ${moment(lastPaymentDate).format('DD/MM/YYYY')} ប៉ុន្តែអ្នកបានជ្រើសរើសថ្ងៃទី ${moment(currentSelectDate).format('DD/MM/YYYY')}`,
                         'error'
                     );
                     return false;
@@ -392,10 +392,10 @@ indexTmpl.helpers({
     },
     isInvoiceDate(){
         if (this.invoiceDate) {
-            return moment(this.invoiceDate).format('YYYY-MM-DD HH:mm:ss');
+            return moment(this.invoiceDate).format('DD/MM/YYYY');
         } else {
-            let startDate = moment(this.startDate).format('YYYY-MM-DD');
-            let endDate = moment(this.endDate).format('YYYY-MM-DD');
+            let startDate = moment(this.startDate).format('DD/MM/YYYY');
+            let endDate = moment(this.endDate).format('DD/MM/YYYY');
             return `${startDate} to ${endDate}`;
         }
     },

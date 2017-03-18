@@ -21,15 +21,15 @@ tabularOpts.collection = ReceiveItems;
 tabularOpts.columns = [
     {title: '<i class="fa fa-bars"></i>', tmpl: Meteor.isClient && Template.Cement_receiveItemAction},
     {data: "_id", title: "ID"},
+    {data: "purchaseOrderId", title: "POID"},
     {
         data: "receiveItemDate",
         title: "Date",
         render: function (val, type, doc) {
-            return moment(val).format('YYYY-MM-DD HH:mm:ss');
+            return moment(val).format('DD/MM/YYYY');
         }
     },
     {data: "total", title: "Total"},
-    {data: "des", title: "Description"},
     {
         data: "vendorId",
         title: "Vendor ID",

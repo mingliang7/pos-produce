@@ -29,21 +29,21 @@ tabularOpts.columns = [
         data: "startDate",
         title: "Start Date",
         render: function (val) {
-            return moment(val).format('YYYY-MM-DD HH:mm:ss');
+            return moment(val).format('DD/MM/YYYY');
         }
     },
     {
         data: "endDate",
         title: "End Date",
         render: function (val) {
-            return moment(val).format('YYYY-MM-DD HH:mm:ss');
+            return moment(val).format('DD/MM/YYYY');
         }
     },
     {
         data: "dueDate",
         title: "Due Date",
         render: function (val) {
-            return `<span class="text-red">${moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>`;
+            return `<span class="text-red">${moment(val).format('DD/MM/YYYY')}</span>`;
         }
     },
     {

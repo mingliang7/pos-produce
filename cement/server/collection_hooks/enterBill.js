@@ -5,6 +5,7 @@ import StockFunction from '../../imports/api/libs/stock';
 import EnterBillMutation from '../../imports/api/libs/enterBill';
 // Collection
 import {EnterBills} from '../../imports/api/collections/enterBill.js';
+import {Invoices} from '../../imports/api/collections/invoice';
 import {AverageInventories} from '../../imports/api/collections/inventory.js';
 import {Item} from '../../imports/api/collections/item.js';
 import {PrepaidOrders} from '../../imports/api/collections/prepaidOrder';
@@ -306,6 +307,7 @@ EnterBills.after.remove(function (userId, doc) {
             let data = {_id: doc._id, type: 'EnterBill'};
             Meteor.call('removeAccountJournal', data)
         }
+        Invoices.direct.update({refBillId: doc._id}, {$unset: {refBillId: ''}},{multi: true});
         //End Account Integration
     });
 });
