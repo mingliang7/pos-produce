@@ -561,15 +561,16 @@ Invoices.after.update(function (userId, doc) {
                             cr: doc.totalTransportFee,
                             drcr: -doc.totalTransportFee,
                         },
-                        {
-                            account: inventoryChartAccount.account,
-                            dr: 0,
-                            cr: totalCost,
-                            drcr: -totalCost
-                        },
                     );
                 }
-                transaction.push({
+                transaction.push(
+                    {
+                        account: inventoryChartAccount.account,
+                        dr: 0,
+                        cr: totalCost,
+                        drcr: -totalCost
+                    },
+                    {
                         account: COGSChartAccount.account,
                         dr: totalCost,
                         cr: 0,
@@ -705,15 +706,16 @@ Invoices.after.update(function (userId, doc) {
                             cr: doc.totalTransportFee,
                             drcr: -doc.totalTransportFee,
                         },
-                        {
-                            account: inventoryChartAccount.account,
-                            dr: 0,
-                            cr: totalCost,
-                            drcr: -totalCost
-                        },
                     );
                 }
-                transaction.push({
+                transaction.push(
+                    {
+                        account: inventoryChartAccount.account,
+                        dr: 0,
+                        cr: totalCost,
+                        drcr: -totalCost
+                    },
+                    {
                         account: COGSChartAccount.account,
                         dr: totalCost,
                         cr: 0,
@@ -1114,7 +1116,7 @@ function reduceGratisInventory(item, branchId, stockLocationId) {
 }
 Meteor.methods({
     insertAccountInvoice(){
-        let i=1;
+        let i = 1;
         let invoices = Invoices.find({});
         invoices.forEach(function (doc) {
             console.log(i++);
@@ -1259,9 +1261,9 @@ Meteor.methods({
                         );
                     }
                 }
-                if(doc.totalCost){
+                if (doc.totalCost) {
                     doc.total = doc.total + doc.totalCost;
-                }else{
+                } else {
                     doc.total = doc.total + doc.total;
                 }
                 //End Account Integration
@@ -1368,9 +1370,9 @@ Meteor.methods({
 
 
                 }
-                if(doc.totalCost){
+                if (doc.totalCost) {
                     doc.total = doc.total + doc.totalCost;
-                }else{
+                } else {
                     doc.total = doc.total + doc.total;
                 }
                 //End Account Integration
