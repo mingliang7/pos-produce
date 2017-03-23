@@ -8,6 +8,7 @@ import {moment} from  'meteor/momentjs:moment';
 // Collection
 import {Company} from '../../../../core/imports/api/collections/company.js';
 import {AverageInventories} from '../../../imports/api/collections/inventory';
+import {Invoices} from '../../../imports/api/collections/invoice';
 // lib func
 import {correctFieldLabel} from '../../../imports/api/libs/correctFieldLabel';
 export const stockBalanceReport = new ValidatedMethod({
@@ -72,6 +73,7 @@ export const stockBalanceReport = new ValidatedMethod({
             } else {
                 project = {
                     'item': '$lastDoc.itemDoc.name',
+                    'itemId': '$lastDoc.itemId',
                     'price': '$lastDoc.price',
                     'unit': '$lastDoc.itemDoc._unit.name',
                     'remainQty': '$lastDoc.remainQty',
@@ -87,104 +89,106 @@ export const stockBalanceReport = new ValidatedMethod({
 
             /****** Content *****/
             let inventories = AverageInventories.aggregate([
+
+                {$match: selector},
+                {$sort: {_id: 1, createdAt: 1}},
                 {
-                    $facet: {
-                        avgStocks: [
-                            {$match: selector},
-                            {$sort: {_id: 1, createdAt: 1}},
-                            {
-                                $lookup: {
-                                    from: "cement_item",
-                                    localField: "itemId",
-                                    foreignField: "_id",
-                                    as: "itemDoc"
-                                }
-                            },
-                            {$unwind: {path: '$itemDoc', preserveNullAndEmptyArrays: true}},
-                            {
-                                $lookup: {
-                                    from: 'Cement_categories',
-                                    localField: 'itemDoc.categoryId',
-                                    foreignField: '_id',
-                                    as: 'itemDoc.categoryDoc'
-                                }
-                            },
-                            {$unwind: {path: '$itemDoc.categoryDoc', preserveNullAndEmptyArrays: true}},
-                            {
-                                $lookup: {
-                                    from: "cement_stockLocations",
-                                    localField: "stockLocationId",
-                                    foreignField: "_id",
-                                    as: "locationDoc"
-                                }
-                            },
-                            {$unwind: {path: '$locationDoc', preserveNullAndEmptyArrays: true}},
-                            {
-                                $lookup: {
-                                    from: "core_branch",
-                                    localField: "branchId",
-                                    foreignField: "_id",
-                                    as: "branchDoc"
-                                }
-                            },
-                            {$unwind: {path: '$branchDoc', preserveNullAndEmptyArrays: true}},
-                            {
-                                $project: {
-                                    itemId: 1,
-                                    createdAt: 1,
-                                    itemDoc: 1,
-                                    branchDoc: 1,
-                                    locationDoc: 1,
-                                    stockLocationId: 1,
-                                    branchId: 1,
-                                    qty: 1,
-                                    price: 1,
-                                    remainQty: 1,
-                                    amount: {$multiply: ["$price", "$remainQty"]}
-                                }
-                            },
-                            {
-                                $group: {
-                                    _id: {branch: '$branchId', itemId: '$itemId', stockLocationId: '$stockLocationId'},
-                                    lastDoc: {$last: '$$ROOT'}
-                                }
-                            },
-                            {
-                                $group: {
-                                    _id: null,
-                                    data: {
-                                        $addToSet: project
-                                    },
-                                    total: {
-                                        $sum: '$lastDoc.amount'
-                                    },
-                                    totalRemainQty: {
-                                        $sum: '$lastDoc.remainQty'
-                                    }
-                                }
-                            }
-                        ],
-                        invoices: [
-                            {
-                                $match: selector,
-                            },
-                            {$unwind: {path: '$items', preserveNullAndEmptyArrays: true}},
-                            {
-                                $group: {
-                                    _id: '$items.itemId',
-                                    qty: {$sum: '$items.qty'},
-                                    amount: {$sum: '$items.amount'}
-                                }
-                            }
-                        ]
+                    $lookup: {
+                        from: "cement_item",
+                        localField: "itemId",
+                        foreignField: "_id",
+                        as: "itemDoc"
+                    }
+                },
+                {$unwind: {path: '$itemDoc', preserveNullAndEmptyArrays: true}},
+                {
+                    $lookup: {
+                        from: 'Cement_categories',
+                        localField: 'itemDoc.categoryId',
+                        foreignField: '_id',
+                        as: 'itemDoc.categoryDoc'
+                    }
+                },
+                {$unwind: {path: '$itemDoc.categoryDoc', preserveNullAndEmptyArrays: true}},
+                {
+                    $lookup: {
+                        from: "cement_stockLocations",
+                        localField: "stockLocationId",
+                        foreignField: "_id",
+                        as: "locationDoc"
+                    }
+                },
+                {$unwind: {path: '$locationDoc', preserveNullAndEmptyArrays: true}},
+                {
+                    $lookup: {
+                        from: "core_branch",
+                        localField: "branchId",
+                        foreignField: "_id",
+                        as: "branchDoc"
+                    }
+                },
+                {$unwind: {path: '$branchDoc', preserveNullAndEmptyArrays: true}},
+                {
+                    $project: {
+                        itemId: 1,
+                        createdAt: 1,
+                        itemDoc: 1,
+                        branchDoc: 1,
+                        locationDoc: 1,
+                        stockLocationId: 1,
+                        branchId: 1,
+                        qty: 1,
+                        price: 1,
+                        remainQty: 1,
+                        amount: {$multiply: ["$price", "$remainQty"]}
+                    }
+                },
+                {
+                    $group: {
+                        _id: {branch: '$branchId', itemId: '$itemId', stockLocationId: '$stockLocationId'},
+                        lastDoc: {$last: '$$ROOT'}
+                    }
+                },
+                {
+                    $group: {
+                        _id: null,
+                        data: {
+                            $addToSet: project
+                        },
+                        total: {
+                            $sum: '$lastDoc.amount'
+                        },
+                        totalRemainQty: {
+                            $sum: '$lastDoc.remainQty'
+                        }
+                    }
+                }
+
+            ]);
+            let invoices = Invoices.aggregate([
+                {
+                    $match: invoiceSelector,
+                },
+                {$unwind: {path: '$items', preserveNullAndEmptyArrays: true}},
+                {
+                    $group: {
+                        _id: '$items.itemId',
+                        qty: {$sum: '$items.qty'},
+                        amount: {$sum: '$items.amount'}
                     }
                 }
             ]);
-            console.log(inventories[0].invoices);
-            if (inventories[0].avgStocks.length > 0) {
-                let sortData = _.sortBy(inventories[0].avgStocks[0].data, 'item');
-                inventories[0].avgStocks[0].data = sortData;
-                data.content = inventories[0].avgStocks;
+            if (inventories.length > 0) {
+                // inventories[0].data.forEach(function (inventoryItem) {
+                //     let invoiceItem = invoices.find(x => x == inventoryItem.itemId);
+                //     if(invoiceItem){
+                //         inventoryItem.remainQty -= invoiceItem.qty;
+                //         inventoryItem.amount = inventoryItem.remainQty * inventoryItem.price
+                //     }
+                // });
+                let sortData = _.sortBy(inventories[0].data, 'item');
+                inventories[0].data = sortData;
+                data.content = inventories;
             }
             return data
         }
