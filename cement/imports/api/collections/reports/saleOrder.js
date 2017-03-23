@@ -4,6 +4,18 @@ import {moment} from 'meteor/momentjs:moment';
 
 
 export const saleOrderReportSchema = new SimpleSchema({
+    type: {
+        type: String,
+        autoform: {
+            type: 'select-radio-inline',
+            options(){
+                return [
+                    {label: 'All', value: 'all'},
+                    {label: 'Active & Partial', value: 'active'}
+                ]
+            }
+        }
+    },
     asDate: {
         type: Date,
         defaultValue: moment().toDate(),

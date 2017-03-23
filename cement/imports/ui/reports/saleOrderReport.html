@@ -14,6 +14,9 @@
                             {{#autoForm schema=schema id='saleOrderReport'}}
                                 <div class="row">
                                     <div class="col-md-2">
+                                        {{> afQuickField name="type" value='active'}}
+                                    </div>
+                                    <div class="col-md-2">
                                         {{> afQuickField name="asDate" value=fromDate label= 'From Date'}}
                                     </div>
                                     <div class="col-md-2">

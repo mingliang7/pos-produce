@@ -64,7 +64,7 @@ Template.Cement_sidebarMenu.helpers({
         return `/cement/report/payment?date=${moment().startOf('days').format('YYYY-MM-DD HH:mm:ss')},${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}&branchId=${Session.get('currentBranch')}&sortBy=paymentDate`;
     },
     saleOrder() {
-        return `/cement/report/saleOrderReport?date=${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}&branch=${Session.get('currentBranch')}`;
+        return `/cement/report/saleOrderReport?date=${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}&branch=${Session.get('currentBranch')}&status=active`;
     },
     // Vendor
     bill() {
@@ -122,7 +122,7 @@ Template.Cement_sidebarMenu.helpers({
     purchaseOrder() {
         return `/cement/report/purchaseOrderReport?date=${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}&branch=${Session.get('currentBranch')}`;
     },
-     purchaseOrderDetail() {
+    purchaseOrderDetail() {
         return `/cement/report/purchaseOrderDetailReport`;
     },
 });

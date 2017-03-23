@@ -34,8 +34,9 @@ export const purchaseOrderReport = new ValidatedMethod({
             if(params.type == 'activeAndPartial' || !params.type){
                 selector.sumRemainQty = {$gt: 0};
             }
+            let asDate;
             if (params.date) {
-                let asDate = moment(params.date).toDate();
+                asDate = moment(params.date).toDate();
                 data.title.date = moment(asDate).format('YYYY-MMM-DD hh:mm a');
                 selector.purchaseOrderDate = {$lte: asDate};
             }
@@ -103,35 +104,97 @@ export const purchaseOrderReport = new ValidatedMethod({
                                 price: '$items.price',
                                 amount: '$items.amount',
                                 itemId: '$items.itemId',
-                                stockReceived: {$subtract: ["$items.qty", "$items.remainQty"]},
                                 itemName: '$itemDoc.name',
-                                remainQty: '$items.remainQty'
                             }
                         },
-                        total: {$last: '$total'},
-                        totalOrder: {$sum: '$items.qty'},
-                        sumRemainQty: {$last: '$sumRemainQty'}
                     }
                 },
-                {$sort: {'data.purchaseOrderDate': 1}},
+                {
+                    $lookup: {
+                        from: "cement_receiveItems",
+                        localField: "_id",
+                        foreignField: "purchaseOrderId",
+                        as: "receiveItemDoc"
+                    }
+                },
+                {
+                    $project: {
+                        _id: 1,
+                        data: 1,
+                        items: 1,
+                        total: 1,
+                        totalOrder: 1,
+                        sumRemainQty: 1,
+                        receiveItemsDoc: {
+                            $filter: {
+                                input: "$receiveItemDoc",
+                                as: "receiveItem",
+                                cond: {$lte: ["$$receiveItem.receiveItemDate", asDate]}
+                            }
+                        }
+                    }
+                },
+                {
+                    $unwind: {path: '$receiveItemsDoc', preserveNullAndEmptyArrays: true},
+                },
+                {$sort: {'receiveItemsDoc._id': 1}},
+                {
+                    $unwind: {path: '$receiveItemsDoc.items', preserveNullAndEmptyArrays: true}
+                },
                 {
                     $group: {
-                        _id: null,
-                        data: {$push: '$$ROOT'},
-                        total: {$sum: '$total'},
-                        totalOrder: {$sum: '$totalOrder'},
-                        totalRemainQty: {$sum: '$sumRemainQty'},
-                        totalOrderReceive: {$sum: {$subtract: ["$totalOrder", "$sumRemainQty"]}}
+                        _id: {_id: '$_id', itemId: '$receiveItemsDoc.items.itemId'},
+                        receiveItemItemQty: {$sum: '$receiveItemsDoc.items.qty'},
+                        receiveItemItemId: {$last: '$receiveItemsDoc.items.itemId'},
+                        data: {$last: '$data'},
+                        items: {$last: '$items'},
+
+                    }
+                },
+                {
+                    $group: {
+                        _id: '$_id._id',
+                        receiveItems: {
+                            $push: {
+                                qty: '$receiveItemItemQty',
+                                itemId: '$receiveItemItemId'
+                            }
+                        },
+                        data: {$last: '$data'},
+                        items: {$last: '$items'}
                     }
                 }
             ]);
-
+            let total = 0,
+                totalOrder = 0,
+                totalRemainQty = 0,
+                totalOrderReceive = 0;
             if (purchaseOrders.length > 0) {
-                data.content = purchaseOrders[0].data;
-                data.footer.total = purchaseOrders[0].total;
-                data.footer.totalOrder = purchaseOrders[0].totalOrder;
-                data.footer.totalRemainQty = purchaseOrders[0].totalRemainQty;
-                data.footer.totalOrderReceive = purchaseOrders[0].totalOrderReceive
+                purchaseOrders.forEach(function (doc) {
+                    doc.items.forEach(function (item) {
+                        let receiveItem = doc.receiveItems.find(x => x.itemId == item.itemId);
+                        if (receiveItem) {
+                            item.stockReceived = receiveItem.qty;
+                            item.remainQty = item.qty - receiveItem.qty;
+                            item.amount = item.remainQty * item.price;
+                        } else {
+                            item.remainQty = item.qty;
+                            item.stockReceived = 0;
+                            item.amount = item.remainQty * item.price;
+                        }
+                        total += item.amount;
+                        totalOrder += item.qty;
+                        totalRemainQty += item.remainQty;
+                        totalOrderReceive += item.stockReceived;
+                    })
+                });
+            }
+            if (purchaseOrders.length > 0) {
+                data.content = purchaseOrders;
+                data.footer.total = total;
+                data.footer.totalOrder = totalOrder;
+                data.footer.totalRemainQty = totalRemainQty;
+                data.footer.totalOrderReceive = totalOrderReceive;
             }
             return data
         }

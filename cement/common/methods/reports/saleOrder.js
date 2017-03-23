@@ -30,10 +30,14 @@ export const saleOrderReport = new ValidatedMethod({
             let user = Meteor.users.findOne(Meteor.userId());
             // console.log(user);
             // let date = _.trim(_.words(params.date, /[^To]+/g));
-            selector.status = {$in: ['active', 'closed']};
-            selector.sumRemainQty = {$gt: 0};
+            // selector.status = {$in: ['active', 'closed']};
+            // selector.sumRemainQty = {$gt: 0};
+            let asDate;
+            if(params.status && params.status == 'active'){
+                 selector.status = {$in: ['active']};
+            }
             if (params.date) {
-                let asDate = moment(params.date).toDate();
+                asDate = moment(params.date).toDate();
                 data.title.date = moment(asDate).format('YYYY-MMM-DD hh:mm a');
                 selector.orderDate = {$lte: asDate};
             }
@@ -97,35 +101,97 @@ export const saleOrderReport = new ValidatedMethod({
                                 price: '$items.price',
                                 amount: '$items.amount',
                                 itemId: '$items.itemId',
-                                stockReceived: {$subtract: ["$items.qty", "$items.remainQty"]},
                                 itemName: '$itemDoc.name',
-                                remainQty: '$items.remainQty'
                             }
                         },
-                        total: {$last: '$total'},
-                        totalOrder: {$sum: '$items.qty'},
-                        sumRemainQty: {$last: '$sumRemainQty'}
                     }
                 },
-                {$sort: {'data.orderDate': 1}},
+                {
+                    $lookup: {
+                        from: "cement_invoices",
+                        localField: "_id",
+                        foreignField: "saleId",
+                        as: "invoiceDoc"
+                    }
+                },
+                {
+                    $project: {
+                        _id: 1,
+                        data: 1,
+                        items: 1,
+                        total: 1,
+                        totalOrder: 1,
+                        sumRemainQty: 1,
+                        invoicesDoc: {
+                            $filter: {
+                                input: "$invoiceDoc",
+                                as: "invoice",
+                                cond: {$lte: ["$$invoice.invoiceDate", asDate]}
+                            }
+                        }
+                    }
+                },
+                {
+                    $unwind: {path: '$invoicesDoc', preserveNullAndEmptyArrays: true},
+                },
+                {$sort: {'invoicesDoc._id': 1}},
+                {
+                    $unwind: {path: '$invoicesDoc.items', preserveNullAndEmptyArrays: true}
+                },
                 {
                     $group: {
-                        _id: null,
-                        data: {$push: '$$ROOT'},
-                        total: {$sum: '$total'},
-                        totalOrder: {$sum: '$totalOrder'},
-                        totalRemainQty: {$sum: '$sumRemainQty'},
-                        totalOrderReceive: {$sum: {$subtract: ["$totalOrder", "$sumRemainQty"]}}
+                        _id: {_id: '$_id', itemId: '$invoicesDoc.items.itemId'},
+                        invoiceItemQty: {$sum: '$invoicesDoc.items.qty'},
+                        invoiceItemId: {$last: '$invoicesDoc.items.itemId'},
+                        data: {$last: '$data'},
+                        items: {$last: '$items'},
+
+                    }
+                },
+                {
+                    $group: {
+                        _id: '$_id._id',
+                        invoiceItems: {
+                            $push: {
+                                qty: '$invoiceItemQty',
+                                itemId: '$invoiceItemId'
+                            }
+                        },
+                        data: {$last: '$data'},
+                        items: {$last: '$items'}
                     }
                 }
             ]);
-
+            let total = 0,
+                totalOrder = 0,
+                totalRemainQty = 0,
+                totalOrderReceive = 0;
             if (saleOrders.length > 0) {
-                data.content = saleOrders[0].data;
-                data.footer.total = saleOrders[0].total;
-                data.footer.totalOrder = saleOrders[0].totalOrder;
-                data.footer.totalRemainQty = saleOrders[0].totalRemainQty;
-                data.footer.totalOrderReceive = saleOrders[0].totalOrderReceive
+                saleOrders.forEach(function (doc) {
+                    doc.items.forEach(function (item) {
+                        let invoiceItem = doc.invoiceItems.find(x => x.itemId == item.itemId);
+                        if (invoiceItem) {
+                            item.stockReceived = invoiceItem.qty;
+                            item.remainQty = item.qty - invoiceItem.qty;
+                            item.amount = item.remainQty * item.price;
+                        } else {
+                            item.remainQty = item.qty;
+                            item.stockReceived = 0;
+                            item.amount = item.remainQty * item.price;
+                        }
+                        total += item.amount;
+                        totalOrder += item.qty;
+                        totalRemainQty += item.remainQty;
+                        totalOrderReceive += item.stockReceived;
+                    })
+                });
+            }
+            if (saleOrders.length > 0) {
+                data.content = saleOrders
+                data.footer.total = total;
+                data.footer.totalOrder = totalOrder;
+                data.footer.totalRemainQty = totalRemainQty;
+                data.footer.totalOrderReceive = totalOrderReceive;
             }
             return data
         }

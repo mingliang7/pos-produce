@@ -31,11 +31,10 @@ export const invoiceReport = new ValidatedMethod({
             // console.log(user);
             // let date = _.trim(_.words(params.date, /[^To]+/g));
             // selector.invoiceType = {$ne: 'saleOrder'};
-            selector.status = {$in: ['active', 'partial', 'closed']};
             if (params.date) {
                 let dateAsArray = params.date.split(',')
-                let fromDate = moment(dateAsArray[0]).toDate();
-                let toDate = moment(dateAsArray[1]).toDate();
+                let fromDate = moment(dateAsArray[0]).startOf('days').toDate();
+                let toDate = moment(dateAsArray[1]).endOf('days').toDate();
                 data.title.date = moment(fromDate).format('YYYY-MMM-DD hh:mm a') + ' - ' + moment(toDate).format('YYYY-MMM-DD hh:mm a');
                 selector.invoiceDate = {$gte: fromDate, $lte: toDate};
             }
