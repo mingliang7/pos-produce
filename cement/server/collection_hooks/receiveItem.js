@@ -266,10 +266,10 @@ ReceiveItems.after.update(function (userId, doc, fieldNames, modifier, options) 
         } else {
             throw Meteor.Error('Require Receive Item type');
         }
-        reduceFromInventory(preDoc, 'receive-item-return');
+        /* reduceFromInventory(preDoc, 'receive-item-return');
         doc.items.forEach(function (item) {
             averageInventoryInsert(doc.branchId, item, doc.stockLocationId, 'receiveItem', doc._id);
-        });
+        });*/
         //Account Integration
         if (setting && setting.integrate) {
             let data = doc;
