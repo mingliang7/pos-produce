@@ -8,6 +8,7 @@ import {moment} from  'meteor/momentjs:moment';
 // Collection
 import {Company} from '../../../../core/imports/api/collections/company.js';
 import {AverageInventories} from '../../../imports/api/collections/inventory';
+import {Invoices} from '../../../imports/api/collections/invoice';
 // lib func
 import {correctFieldLabel} from '../../../imports/api/libs/correctFieldLabel';
 export const stockBalanceReport = new ValidatedMethod({
@@ -18,6 +19,7 @@ export const stockBalanceReport = new ValidatedMethod({
         if (!this.isSimulation) {
             Meteor._sleepForMs(200);
             let selector = {};
+            let invoiceSelector = {refBillId: {$exists: false}};
             let project = {};
             let data = {
                 title: {},
@@ -29,29 +31,30 @@ export const stockBalanceReport = new ValidatedMethod({
 
             // let date = _.trim(_.words(params.date, /[^To]+/g));
             if (params.date) {
-                let asOfDate = moment(params.date).toDate();
+                let asOfDate = moment(params.date).endOf('days').toDate();
                 data.title.date = moment(asOfDate).format('YYYY-MMM-DD');
                 selector.createdAt = {$lte: asOfDate};
+                invoiceSelector.invoiceDate = {$lte: asOfDate}
             }
-            if(params.branch){
+            if (params.branch) {
                 selector.branchId = {$in: params.branch.split(',')};
             }
-            if(params.items) {
+            if (params.items) {
                 selector.itemId = {
                     $in: params.items.split(',')
                 }
             }
-            if(params.location) {
+            if (params.location) {
                 selector.stockLocationId = {
                     $in: params.location.split(',')
                 }
             }
             //check if user has right to view multi branches
             let user = Meteor.users.findOne({_id: Meteor.userId()});
-            for(let i =0 ; i < selector.branchId.$in.length; i++){
-              if(!_.includes(user.rolesBranch, selector.branchId.$in[i])) {
-                  _.pull(selector.branchId.$in, selector.branchId.$in[i]);
-              }
+            for (let i = 0; i < selector.branchId.$in.length; i++) {
+                if (!_.includes(user.rolesBranch, selector.branchId.$in[i])) {
+                    _.pull(selector.branchId.$in, selector.branchId.$in[i]);
+                }
             }
             if (params.filter && params.filter != '') {
                 let filters = params.filter.split(','); //map specific field
@@ -70,6 +73,7 @@ export const stockBalanceReport = new ValidatedMethod({
             } else {
                 project = {
                     'item': '$lastDoc.itemDoc.name',
+                    'itemId': '$lastDoc.itemId',
                     'price': '$lastDoc.price',
                     'unit': '$lastDoc.itemDoc._unit.name',
                     'remainQty': '$lastDoc.remainQty',
@@ -85,6 +89,7 @@ export const stockBalanceReport = new ValidatedMethod({
 
             /****** Content *****/
             let inventories = AverageInventories.aggregate([
+
                 {$match: selector},
                 {$sort: {_id: 1, createdAt: 1}},
                 {
@@ -158,11 +163,37 @@ export const stockBalanceReport = new ValidatedMethod({
                         }
                     }
                 }
-            ]);
 
+            ]);
+            let invoices = Invoices.aggregate([
+                {
+                    $match: invoiceSelector,
+                },
+                {$unwind: {path: '$items', preserveNullAndEmptyArrays: true}},
+                {
+                    $group: {
+                        _id: '$items.itemId',
+                        qty: {$sum: '$items.qty'},
+                        amount: {$sum: '$items.amount'}
+                    }
+                }
+            ]);
+            let invoiceAmount = 0 ;
+            let remainQty = 0;
             if (inventories.length > 0) {
+                inventories[0].data.forEach(function (inventoryItem) {
+                    let invoiceItem = invoices.find(x => x._id == inventoryItem.itemId);
+                    if(invoiceItem){
+                        inventoryItem.remainQty -= invoiceItem.qty;
+                        inventoryItem.amount = inventoryItem.remainQty * inventoryItem.price;
+                    }
+                    invoiceAmount += inventoryItem.amount;
+                    remainQty += inventoryItem.remainQty;
+                });
                 let sortData = _.sortBy(inventories[0].data, 'item');
-                inventories[0].data = sortData
+                inventories[0].total =invoiceAmount;
+                inventories[0].totalRemainQty = remainQty;
+                inventories[0].data = sortData;
                 data.content = inventories;
             }
             return data
