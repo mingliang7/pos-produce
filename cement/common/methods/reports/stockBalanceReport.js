@@ -178,15 +178,21 @@ export const stockBalanceReport = new ValidatedMethod({
                     }
                 }
             ]);
+            let invoiceAmount = 0 ;
+            let remainQty = 0;
             if (inventories.length > 0) {
-                // inventories[0].data.forEach(function (inventoryItem) {
-                //     let invoiceItem = invoices.find(x => x == inventoryItem.itemId);
-                //     if(invoiceItem){
-                //         inventoryItem.remainQty -= invoiceItem.qty;
-                //         inventoryItem.amount = inventoryItem.remainQty * inventoryItem.price
-                //     }
-                // });
+                inventories[0].data.forEach(function (inventoryItem) {
+                    let invoiceItem = invoices.find(x => x._id == inventoryItem.itemId);
+                    if(invoiceItem){
+                        inventoryItem.remainQty -= invoiceItem.qty;
+                        inventoryItem.amount = inventoryItem.remainQty * inventoryItem.price;
+                    }
+                    invoiceAmount += inventoryItem.amount;
+                    remainQty += inventoryItem.remainQty;
+                });
                 let sortData = _.sortBy(inventories[0].data, 'item');
+                inventories[0].total =invoiceAmount;
+                inventories[0].totalRemainQty = remainQty;
                 inventories[0].data = sortData;
                 data.content = inventories;
             }
