@@ -18,6 +18,7 @@ export const stockBalanceReport = new ValidatedMethod({
         if (!this.isSimulation) {
             Meteor._sleepForMs(200);
             let selector = {};
+            let invoiceSelector = {refBillId: {$exists: false}};
             let project = {};
             let data = {
                 title: {},
@@ -29,29 +30,30 @@ export const stockBalanceReport = new ValidatedMethod({
 
             // let date = _.trim(_.words(params.date, /[^To]+/g));
             if (params.date) {
-                let asOfDate = moment(params.date).toDate();
+                let asOfDate = moment(params.date).endOf('days').toDate();
                 data.title.date = moment(asOfDate).format('YYYY-MMM-DD');
                 selector.createdAt = {$lte: asOfDate};
+                invoiceSelector.invoiceDate = {$lte: asOfDate}
             }
-            if(params.branch){
+            if (params.branch) {
                 selector.branchId = {$in: params.branch.split(',')};
             }
-            if(params.items) {
+            if (params.items) {
                 selector.itemId = {
                     $in: params.items.split(',')
                 }
             }
-            if(params.location) {
+            if (params.location) {
                 selector.stockLocationId = {
                     $in: params.location.split(',')
                 }
             }
             //check if user has right to view multi branches
             let user = Meteor.users.findOne({_id: Meteor.userId()});
-            for(let i =0 ; i < selector.branchId.$in.length; i++){
-              if(!_.includes(user.rolesBranch, selector.branchId.$in[i])) {
-                  _.pull(selector.branchId.$in, selector.branchId.$in[i]);
-              }
+            for (let i = 0; i < selector.branchId.$in.length; i++) {
+                if (!_.includes(user.rolesBranch, selector.branchId.$in[i])) {
+                    _.pull(selector.branchId.$in, selector.branchId.$in[i]);
+                }
             }
             if (params.filter && params.filter != '') {
                 let filters = params.filter.split(','); //map specific field
@@ -85,85 +87,104 @@ export const stockBalanceReport = new ValidatedMethod({
 
             /****** Content *****/
             let inventories = AverageInventories.aggregate([
-                {$match: selector},
-                {$sort: {_id: 1, createdAt: 1}},
                 {
-                    $lookup: {
-                        from: "cement_item",
-                        localField: "itemId",
-                        foreignField: "_id",
-                        as: "itemDoc"
-                    }
-                },
-                {$unwind: {path: '$itemDoc', preserveNullAndEmptyArrays: true}},
-                {
-                    $lookup: {
-                        from: 'Cement_categories',
-                        localField: 'itemDoc.categoryId',
-                        foreignField: '_id',
-                        as: 'itemDoc.categoryDoc'
-                    }
-                },
-                {$unwind: {path: '$itemDoc.categoryDoc', preserveNullAndEmptyArrays: true}},
-                {
-                    $lookup: {
-                        from: "cement_stockLocations",
-                        localField: "stockLocationId",
-                        foreignField: "_id",
-                        as: "locationDoc"
-                    }
-                },
-                {$unwind: {path: '$locationDoc', preserveNullAndEmptyArrays: true}},
-                {
-                    $lookup: {
-                        from: "core_branch",
-                        localField: "branchId",
-                        foreignField: "_id",
-                        as: "branchDoc"
-                    }
-                },
-                {$unwind: {path: '$branchDoc', preserveNullAndEmptyArrays: true}},
-                {
-                    $project: {
-                        itemId: 1,
-                        createdAt: 1,
-                        itemDoc: 1,
-                        branchDoc: 1,
-                        locationDoc: 1,
-                        stockLocationId: 1,
-                        branchId: 1,
-                        qty: 1,
-                        price: 1,
-                        remainQty: 1,
-                        amount: {$multiply: ["$price", "$remainQty"]}
-                    }
-                },
-                {
-                    $group: {
-                        _id: {branch: '$branchId', itemId: '$itemId', stockLocationId: '$stockLocationId'},
-                        lastDoc: {$last: '$$ROOT'}
-                    }
-                },
-                {
-                    $group: {
-                        _id: null,
-                        data: {
-                            $addToSet: project
-                        },
-                        total: {
-                            $sum: '$lastDoc.amount'
-                        },
-                        totalRemainQty: {
-                            $sum: '$lastDoc.remainQty'
-                        }
+                    $facet: {
+                        avgStocks: [
+                            {$match: selector},
+                            {$sort: {_id: 1, createdAt: 1}},
+                            {
+                                $lookup: {
+                                    from: "cement_item",
+                                    localField: "itemId",
+                                    foreignField: "_id",
+                                    as: "itemDoc"
+                                }
+                            },
+                            {$unwind: {path: '$itemDoc', preserveNullAndEmptyArrays: true}},
+                            {
+                                $lookup: {
+                                    from: 'Cement_categories',
+                                    localField: 'itemDoc.categoryId',
+                                    foreignField: '_id',
+                                    as: 'itemDoc.categoryDoc'
+                                }
+                            },
+                            {$unwind: {path: '$itemDoc.categoryDoc', preserveNullAndEmptyArrays: true}},
+                            {
+                                $lookup: {
+                                    from: "cement_stockLocations",
+                                    localField: "stockLocationId",
+                                    foreignField: "_id",
+                                    as: "locationDoc"
+                                }
+                            },
+                            {$unwind: {path: '$locationDoc', preserveNullAndEmptyArrays: true}},
+                            {
+                                $lookup: {
+                                    from: "core_branch",
+                                    localField: "branchId",
+                                    foreignField: "_id",
+                                    as: "branchDoc"
+                                }
+                            },
+                            {$unwind: {path: '$branchDoc', preserveNullAndEmptyArrays: true}},
+                            {
+                                $project: {
+                                    itemId: 1,
+                                    createdAt: 1,
+                                    itemDoc: 1,
+                                    branchDoc: 1,
+                                    locationDoc: 1,
+                                    stockLocationId: 1,
+                                    branchId: 1,
+                                    qty: 1,
+                                    price: 1,
+                                    remainQty: 1,
+                                    amount: {$multiply: ["$price", "$remainQty"]}
+                                }
+                            },
+                            {
+                                $group: {
+                                    _id: {branch: '$branchId', itemId: '$itemId', stockLocationId: '$stockLocationId'},
+                                    lastDoc: {$last: '$$ROOT'}
+                                }
+                            },
+                            {
+                                $group: {
+                                    _id: null,
+                                    data: {
+                                        $addToSet: project
+                                    },
+                                    total: {
+                                        $sum: '$lastDoc.amount'
+                                    },
+                                    totalRemainQty: {
+                                        $sum: '$lastDoc.remainQty'
+                                    }
+                                }
+                            }
+                        ],
+                        invoices: [
+                            {
+                                $match: selector,
+                            },
+                            {$unwind: {path: '$items', preserveNullAndEmptyArrays: true}},
+                            {
+                                $group: {
+                                    _id: '$items.itemId',
+                                    qty: {$sum: '$items.qty'},
+                                    amount: {$sum: '$items.amount'}
+                                }
+                            }
+                        ]
                     }
                 }
             ]);
-
-            if (inventories.length > 0) {
-                let sortData = _.sortBy(inventories[0].data, 'item');
-                inventories[0].data = sortData
-                data.content = inventories;
+            console.log(inventories[0].invoices);
+            if (inventories[0].avgStocks.length > 0) {
+                let sortData = _.sortBy(inventories[0].avgStocks[0].data, 'item');
+                inventories[0].avgStocks[0].data = sortData;
+                data.content = inventories[0].avgStocks;
             }
             return data
         }
