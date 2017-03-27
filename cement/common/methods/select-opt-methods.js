@@ -99,6 +99,7 @@ SelectOptMethods.lookupInvoice = new ValidatedMethod({
             let values = options.values;
             let params = options.params || {};
             selector.refBillId = {$exists: false};
+            selector.invoiceType = {$ne: 'saleOrder'};
             if (params.branchId) {
                 selector.branchId = params.branchId;
             }
