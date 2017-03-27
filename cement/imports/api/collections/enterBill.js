@@ -64,7 +64,7 @@ EnterBills.schema = new SimpleSchema({
                 optionsMethodParams: function () {
                     if (Meteor.isClient) {
                         let currentBranch = Session.get('currentBranch');
-                        return {branchId: currentBranch};
+                        return {branchId: currentBranch, invoiceType: {$ne: 'saleOrder'}};
                     }
                 }
             }
