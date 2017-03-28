@@ -103,7 +103,7 @@ SelectOptMethods.lookupInvoice = new ValidatedMethod({
                 selector.branchId = params.branchId;
             }
             if(params.invoiceType ){
-                selector.invoiceType = selector.invoiceType;
+                selector.invoiceType = params.invoiceType;
             }
             if (searchText) {
                 selector['$or'] = [
