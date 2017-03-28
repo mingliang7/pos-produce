@@ -558,9 +558,11 @@ invoiceBillTmpl.events({
             $('.items-header').addClass('hidden');
             Meteor.setTimeout(function () {
                 $('.js-destroy-item').addClass('hidden');
+                $('.item-qty').attr('readonly',true);
             }, 500);
         } else {
             $('.items-header').removeClass('hidden');
+            $('.item-qty').attr('readonly',false);
         }
     },
     'click .addInvoiceId'(event, instance){
