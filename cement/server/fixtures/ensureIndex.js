@@ -15,7 +15,7 @@ Meteor.startup(function () {
     Order._ensureIndex({status: 1, paymentStatus: 1, 'item.itemId': 1, orderDate: 1});
     // Order._ensureIndex({customerId: 1,orderDate: 1, total: 1, branchId: 1}, {unique: true, sparse: true});
     AverageInventories._ensureIndex({stockLocationId: 1, price: 1, itemId: 1, branchId: 1});
-    Invoices._ensureIndex({invoiceDate: 1, status: 1, refBillId: 1});
+    Invoices._ensureIndex({invoiceType: 1,invoiceDate: 1, status: 1, refBillId: 1});
     EnterBills._ensureIndex({enterBillDate: 1, staffId: 1, vendorId: 1, branchId: 1, status: 1});
     PurchaseOrder._ensureIndex({purchaseOrderDate: 1, total: 1, vendorId: 1, branchId:1, status: 1, paymentStatus: 1});
     ReceivePayment._ensureIndex({staffId: 1, paymentDate: 1, invoiceId: 1, branchId: 1});

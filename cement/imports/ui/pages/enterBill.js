@@ -146,10 +146,9 @@ indexTmpl.events({
             title: "Pleas Wait",
             text: "Getting Invoices....", showConfirmButton: false
         });
-        this.customer = vendorBillCollection.findOne(this.vendorId).name;
-        Meteor.call('billShowItems', {doc: this}, function (err, result) {
+        Meteor.call('previewEnterBill', {_id: this._id}, function (err, result) {
             swal.close();
-            alertify.enterBillShow(fa('eye', TAPi18n.__('cement.invoice.title')), renderTemplate(showTmpl, result)).maximize();
+            alertify.enterBillShow(fa('eye', 'Show EnterBill'), renderTemplate(showTmpl, result));
         });
     },
     'click .js-enterBill' (event, instance) {
@@ -489,12 +488,12 @@ showTmpl.helpers({
         let doc = Session.get('currentUserStockAndAccountMappingDoc');
         return doc.company;
     },
-    colorizeType(type) {
-        if (type == 'term') {
-            return `<label class="label label-info">T</label>`
-        }
-        return `<label class="label label-success">G</label>`
-    },
+    // colorizeType(type) {
+    //     if (type == 'term') {
+    //         return `<label class="label label-info">T</label>`
+    //     }
+    //     return `<label class="label label-success">G</label>`
+    // },
     colorizeStatus(status){
         if (status == 'active') {
             return `<label class="label label-info">A</label>`
