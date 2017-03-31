@@ -12,8 +12,8 @@ export const  getRange = function(date, type) {
     for (var i = 1; i <= range; i += type) {
         for (var j = i; j < i + type; j++) {
             if (day <= j) {
-                if (now.getMonth() + 1 == 2) {
-                    if (j + type >= onFeb) {
+                if ( now.getMonth() + 1 == 2) {
+                    if (j + type > 30) {
                         endDate = moment(now.setDate(onFeb)).format('YYYY-MM-DD');
                         break;
                     } else {
