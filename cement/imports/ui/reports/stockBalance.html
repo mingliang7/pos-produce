@@ -103,8 +103,35 @@
                     <tr>
                         {{{getTotal col.total col.totalRemainQty}}}
                     </tr>
+                    <hr>
+                    
                 {{/each}}
-
+                <h5>
+                    Invoice Items  មិនទាន់ ​Enter Bill
+                    <hr>
+                </h5>
+                <tr>
+                    <th>Name</th>
+                    <th>Qty</th>
+                    <th>Price</th>
+                    <th>Amount</th>
+                </tr>
+                {{#each contentInvoice}}
+                        <tr>
+                            <td>{{itemDoc.name}}</td>
+                            <td class="text-right">{{numFormat qty '0,0.00'}}</td>
+                            <td class="text-right">{{numFormat price '0,0.00'}}</td>
+                            <td class="text-right">{{numFormat amount '0,0.00'}}</td>
+                        </tr>
+                {{/each}}
+                <tr>
+                    <td colspan="3" class="text-right"><b>Total:</b></td>
+                    <td class="text-right"><b>{{numFormat footerInvoice.totalAmount '0,0.00'}}</b></td>
+                </tr>
+                <tr>
+                    <td colspan="3" class="text-right"><b>Total ( {{footer.total}} - {{footerInvoice.totalAmount}} ) = </b></td>
+                    <td class="text-right"><b>{{numFormat footer.remainAmount '0,0.00'}}</b></td>
+                </tr>
             {{/with}}
             </tbody>
         </table>

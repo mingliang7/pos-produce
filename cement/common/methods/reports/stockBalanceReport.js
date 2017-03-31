@@ -19,22 +19,26 @@ export const stockBalanceReport = new ValidatedMethod({
         if (!this.isSimulation) {
             Meteor._sleepForMs(200);
             let selector = {};
-            let invoiceSelector = {refBillId: {$exists: false}};
+            let invoiceSelector = {invoiceType:{$ne:'saleOrder'}};
             let project = {};
             let data = {
                 title: {},
                 fields: [],
                 displayFields: [],
                 content: [{index: 'No Result'}],
-                footer: {}
+                footer: {},
+                footerInvoice: {}
             };
 
             // let date = _.trim(_.words(params.date, /[^To]+/g));
             if (params.date) {
                 let asOfDate = moment(params.date).endOf('days').toDate();
                 data.title.date = moment(asOfDate).format('YYYY-MMM-DD');
-                selector.createdAt = {$lte: asOfDate};
-                invoiceSelector.invoiceDate = {$lte: asOfDate}
+               selector.inventoryDate = {$lte: asOfDate};
+                invoiceSelector.$or = [
+                    {refBillId: {$exists: false}, invoiceDate: {$lte: asOfDate}},
+                    {refBillId: {$exists: true},invoiceDate:{$lte:asOfDate},refBillDate: {$gt: asOfDate}},
+                ]
             }
             if (params.branch) {
                 selector.branchId = {$in: params.branch.split(',')};
@@ -77,11 +81,13 @@ export const stockBalanceReport = new ValidatedMethod({
                     'price': '$lastDoc.price',
                     'unit': '$lastDoc.itemDoc._unit.name',
                     'remainQty': '$lastDoc.remainQty',
-                    'amount': '$lastDoc.amount'
+                    'amount': '$lastDoc.amount',
+                    'averagePrice':'$lastDoc.averagePrice',
+                    'lastAmount':'$lastDoc.lastAmount'
 
                 };
                 data.fields = [{field: 'Item'}, {field: 'Unit'}, {field: 'Price'}, {field: 'Remain QTY'}, {field: 'Amount'}];
-                data.displayFields = [{field: 'item'}, {field: 'unit'}, {field: 'price'}, {field: 'remainQty'}, {field: 'amount'}];
+                data.displayFields = [{field: 'item'}, {field: 'unit'}, {field: 'price'}, {field: 'remainQty'}, {field: 'lastAmount'}];
             }
 
             /****** Title *****/
@@ -90,7 +96,7 @@ export const stockBalanceReport = new ValidatedMethod({
             /****** Content *****/
             let inventories = AverageInventories.aggregate([
 
-                {$match: selector},
+               {$match: selector},
                 {$sort: {_id: 1, createdAt: 1}},
                 {
                     $lookup: {
@@ -139,8 +145,10 @@ export const stockBalanceReport = new ValidatedMethod({
                         branchId: 1,
                         qty: 1,
                         price: 1,
+                        averagePrice: 1,
                         remainQty: 1,
-                        amount: {$multiply: ["$price", "$remainQty"]}
+                        amount: 1,
+                        lastAmount: 1
                     }
                 },
                 {
@@ -156,7 +164,7 @@ export const stockBalanceReport = new ValidatedMethod({
                             $addToSet: project
                         },
                         total: {
-                            $sum: '$lastDoc.amount'
+                            $sum: '$lastDoc.lastAmount'
                         },
                         totalRemainQty: {
                             $sum: '$lastDoc.remainQty'
@@ -167,35 +175,45 @@ export const stockBalanceReport = new ValidatedMethod({
             ]);
             let invoices = Invoices.aggregate([
                 {
-                    $match: invoiceSelector,
+                    $match: invoiceSelector
                 },
-                {$unwind: {path: '$items', preserveNullAndEmptyArrays: true}},
+                // {$unwind: {path: '$items', preserveNullAndEmptyArrays: true}},
+              /*  {
+                  $project: {
+                      total: {$ifNull: ["$totalCost", "$total"]},
+                      _id: 1
+                  }
+                },*/
                 {
                     $group: {
-                        _id: '$items.itemId',
-                        qty: {$sum: '$items.qty'},
-                        amount: {$sum: '$items.amount'}
+                        _id: null, totalAmount: { $sum: '$total' }, totalTransportFee: { $sum: '$totalTransportFee' }
+                    }
+
+                }, {
+                    $project: {
+                        _id: 0,
+                        totalAmount: {$subtract: ["$totalAmount", "$totalTransportFee"]}
                     }
                 }
             ]);
-            let invoiceAmount = 0 ;
-            let remainQty = 0;
             if (inventories.length > 0) {
-                inventories[0].data.forEach(function (inventoryItem) {
-                    let invoiceItem = invoices.find(x => x._id == inventoryItem.itemId);
-                    if(invoiceItem){
-                        inventoryItem.remainQty -= invoiceItem.qty;
-                        inventoryItem.amount = inventoryItem.remainQty * inventoryItem.price;
-                    }
-                    invoiceAmount += inventoryItem.amount;
-                    remainQty += inventoryItem.remainQty;
-                });
                 let sortData = _.sortBy(inventories[0].data, 'item');
-                inventories[0].total =invoiceAmount;
-                inventories[0].totalRemainQty = remainQty;
+                data.footer.total =inventories[0].total;
+                data.footer.totalRemainQty = inventories[0].totalRemainQty;
                 inventories[0].data = sortData;
                 data.content = inventories;
+                data.contentInvoice = invoices[0] ? invoices[0].data : [];
+                data.footerInvoice.totalQty = invoices[0] ? invoices[0].totalQty : 0;
+                data.footerInvoice.totalAmount = invoices[0] ? invoices[0].totalAmount : 0
+                data.footer.remainAmount = inventories[0].total - (invoices[0] ? invoices[0].totalAmount : 0)
+            }else{
+                // data.contentInvoice = invoices[0] ? invoices[0].data : [];
+                // data.footerInvoice.totalQty = invoices[0] ? invoices[0].totalQty : 0;
+                data.footerInvoice.totalAmount = invoices[0] ? invoices[0].totalAmount : 0
+                data.footer.remainAmount = 0 - (invoices[0] ? invoices[0].totalAmount : 0)
+
             }
+
             return data
         }
     }

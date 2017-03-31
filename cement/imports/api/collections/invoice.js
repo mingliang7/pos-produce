@@ -81,6 +81,10 @@ Invoices.schema = new SimpleSchema({
         type: String,
         optional: true
     },
+    refBillDate:{
+        type:Date,
+        optional:true
+    },
     profit: {
         type: Number,
         decimal: true,

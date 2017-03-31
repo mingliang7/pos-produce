@@ -4,7 +4,7 @@ import {RingPullInventories} from '../collections/ringPullInventory.js'
 import {GratisInventories} from '../collections/gratisInventory'
 
 export  default class StockFunction {
-    static averageInventoryInsert(branchId, item, stockLocationId, type, refId) {
+    static averageInventoryInsert(branchId, item, stockLocationId, type, refId,inventoryDate) {
         let lastPurchasePrice = 0;
         let remainQuantity = 0;
         let prefix = stockLocationId + '-';
@@ -31,6 +31,7 @@ export  default class StockFunction {
             nextInventory.type = type;
             nextInventory.coefficient = 1;
             nextInventory.refId = refId;
+            nextInventory.inventoryDate=inventoryDate;
             //lastPurchasePrice = price;
             remainQuantity = totalQty;
             console.log(nextInventory);
@@ -54,6 +55,7 @@ export  default class StockFunction {
             inventoryObj.type = type;
             inventoryObj.coefficient = 1;
             inventoryObj.refId = refId;
+            inventoryObj.inventoryDate=inventoryDate;
             //lastPurchasePrice = item.price;
             remainQuantity = totalQty;
             AverageInventories.insert(inventoryObj);
@@ -64,7 +66,7 @@ export  default class StockFunction {
         Item.direct.update(item.itemId, setModifier);
     }
 
-    static averageInventoryInsertForBill(branchId, item, stockLocationId, type, refId) {
+    static averageInventoryInsertForBill(branchId, item, stockLocationId, type, refId, inventoryDate) {
         let id = '';
         //let lastPurchasePrice = 0;
         let remainQuantity = 0;
@@ -93,6 +95,7 @@ export  default class StockFunction {
             nextInventory.refId = refId;
             nextInventory.lastAmount = lastAmount;
             nextInventory.averagePrice = averagePrice;
+            nextInventory.inventoryDate = inventoryDate;
             //lastPurchasePrice = price;
             remainQuantity = totalQty;
             id = AverageInventories.insert(nextInventory);
@@ -116,6 +119,7 @@ export  default class StockFunction {
             inventoryObj.type = type;
             inventoryObj.coefficient = 1;
             inventoryObj.refId = refId;
+            inventoryObj.inventoryDate = inventoryDate;
             //lastPurchasePrice = item.price;
             remainQuantity = totalQty;
             id = AverageInventories.insert(inventoryObj);
@@ -126,7 +130,7 @@ export  default class StockFunction {
         return id;
     }
 
-    static minusAverageInventoryInsertForBill(branchId, item, stockLocationId, type, refId) {
+    static minusAverageInventoryInsertForBill(branchId, item, stockLocationId, type, refId,inventoryDate) {
         let id = '';
         let prefix = stockLocationId + '-';
         let inventory = AverageInventories.findOne({
@@ -155,7 +159,8 @@ export  default class StockFunction {
                 averagePrice: averagePrice,
                 coefficient: -1,
                 type: type,
-                refId: refId
+                refId: refId,
+                inventoryDate:inventoryDate
             };
             id = AverageInventories.insert(newInventory);
         }
@@ -165,7 +170,7 @@ export  default class StockFunction {
         return id;
     }
 
-    static minusAverageInventoryInsert(branchId, item, stockLocationId, type, refId) {
+    static minusAverageInventoryInsert(branchId, item, stockLocationId, type, refId,inventoryDate) {
         let id = '';
         let prefix = stockLocationId + '-';
         let inventory = AverageInventories.findOne({
@@ -194,7 +199,8 @@ export  default class StockFunction {
                 averagePrice: averagePrice,
                 coefficient: -1,
                 type: type,
-                refId: refId
+                refId: refId,
+                inventoryDate:inventoryDate
             };
             id = AverageInventories.insert(newInventory);
             let setModifier = {$set: {}};
@@ -222,7 +228,8 @@ export  default class StockFunction {
         }
         return id;
     }
-    static minusAverageInventoryInsertAndReturnCostPrice(branchId, item, stockLocationId, type, refId) {
+
+    static minusAverageInventoryInsertAndReturnCostPrice(branchId, item, stockLocationId, type, refId, inventoryDate) {
         let cost = 0;
         let prefix = stockLocationId + '-';
         let inventory = AverageInventories.findOne({
@@ -251,9 +258,10 @@ export  default class StockFunction {
                 averagePrice: averagePrice,
                 coefficient: -1,
                 type: type,
-                refId: refId
+                refId: refId,
+                inventoryDate: inventoryDate
             };
-            cost=inventory.averagePrice;
+            cost = inventory.averagePrice;
             AverageInventories.insert(newInventory);
             let setModifier = {$set: {}};
             setModifier.$set['qtyOnHand.' + stockLocationId] = remainQty;
@@ -379,7 +387,7 @@ export  default class StockFunction {
     }
 
     static checkStockByLocation(stockLocationId, ArgItems) {
-        let items=[];
+        let items = [];
         ArgItems.reduce(function (res, value) {
             if (!res[value.itemId]) {
                 res[value.itemId] = {
@@ -395,7 +403,6 @@ export  default class StockFunction {
             res[value.itemId].qty += value.qty;
             return res;
         }, {});
-
 
 
         let result = {isEnoughStock: true, message: ''};
@@ -414,7 +421,7 @@ export  default class StockFunction {
     }
 
     static checkStockByLocationWhenUpdate(stockLocationId, ArgItems, doc) {
-        let items=[];
+        let items = [];
         ArgItems.reduce(function (res, value) {
             if (!res[value.itemId]) {
                 res[value.itemId] = {
@@ -431,7 +438,7 @@ export  default class StockFunction {
             return res;
         }, {});
 
-        let docItems=[];
+        let docItems = [];
         doc.items.reduce(function (res, value) {
             if (!res[value.itemId]) {
                 res[value.itemId] = {
@@ -447,7 +454,7 @@ export  default class StockFunction {
             res[value.itemId].qty += value.qty;
             return res;
         }, {});
-        doc.items=docItems;
+        doc.items = docItems;
 
         /*   let items = [];
          if (doc.stockLocationId == stockLocationId) {

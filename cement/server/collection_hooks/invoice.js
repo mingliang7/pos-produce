@@ -1125,12 +1125,12 @@ Meteor.methods({
             let transaction = [];
             let totalRemain = 0;
             let accountRefType = 'Invoice';
-            if (doc.saleId) {
+            if (doc.invoiceType == 'saleOrder') {
                 des = "វិក្កយបត្រ SO អតិថិជនៈ ";
                 accountRefType = 'Invoice-SaleOrder';
                 let total = 0;
                 doc.items.forEach(function (item) {
-                    Order.direct.update(
+                  /*  Order.direct.update(
                         {
                             _id: doc.saleId,
                             "items.itemId": item.itemId
@@ -1140,7 +1140,7 @@ Meteor.methods({
                                 sumRemainQty: -item.qty,
                                 "items.$.remainQty": -item.qty
                             }
-                        });
+                        });*/
                     total += item.qty * item.price;
                 });
                 //Account Integration

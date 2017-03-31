@@ -93,7 +93,7 @@ EnterBills.after.insert(function (userId, doc) {
             let grandTotal = 0;
             doc.items.forEach(function (item) {
                 if (item.isBill == false) {
-                    item.price = StockFunction.minusAverageInventoryInsertAndReturnCostPrice(doc.branchId, item, doc.stockLocationId, 'invoice-bill', doc._id);
+                    item.price = StockFunction.minusAverageInventoryInsertAndReturnCostPrice(doc.branchId, item, doc.stockLocationId, 'invoice-bill', doc._id, doc.enterBillDate);
                     item.amount = item.price * item.qty;
                     totalUnBill += item.amount;
                 }
@@ -109,7 +109,7 @@ EnterBills.after.insert(function (userId, doc) {
             });
         } else {
             doc.items.forEach(function (item) {
-                StockFunction.averageInventoryInsertForBill(doc.branchId, item, doc.stockLocationId, 'insert-bill', doc._id);
+                StockFunction.averageInventoryInsertForBill(doc.branchId, item, doc.stockLocationId, 'insert-bill', doc._id, doc.enterBillDate);
             });
         }
         //Account Integration
@@ -172,19 +172,18 @@ EnterBills.after.update(function (userId, doc, fieldNames, modifier, options) {
     }
     Meteor.defer(function () {
         if (doc.invoiceId) {
-            //EnterBillMutation.updateInvoiceBack({doc});
             EnterBillMutation.updateInvoiceRefBillId({doc});
 
             preDoc.items.forEach(function (preItem) {
                 if (preItem.isBill == false) {
-                    preItem.price = StockFunction.averageInventoryInsert(preDoc.branchId, preItem, preDoc.stockLocationId, 'enterBill', preDoc._id);
+                    preItem.price = StockFunction.averageInventoryInsert(preDoc.branchId, preItem, preDoc.stockLocationId, 'enterBill', preDoc._id, preDoc.enterBillDate);
                 }
             });
 
             let newEnterBillItems = [];
             doc.items.forEach(function (item) {
                 if (item.isBill == false) {
-                    item.price = StockFunction.minusAverageInventoryInsertAndReturnCostPrice(doc.branchId, item, doc.stockLocationId, 'invoice-bill', doc._id);
+                    item.price = StockFunction.minusAverageInventoryInsertAndReturnCostPrice(doc.branchId, item, doc.stockLocationId, 'invoice-bill', doc._id, doc.enterBillDate);
                     newEnterBillItems.push(item);
                 }
             });
@@ -194,11 +193,11 @@ EnterBills.after.update(function (userId, doc, fieldNames, modifier, options) {
             Meteor._sleepForMs(200);
             let inventoryIdList = [];
             preDoc.items.forEach(function (preItem) {
-                StockFunction.minusAverageInventoryInsertForBill(preDoc.branchId, preItem, preDoc.stockLocationId, 'reduce-from-bill', doc._id);
+                StockFunction.minusAverageInventoryInsertForBill(preDoc.branchId, preItem, preDoc.stockLocationId, 'reduce-from-bill', doc._id, preDoc.enterBillDate);
             });
             //reduceFromInventory(preDoc);
             doc.items.forEach(function (item) {
-                StockFunction.averageInventoryInsertForBill(doc.branchId, item, doc.stockLocationId, 'enterBill', doc._id);
+                StockFunction.averageInventoryInsertForBill(doc.branchId, item, doc.stockLocationId, 'enterBill', doc._id, doc.enterBillDate);
             });
         }
         //Account Integration
@@ -265,16 +264,15 @@ EnterBills.after.remove(function (userId, doc) {
         let inventoryIdList = [];
         if (type.group) {
             if (doc.invoiceId) {
-                EnterBillMutation.updateInvoiceBack({doc});
                 doc.items.forEach(function (item) {
                     if (item.isBill == false) {
-                        StockFunction.averageInventoryInsert(doc.branchId, item, doc.stockLocationId, 'enterBill', doc._id);
+                        StockFunction.averageInventoryInsert(doc.branchId, item, doc.stockLocationId, 'enterBill', doc._id, moment().toDate());
                     }
                 });
             } else {
                 //reduceFromInventory(doc);
                 doc.items.forEach(function (item) {
-                    StockFunction.minusAverageInventoryInsert(doc.branchId, item, doc.stockLocationId, 'reduce-from-bill', doc._id);
+                    StockFunction.minusAverageInventoryInsert(doc.branchId, item, doc.stockLocationId, 'reduce-from-bill', doc._id, moment().toDate());
                 });
             }
             removeBillFromGroup(doc);
@@ -286,16 +284,15 @@ EnterBills.after.remove(function (userId, doc) {
             }
         } else {
             if (doc.invoiceId) {
-                EnterBillMutation.updateInvoiceBack({doc});
                 doc.items.forEach(function (item) {
                     if (item.isBill == false) {
-                        StockFunction.averageInventoryInsert(doc.branchId, item, doc.stockLocationId, 'enterBill', doc._id);
+                        StockFunction.averageInventoryInsert(doc.branchId, item, doc.stockLocationId, 'enterBill', doc._id, moment().toDate());
                     }
                 });
             } else {
                 //  reduceFromInventory(doc);
                 doc.items.forEach(function (item) {
-                    let id = StockFunction.minusAverageInventoryInsert(doc.branchId, item, doc.stockLocationId, 'reduce-from-bill', doc._id);
+                    let id = StockFunction.minusAverageInventoryInsert(doc.branchId, item, doc.stockLocationId, 'reduce-from-bill', doc._id, moment().toDate());
                     inventoryIdList.push(id);
                 });
             }
@@ -307,7 +304,7 @@ EnterBills.after.remove(function (userId, doc) {
             let data = {_id: doc._id, type: 'EnterBill'};
             Meteor.call('removeAccountJournal', data)
         }
-        Invoices.direct.update({refBillId: doc._id}, {$unset: {refBillId: ''}},{multi: true});
+        Invoices.direct.update({refBillId: doc._id}, {$unset: {refBillId: '',refBillDate:''}}, {multi: true});
         //End Account Integration
     });
 });
@@ -431,8 +428,8 @@ function recalculatePaymentAfterRemoved({doc}) {
 
 Meteor.methods({
     insertAccountForBill(){
-        let i=1;
-        let bills=EnterBills.find({});
+        let i = 1;
+        let bills = EnterBills.find({});
         bills.forEach(function (doc) {
 
             //Account Integration
@@ -474,5 +471,146 @@ Meteor.methods({
 
             //End Account Integration
         });
+    },
+    billUpdateInventoryWithoutInvoiceIds(){
+        let i=1;
+        let bills = EnterBills.find({invoiceId:{$exists:false}}, {sort: {enterBillDate: 1}});
+        bills.forEach(function (doc) {
+            console.log(i);
+            i++;
+            if (doc.invoiceId) {
+                //update invoice with refBillId
+                EnterBillMutation.updateInvoiceRefBillId({doc});
+                let newEnterBillItems = [];
+                let totalUnBill = 0;
+                let grandTotal = 0;
+                doc.items.forEach(function (item) {
+                    if (item.isBill == false) {
+                        item.price = StockFunction.minusAverageInventoryInsertAndReturnCostPrice(doc.branchId, item, doc.stockLocationId, 'invoice-bill', doc._id, doc.enterBillDate);
+                        item.amount = item.price * item.qty;
+                        totalUnBill += item.amount;
+                    }
+                    newEnterBillItems.push(item);
+                    grandTotal += item.amount;
+                });
+                EnterBills.direct.update(doc._id, {
+                    $set: {
+                        items: newEnterBillItems,
+                        grandTotal: grandTotal,
+                        totalUnBill: totalUnBill
+                    }
+                });
+            } else {
+                doc.items.forEach(function (item) {
+                    StockFunction.averageInventoryInsertForBill(doc.branchId, item, doc.stockLocationId, 'insert-bill', doc._id, doc.enterBillDate);
+                });
+            }
+
+
+            if (doc.total > 0) {
+                let setting = AccountIntegrationSetting.findOne();
+                if (setting && setting.integrate) {
+                    let inventoryChartAccount = AccountMapping.findOne({name: 'Inventory'});
+                    let apChartAccount = AccountMapping.findOne({name: 'A/P'});
+
+                    let transaction = [];
+                    let data = doc;
+
+                    let vendorDoc = Vendors.findOne({_id: doc.vendorId});
+                    if (vendorDoc) {
+                        data.name = vendorDoc.name;
+                        data.des = data.des == "" || data.des == null ? ("បញ្ជាទិញទំនិញពីៈ " + data.name) : data.des;
+                    }
+                    data.type = "EnterBill";
+                    transaction.push({
+                        account: inventoryChartAccount.account,
+                        dr: doc.total,
+                        cr: 0,
+                        drcr: doc.total,
+
+                    }, {
+                        account: apChartAccount.account,
+                        dr: 0,
+                        cr: doc.total,
+                        drcr: -doc.total,
+                    });
+                    /* }
+                     });*/
+                    data.transaction = transaction;
+                    data.journalDate = data.enterBillDate;
+                    Meteor.call('insertAccountJournal', data);
+                }
+            }
+
+        });
+    },
+    billUpdateInventoryWithInvoiceIds(){
+        let i=1;
+        let bills = EnterBills.find({},{sort: {_id: 1}});
+        bills.forEach(function (doc) {
+            console.log(i);
+            i++;
+            if (doc.invoiceId) {
+                //update invoice with refBillId
+                EnterBillMutation.updateInvoiceRefBillId({doc});
+                let newEnterBillItems = [];
+                let totalUnBill = 0;
+                let grandTotal = 0;
+                doc.items.forEach(function (item) {
+                    if (item.isBill == false) {
+                        item.price = StockFunction.minusAverageInventoryInsertAndReturnCostPrice(doc.branchId, item, doc.stockLocationId, 'invoice-bill', doc._id, doc.enterBillDate);
+                        item.amount = item.price * item.qty;
+                        totalUnBill += item.amount;
+                    }
+                    newEnterBillItems.push(item);
+                    grandTotal += item.amount;
+                });
+                EnterBills.direct.update(doc._id, {
+                    $set: {
+                        items: newEnterBillItems,
+                        grandTotal: grandTotal,
+                        totalUnBill: totalUnBill
+                    }
+                });
+            } else {
+                doc.items.forEach(function (item) {
+                    StockFunction.averageInventoryInsertForBill(doc.branchId, item, doc.stockLocationId, 'insert-bill', doc._id, doc.enterBillDate);
+                });
+            }
+            if (doc.total > 0) {
+                let setting = AccountIntegrationSetting.findOne();
+                if (setting && setting.integrate) {
+                    let inventoryChartAccount = AccountMapping.findOne({name: 'Inventory'});
+                    let apChartAccount = AccountMapping.findOne({name: 'A/P'});
+
+                    let transaction = [];
+                    let data = doc;
+
+                    let vendorDoc = Vendors.findOne({_id: doc.vendorId});
+                    if (vendorDoc) {
+                        data.name = vendorDoc.name;
+                        data.des = data.des == "" || data.des == null ? ("បញ្ជាទិញទំនិញពីៈ " + data.name) : data.des;
+                    }
+                    data.type = "EnterBill";
+                    transaction.push({
+                        account: inventoryChartAccount.account,
+                        dr: doc.total,
+                        cr: 0,
+                        drcr: doc.total,
+
+                    }, {
+                        account: apChartAccount.account,
+                        dr: 0,
+                        cr: doc.total,
+                        drcr: -doc.total,
+                    });
+                    /* }
+                     });*/
+                    data.transaction = transaction;
+                    data.journalDate = data.enterBillDate;
+                    Meteor.call('insertAccountJournal', data);
+                }
+            }
+        });
     }
-})
+});
