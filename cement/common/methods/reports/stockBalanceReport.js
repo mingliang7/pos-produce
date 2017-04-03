@@ -19,7 +19,7 @@ export const stockBalanceReport = new ValidatedMethod({
         if (!this.isSimulation) {
             Meteor._sleepForMs(200);
             let selector = {};
-            let invoiceSelector = {invoiceType:{$ne:'saleOrder'}};
+            let invoiceSelector = {invoiceType: {$ne: 'saleOrder'}};
             let project = {};
             let data = {
                 title: {},
@@ -34,14 +34,15 @@ export const stockBalanceReport = new ValidatedMethod({
             if (params.date) {
                 let asOfDate = moment(params.date).endOf('days').toDate();
                 data.title.date = moment(asOfDate).format('YYYY-MMM-DD');
-               selector.inventoryDate = {$lte: asOfDate};
+                selector.inventoryDate = {$lte: asOfDate};
                 invoiceSelector.$or = [
                     {refBillId: {$exists: false}, invoiceDate: {$lte: asOfDate}},
-                    {refBillId: {$exists: true},invoiceDate:{$lte:asOfDate},refBillDate: {$gt: asOfDate}},
+                    {refBillId: {$exists: true}, invoiceDate: {$lte: asOfDate}, refBillDate: {$gt: asOfDate}},
                 ]
             }
             if (params.branch) {
                 selector.branchId = {$in: params.branch.split(',')};
+                invoiceSelector.branchId= {$in: params.branch.split(',')};
             }
             if (params.items) {
                 selector.itemId = {
@@ -82,8 +83,8 @@ export const stockBalanceReport = new ValidatedMethod({
                     'unit': '$lastDoc.itemDoc._unit.name',
                     'remainQty': '$lastDoc.remainQty',
                     'amount': '$lastDoc.amount',
-                    'averagePrice':'$lastDoc.averagePrice',
-                    'lastAmount':'$lastDoc.lastAmount'
+                    'averagePrice': '$lastDoc.averagePrice',
+                    'lastAmount': '$lastDoc.lastAmount'
 
                 };
                 data.fields = [{field: 'Item'}, {field: 'Unit'}, {field: 'Price'}, {field: 'Remain QTY'}, {field: 'Amount'}];
@@ -96,7 +97,7 @@ export const stockBalanceReport = new ValidatedMethod({
             /****** Content *****/
             let inventories = AverageInventories.aggregate([
 
-               {$match: selector},
+                {$match: selector},
                 {$sort: {_id: 1, createdAt: 1}},
                 {
                     $lookup: {
@@ -175,45 +176,93 @@ export const stockBalanceReport = new ValidatedMethod({
             ]);
             let invoices = Invoices.aggregate([
                 {
-                    $match: invoiceSelector
-                },
-                // {$unwind: {path: '$items', preserveNullAndEmptyArrays: true}},
-              /*  {
-                  $project: {
-                      total: {$ifNull: ["$totalCost", "$total"]},
-                      _id: 1
-                  }
-                },*/
-                {
-                    $group: {
-                        _id: null, totalAmount: { $sum: '$total' }, totalTransportFee: { $sum: '$totalTransportFee' }
-                    }
+                    $facet: {
+                        totalInvoice: [
+                            {
+                                $match: invoiceSelector
+                            },
+                            {
+                                $group: {
+                                    _id: null,
+                                    totalAmount: {$sum: '$total'},
+                                    totalTransportFee: {$sum: '$totalTransportFee'}
+                                }
 
-                }, {
-                    $project: {
-                        _id: 0,
-                        totalAmount: {$subtract: ["$totalAmount", "$totalTransportFee"]}
+                            }, {
+                                $project: {
+                                    _id: 0,
+                                    totalAmount: {$subtract: ["$totalAmount", "$totalTransportFee"]}
+                                }
+                            }
+                        ],
+                        invoiceData: [
+                            {
+                                $match: invoiceSelector
+                            },
+                            {
+                                $unwind: {path: '$items', preserveNullAndEmptyArrays: true}
+                            },
+                            {
+                                $group: {
+                                    _id: '$items.itemId',
+                                    qty: {$sum: '$items.qty'},
+                                    amount: {$sum: '$items.amount'},
+                                    tsFee: {$sum: '$items.transportFee'},
+                                    amountCost: {$sum: {$subtract: ["$items.amount", {$multiply: ["$items.transportFee", "$items.qty"]}]}}
+                                }
+                            },
+                            {
+                                $project: {
+                                    _id: 1,
+                                    qty:1 ,
+                                    amount: 1,
+                                    tsFee: 1,
+                                    price: {$divide: ["$amount", "$qty"]},
+                                    amountCost: 1
+                                }
+                            },
+                            {
+                                $lookup: {
+                                    from: 'cement_item',
+                                    foreignField: '_id',
+                                    localField: '_id',
+                                    as: 'itemDoc'
+                                }
+                            },
+                            {
+                                $unwind: {path: '$itemDoc', preserveNullAndEmptyArrays: true}
+                            },
+                            {
+                                $group: {
+                                    _id: null,
+                                    data: {
+                                        $push: '$$ROOT'
+                                    },
+                                    totalCost: {$sum: '$amountCost'}
+                                }
+                            }
+
+                        ]
                     }
-                }
+                },
             ]);
             if (inventories.length > 0) {
                 let sortData = _.sortBy(inventories[0].data, 'item');
-                data.footer.total =inventories[0].total;
+                data.footer.total = inventories[0].total;
                 data.footer.totalRemainQty = inventories[0].totalRemainQty;
                 inventories[0].data = sortData;
                 data.content = inventories;
-                data.contentInvoice = invoices[0] ? invoices[0].data : [];
-                data.footerInvoice.totalQty = invoices[0] ? invoices[0].totalQty : 0;
-                data.footerInvoice.totalAmount = invoices[0] ? invoices[0].totalAmount : 0
-                data.footer.remainAmount = inventories[0].total - (invoices[0] ? invoices[0].totalAmount : 0)
-            }else{
+                data.contentInvoice = invoices[0].invoiceData[0] ? invoices[0].invoiceData[0].data : [];
+                data.footerInvoice.totalQty = invoices[0].totalInvoice[0] ? invoices[0].totalInvoice[0].totalQty : 0;
+                data.footerInvoice.totalAmount = invoices[0].totalInvoice[0] ? invoices[0].totalInvoice[0].totalAmount : 0;
+                data.footer.remainAmount = inventories[0].total - (invoices[0].invoiceData[0] ? invoices[0].invoiceData[0].totalCost : 0)
+            } else {
+                data.contentInvoice = invoices[0].invoiceData[0] ? invoices[0].invoiceData[0].data : [];
                 // data.contentInvoice = invoices[0] ? invoices[0].data : [];
                 // data.footerInvoice.totalQty = invoices[0] ? invoices[0].totalQty : 0;
-                data.footerInvoice.totalAmount = invoices[0] ? invoices[0].totalAmount : 0
-                data.footer.remainAmount = 0 - (invoices[0] ? invoices[0].totalAmount : 0)
-
+                data.footerInvoice.totalAmount = invoices[0].totalInvoice[0] ? invoices[0].totalInvoice[0].totalAmount : 0;
+                data.footer.remainAmount = 0 - (invoices[0].totalInvoice[0] ? invoices[0].totalInvoice[0].totalAmount : 0)
             }
-
             return data
         }
     }

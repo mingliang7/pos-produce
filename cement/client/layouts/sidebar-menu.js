@@ -125,4 +125,8 @@ Template.Cement_sidebarMenu.helpers({
     purchaseOrderDetail() {
         return `/cement/report/purchaseOrderDetailReport`;
     },
+    stockBalance() {
+        let params = `/cement/report/stockBalance?date=${moment().format('YYYY-MM-DD 23:59:59')}&branch=${Session.get('currentBranch')}`;
+        return params;
+    },
 });
