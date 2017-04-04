@@ -358,7 +358,7 @@ AutoForm.addHooks(['Cement_lendingStockItemsEdit'], hooksObject);
 
 
 var calculateTotal = function () {
-    debugger;
+     ;
     let subTotal = 0;
     let getItems = itemsCollection.find();
     getItems.forEach((obj) => {

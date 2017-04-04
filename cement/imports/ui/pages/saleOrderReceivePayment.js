@@ -436,7 +436,7 @@ indexTmpl.events({
         let discount = $(event.currentTarget).parents('invoice-parents').find('.discount').val();
         if ($(event.currentTarget).prop('checked')) {
             $(event.currentTarget).parents('.invoice-parents').find('.total').val(lastPayment == 0 ? this.total + penalty : lastPayment + penalty).change();
-            debugger
+
         } else {
             delete selectedOrder[this._id];
             selectedOrder.count -= 1;

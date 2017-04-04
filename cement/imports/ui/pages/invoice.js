@@ -894,7 +894,7 @@ let hooksObject = {
 };
 function dpChange(elem) {
     elem.on('dp.change', function (e) {
-        dateState.set(e.date.toDate());
+        dateState.set(e.date && e.date.toDate());
     });
 }
 AutoForm.addHooks([

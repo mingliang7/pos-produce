@@ -161,7 +161,7 @@ Meteor.methods({
         var alreadyUse = [];
         Categories.find(selector, {sort: {level: 1}}).forEach(function (obj) {
             if (alreadyUse.indexOf(obj._id) == -1) {
-                debugger;
+                 ;
                 pushToList(list, obj);
                 selector.parentId = obj._id;
                 var categories = Categories.find(selector);

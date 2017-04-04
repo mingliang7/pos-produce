@@ -55,7 +55,7 @@ invoiceDataTmpl.helpers({
     },
     data(){
         if (invoiceData.get()) {
-            debugger
+
             return invoiceData.get();
         }
     },

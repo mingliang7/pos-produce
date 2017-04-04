@@ -79,7 +79,7 @@ PrepaidOrders.schema = new SimpleSchema({
                 optionsMethod: 'cement.selectOptMethods.vendor',
                 optionsMethodParams: function () {
                     /* if (Meteor.isClient) {
-                     debugger
+
                      let currentBranch = Session.get('currentBranch');
                      return {branchId: currentBranch};
                      }*/

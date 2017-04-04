@@ -83,7 +83,7 @@ indexTmpl.events({
         alertify.companyExchangeRingPull(fa('cart-arrow-down', TAPi18n.__('cement.companyExchangeRingPull.title')), renderTemplate(newTmpl)).maximize();
     },
     'click .js-update' (event, instance) {
-        debugger;
+         ;
         var data = this;
         Meteor.call('isCompanyExchangeRingPullHasRelation', data._id, function (error, result) {
             if (error) {

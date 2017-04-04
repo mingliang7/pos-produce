@@ -82,10 +82,9 @@ indexTmpl.events({
         alertify.enterBill(fa('plus', TAPi18n.__('cement.enterBill.title')), renderTemplate(newTmpl)).maximize();
     },
     'click .js-update' (event, instance) {
-        debugger;
         // alertify.enterBill(fa('pencil', TAPi18n.__('cement.enterBill.title')), renderTemplate(editTmpl, this));
         let data = this;
-        if(data.invoiceId==null){
+        if (data.invoiceId == null) {
             Meteor.call('isBillHasRelation', data._id, function (error, result) {
                 if (error) {
                     alertify.error(error.message);
@@ -105,7 +104,7 @@ indexTmpl.events({
                     }
                 }
             });
-        }else{
+        } else {
             swal(
                 'Cancelled',
                 `Can't update. Invoices will miss the reference to this Bill.`,
@@ -169,9 +168,9 @@ newTmpl.onCreated(function () {
     });
 });
 // New
-newTmpl.onRendered(function(){
+newTmpl.onRendered(function () {
     RangeDate.checkMinPlusOneDay($('[name="enterBillDate"]'));
-    RangeDate.checkMinPlusOneDay($('[name="dueDate"]'));     
+    RangeDate.checkMinPlusOneDay($('[name="dueDate"]'));
 });
 newTmpl.events({
     'change [name=vendorId]'(event, instance){
@@ -311,7 +310,6 @@ newTmpl.helpers({
 });
 
 newTmpl.onDestroyed(function () {
-    debugger;
     // Remove items collection
     itemsCollection.remove({});
     Session.set('vendorInfo', undefined);
@@ -327,9 +325,9 @@ editTmpl.onCreated(function () {
         this.repOptions.set(result);
     });
 });
-editTmpl.onRendered(function(){
-    RangeDate.checkMinPlusOneDay($('[name="enterBillDate"]'));    
-    RangeDate.checkMinPlusOneDay($('[name="dueDate"]'));    
+editTmpl.onRendered(function () {
+    RangeDate.checkMinPlusOneDay($('[name="enterBillDate"]'));
+    RangeDate.checkMinPlusOneDay($('[name="dueDate"]'));
 });
 editTmpl.events({
 
@@ -510,26 +508,6 @@ showTmpl.events({
 });
 
 invoiceBillTmpl.onCreated(function () {
-    // this.selectInvoiceBillOptions = new ReactiveVar([]);
-    // this.autorun(() => {
-    //     Meteor.call('noRefBillIdInvoice',
-    //         {
-    //             selector: {
-    //                 refBillId: {$exists: false},
-    //             }
-    //         }, (err, result) => {
-    //             if (result.length > 0) {
-    //                 let list = [];
-    //                 result.forEach((invoice) => {
-    //                     list.push({
-    //                         label: `INV: ${invoice.voucherId || invoice._id} | ${invoice._customer.name} | $${numeral(invoice.total).format('0,0.00')}`,
-    //                         value: invoice._id
-    //                     });
-    //                 });
-    //                 this.selectInvoiceBillOptions.set(list);
-    //             }
-    //         });
-    // });
 });
 invoiceBillTmpl.helpers({
     schema(){
@@ -538,7 +516,6 @@ invoiceBillTmpl.helpers({
 });
 invoiceBillTmpl.events({
     'change [name="invoiceId"]'(event, instance){
-        debugger;
         let invoiceIds = $("[name='invoiceId']").val();
         let ids = invoiceIds == null ? [] : invoiceIds;
         itemsCollection.remove({});
@@ -557,12 +534,22 @@ invoiceBillTmpl.events({
             $('.items-header').addClass('hidden');
             Meteor.setTimeout(function () {
                 $('.js-destroy-item').addClass('hidden');
-                $('.item-qty').attr('readonly',true);
+                $('.item-qty').attr('readonly', true);
             }, 500);
         } else {
             $('.items-header').removeClass('hidden');
-            $('.item-qty').attr('readonly',false);
+            $('.item-qty').attr('readonly', false);
         }
+        if (invoiceIds && invoiceIds.length > 0) {
+            Meteor.call('getMinimumDateFromInvoice', invoiceIds, (err, result) => {
+                if (!err) {
+                    dpChange($('[name="enterBillDate"]'), result);
+                }
+            });
+        } else {
+            dpChange($('[name="enterBillDate"]'), null);
+        }
+
     },
     'click .addInvoiceId'(event, instance){
         let invoiceIds = $("[name='invoiceId']").val();
@@ -650,4 +637,7 @@ function excuteEditForm(doc) {
         text: "Getting Invoices....", showConfirmButton: false
     });
     alertify.invoice(fa('pencil', TAPi18n.__('cement.invoice.title')), renderTemplate(editTmpl, doc)).maximize();
+}
+function dpChange(elem, doc) {
+    elem.data("DateTimePicker").minDate(doc ? doc.invoiceDate : false);
 }

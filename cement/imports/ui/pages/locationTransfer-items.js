@@ -297,7 +297,7 @@ AutoForm.addHooks(['Cement_locationTransferItemsEdit'], hooksObject);
 
 
 var calculateTotal = function () {
-    debugger;
+     ;
     let subTotal = 0;
     let getItems = itemsCollection.find();
     getItems.forEach((obj) => {

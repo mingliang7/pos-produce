@@ -233,7 +233,7 @@ editTmpl.helpers({
 });
 
 editTmpl.onDestroyed(function () {
-    debugger;
+     ;
     // Remove items collection
     itemsCollection.remove({});
 });
@@ -274,7 +274,7 @@ let hooksObject = {
                 delete obj._id;
                 items.push(obj);
             });
-            debugger;
+             ;
             var btnType = Session.get('btnType');
             if (btnType == "save" || btnType == "save-print") {
                 doc.status = "active";

@@ -115,7 +115,7 @@ AutoForm.hooks({
                 let toDate = moment(doc.toDate).format('YYYY-MM-DD HH:mm:ss');
                 params.date = `${fromDate},${toDate}`;
             }
-            debugger
+
             if(doc.type) {
                 params.type= doc.type.join(',');
             }

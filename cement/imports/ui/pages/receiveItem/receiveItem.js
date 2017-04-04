@@ -312,7 +312,7 @@ newTmpl.helpers({
 });
 
 newTmpl.onDestroyed(function () {
-    debugger;
+     ;
     // Remove items collection
     itemsCollection.remove({});
     Session.set('vendorInfo', undefined);
@@ -532,7 +532,7 @@ showTmpl.events({
 let hooksObject = {
     before: {
         insert: function (doc) {
-            debugger;
+             ;
             let items = [];
             itemsCollection.find().forEach((obj) => {
                 delete obj._id;
@@ -635,7 +635,7 @@ listPrepaidOrder.events({
         let remainQty = $(event.currentTarget).parents('.prepaid-order-item-parents').find('.remain-qty').val();
         let prepaidOrderId = $(event.currentTarget).parents('.prepaid-order-item-parents').find('.prepaidOrderId').text().trim();
         let tmpCollection = itemsCollection.find().fetch();
-        debugger
+
         if (remainQty != '' && remainQty != '0') {
             if (this.remainQty > 0) {
                 if (tmpCollection.length > 0) {

@@ -100,7 +100,7 @@ itemsTmpl.helpers({
             key: 'isBill',
             label: __(`${i18nPrefix}.isBill.label`),
             fn(value, object, key) {
-                debugger;
+                 ;
                 if(value){
                     return Spacebars.SafeString(`<input type="checkbox" checked class="is-bill">`)
                 }else{
@@ -194,7 +194,7 @@ itemsTmpl.events({
         instance.state('amount', amount);
     },
     'click .js-add-item': function (event, instance) {
-        debugger;
+         ;
         let itemId = instance.$('[name="itemId"]').val();
         if (itemId == "") {
             sAlert.warning("Please select Item");
@@ -318,7 +318,7 @@ itemsTmpl.events({
         itemsCollection.update({itemId: itemId}, selector);
     },
     'change .is-bill'(event,instance){
-        debugger;
+         ;
         let itemId = $(event.currentTarget).parents('tr').find('.itemId').text();
         let price = $(event.currentTarget).parents('tr').find('.item-price').val();
         price=parseFloat(price);
@@ -426,7 +426,7 @@ AutoForm.addHooks(['Cement_enterBillItemsEdit'], hooksObject);
 
 
 let calculateTotal = function () {
-    debugger;
+     ;
     let subTotal = 0;
     let getItems = itemsCollection.find();
     getItems.forEach((obj) => {

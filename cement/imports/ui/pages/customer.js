@@ -238,7 +238,7 @@ showTmpl.helpers({
 //receive payment
 Template.Cement_customerButtonAction.helpers({
     checkIfInvoiced(){
-        debugger
+
     }
 });
 // Hook
