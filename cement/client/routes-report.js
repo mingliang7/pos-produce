@@ -587,3 +587,18 @@ CementRoutes.route('/report/purchaseOrderDetailReport', {
         parent: 'cement.mainReport'
     }
 });
+
+import '../imports/ui/reports/vendorTermHistory';
+CementRoutes.route('/report/vendorTermHistory', {
+    name: 'cement.vendorTermHistory',
+    title: 'Vendor Term History',
+    action: function (params, queryParams) {
+        Layout.customReportLayout('Cement_vendorTermHistory');
+    },
+    breadcrumb:{
+        // params:['vendorId'],
+        title: 'Vendor Term History Report',
+        // icon: 'cart-plus',
+        parent: 'cement.mainReport'
+    }
+});
