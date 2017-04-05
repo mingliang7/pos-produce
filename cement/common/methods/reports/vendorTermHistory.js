@@ -144,9 +144,9 @@ export const vendorTermHistoryReport = new ValidatedMethod({
                 },
                 {
                     $lookup: {
-                        from: "cement_enterBills",
+                        from: "cement_payBill",
                         localField: "_id",
-                        foreignField: "invoiceId",
+                        foreignField: "billId",
                         as: "paymentDoc"
                     }
                 }
@@ -164,6 +164,7 @@ export const vendorTermHistoryReport = new ValidatedMethod({
                             inv: true,
                             date: moment(doc.enterBillDate).toDate(),
                             paidAmount: 0,
+                            des: '',
                             balance: 0,
                             items: doc.items,
                             total: doc.total
@@ -177,6 +178,7 @@ export const vendorTermHistoryReport = new ValidatedMethod({
                         inv: true,
                         date: moment(doc.enterBillDate).toDate(),
                         paidAmount: 0,
+                        des: '',
                         balance: 0,
                         items: doc.items,
                         total: doc.total
@@ -188,30 +190,33 @@ export const vendorTermHistoryReport = new ValidatedMethod({
                     let paymentDate = moment(payment.paymentDate);
                     if (paymentDate.isSameOrBefore(queryDate)) {
                         let groupPayDate = moment(payment.paymentDate).format('MM-YYYY');
+                        let discount = payment.discount + payment.cod + payment.benefit;
                         if (!groupDateObj[groupPayDate]) {
                             groupDateObj[groupPayDate] = {
                                 vendor: doc.vendorDoc,
                                 date: moment(payment.paymentDate).toDate(),
                                 data: [{
                                     _id: payment._id,
-                                    invoiceId: payment.invoiceId,
+                                    invoiceId: payment.billId,
                                     voucherId: payment.voucherId,
                                     type: 'receive-payment',
                                     rp: true,
+                                    des: discount > 0 ? 'Discount: ' + discount + ` + PaidAmount: ${payment.paidAmount}`: '',
                                     date: moment(formatPaymentDate).toDate(),
-                                    paidAmount: payment.paidAmount,
+                                    paidAmount: payment.paidAmount + discount,
                                     balance: payment.balanceAmount
                                 }]
                             }
                         } else {
                             groupDateObj[groupPayDate].data.push({
                                 _id: payment._id,
-                                invoiceId: payment.invoiceId,
+                                invoiceId: payment.billId,
                                 voucherId: payment.voucherId,
                                 type: 'receive-payment',
                                 rp: true,
+                                des: discount > 0 ? 'Discount ' + discount + `+ PaidAmount: ${payment.paidAmount}`: '',
                                 date: moment(formatPaymentDate).toDate(),
-                                paidAmount: payment.paidAmount,
+                                paidAmount: payment.paidAmount + discount,
                                 balance: payment.balanceAmount
                             })
                         }

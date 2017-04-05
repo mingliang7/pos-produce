@@ -196,6 +196,7 @@ invoiceDataTmpl.helpers({
 
 Template.vendorTermHistoryShowRp.helpers({
     data(){
+        console.log(this);
         return this;
     }
 });
