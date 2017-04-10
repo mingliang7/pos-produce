@@ -1395,5 +1395,172 @@ Meteor.methods({
             //End Account Integration
         });
 
+    },
+    insertAccountInvoiceFirstCorrect(){
+        let i = 1;
+        let invoices = Invoices.find({refBillId:{$exists:false},'items.itemId':'0000015'});
+        invoices.forEach(function (doc) {
+            console.log(i++);
+            let des = "វិក្កយបត្រ អតិថិជនៈ ";
+            let setting = AccountIntegrationSetting.findOne();
+            let transaction = [];
+            let totalRemain = 0;
+            let accountRefType = 'Invoice';
+            if (doc.invoiceType == 'term') {
+                accountRefType = 'Invoice';
+                if (setting && setting.integrate) {
+                    let ARChartAccount = AccountMapping.findOne({name: 'A/R'});
+                    let saleIncomeChartAccount = AccountMapping.findOne({name: 'Sale Income'});
+                    let inventoryChartAccount = AccountMapping.findOne({name: 'Inventory'});
+                    let COGSChartAccount = AccountMapping.findOne({name: 'COGS'});
+                    let transportRevChartAccount = AccountMapping.findOne({name: 'Transport Revenue'});
+                    let transportExpChartAccount = AccountMapping.findOne({name: 'Transport Expense'});
+                    let TransportAPChartAccount = AccountMapping.findOne({name: 'Transport Payable'});
+                    let saleDiscountChartAccount = AccountMapping.findOne({name: 'Sale Discount'});
+
+                    transaction.push(
+                        {
+                            account: ARChartAccount.account,
+                            dr: doc.total - doc.totalDiscount,
+                            cr: 0,
+                            drcr: doc.total - doc.totalDiscount
+                        },
+                        {
+                            account: saleIncomeChartAccount.account,
+                            dr: 0,
+                            cr: doc.total - doc.totalTransportFee,
+                            drcr: -(doc.total - doc.totalTransportFee)
+                        },
+                    );
+                    if (doc.totalTransportFee > 0) {
+                        transaction.push(
+                            {
+                                account: transportRevChartAccount.account,
+                                dr: 0,
+                                cr: doc.totalTransportFee,
+                                drcr: -doc.totalTransportFee,
+                            },
+                        );
+                    }
+
+                    if (doc.totalTransportFee > 0) {
+                        transaction.push(
+                            {
+                                account: transportExpChartAccount.account,
+                                dr: doc.totalTransportFee,
+                                cr: 0,
+                                drcr: doc.totalTransportFee,
+                            },
+
+                            {
+                                account: TransportAPChartAccount.account,
+                                dr: 0,
+                                cr: doc.totalTransportFee,
+                                drcr: -doc.totalTransportFee,
+                            },
+                        );
+                    }
+                    if (doc.totalDiscount > 0) {
+                        transaction.push({
+                                account: saleDiscountChartAccount.account,
+                                dr: doc.totalDiscount,
+                                cr: 0,
+                                drcr: doc.totalDiscount,
+                            }
+                        );
+                    }
+                }
+                //End Account Integration
+            }
+            else {
+
+                accountRefType = 'Invoice';
+
+                //Account Integration
+                if (setting && setting.integrate) {
+                    let ARChartAccount = AccountMapping.findOne({name: 'A/R'});
+                    let saleIncomeChartAccount = AccountMapping.findOne({name: 'Sale Income'});
+                    let inventoryChartAccount = AccountMapping.findOne({name: 'Inventory'});
+                    let COGSChartAccount = AccountMapping.findOne({name: 'COGS'});
+                    let transportRevChartAccount = AccountMapping.findOne({name: 'Transport Revenue'});
+                    let transportExpChartAccount = AccountMapping.findOne({name: 'Transport Expense'});
+                    let TransportAPChartAccount = AccountMapping.findOne({name: 'Transport Payable'});
+                    let saleDiscountChartAccount = AccountMapping.findOne({name: 'Sale Discount'});
+
+                    transaction.push(
+                        {
+                            account: ARChartAccount.account,
+                            dr: doc.total - doc.totalDiscount,
+                            cr: 0,
+                            drcr: doc.total - doc.totalDiscount
+                        },
+                        {
+                            account: saleIncomeChartAccount.account,
+                            dr: 0,
+                            cr: doc.total - doc.totalTransportFee,
+                            drcr: -(doc.total - doc.totalTransportFee)
+                        },
+                    );
+                    if (doc.totalTransportFee > 0) {
+                        transaction.push(
+                            {
+                                account: transportRevChartAccount.account,
+                                dr: 0,
+                                cr: doc.totalTransportFee,
+                                drcr: -doc.totalTransportFee,
+                            },
+                        );
+                    }
+
+
+                    if (doc.totalTransportFee > 0) {
+                        transaction.push(
+                            {
+                                account: transportExpChartAccount.account,
+                                dr: doc.totalTransportFee,
+                                cr: 0,
+                                drcr: doc.totalTransportFee,
+                            },
+
+                            {
+                                account: TransportAPChartAccount.account,
+                                dr: 0,
+                                cr: doc.totalTransportFee,
+                                drcr: -doc.totalTransportFee,
+                            },
+                        );
+                    }
+                    if (doc.totalDiscount > 0) {
+                        transaction.push({
+                                account: saleDiscountChartAccount.account,
+                                dr: doc.totalDiscount,
+                                cr: 0,
+                                drcr: doc.totalDiscount,
+                            }
+                        );
+                    }
+
+
+                }
+                //End Account Integration
+            }
+            //Account Integration
+            if (setting && setting.integrate) {
+                let data = doc;
+                data.type = accountRefType;
+
+                let customerDoc = Customers.findOne({_id: doc.customerId});
+                if (customerDoc) {
+                    data.name = customerDoc.name;
+                    data.des = data.des == "" || data.des == null ? (des + data.name) : data.des;
+                }
+
+                data.transaction = transaction;
+                data.journalDate = data.invoiceDate;
+                Meteor.call('updateAccountJournal', data);
+            }
+            //End Account Integration
+        });
+
     }
 })

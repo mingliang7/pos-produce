@@ -255,7 +255,7 @@ export const stockBalanceReport = new ValidatedMethod({
                 data.contentInvoice = invoices[0].invoiceData[0] ? invoices[0].invoiceData[0].data : [];
                 data.footerInvoice.totalQty = invoices[0].totalInvoice[0] ? invoices[0].totalInvoice[0].totalQty : 0;
                 data.footerInvoice.totalAmount = invoices[0].totalInvoice[0] ? invoices[0].totalInvoice[0].totalAmount : 0;
-                data.footer.remainAmount = inventories[0].total - (invoices[0].invoiceData[0] ? invoices[0].invoiceData[0].totalCost : 0)
+                data.footer.remainAmount = math.round(inventories[0].total,2) - math.round((invoices[0].invoiceData[0] ? invoices[0].invoiceData[0].totalCost : 0),2)
             } else {
                 data.contentInvoice = invoices[0].invoiceData[0] ? invoices[0].invoiceData[0].data : [];
                 // data.contentInvoice = invoices[0] ? invoices[0].data : [];

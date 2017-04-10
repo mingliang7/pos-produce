@@ -65,16 +65,16 @@
         <table>
             <tbody>
             <tr>
-                <td class="text-left" style="padding: 5px;"><u>Customer:</u></td>
-                <td class="text-left" style="padding: 5px;"><u>{{data.title.vendorTerm.name}}</u></td>
+                <td class="text-left" style="padding: 5px;"><u>Vendor:</u></td>
+                <td class="text-left" style="padding: 5px;"><u>{{data.title.vendor.name}}</u></td>
             </tr>
             <tr >
                 <td class="text-left" style="padding: 5px;"><u>Telephone:</u></td>
-                <td class="text-left" style="padding: 5px;"><u>{{data.title.vendorTerm.telephone}}</u></td>
+                <td class="text-left" style="padding: 5px;"><u>{{data.title.vendor.telephone}}</u></td>
             </tr>
             <tr>
                 <td class="text-left" style="padding: 5px;"><u>Address:</u></td>
-                <td class="text-left" style="padding: 5px;"><u>{{data.title.vendorTerm.address}}</u></td>
+                <td class="text-left" style="padding: 5px;"><u>{{data.title.vendor.address}}</u></td>
             </tr>
             </tbody>
         </table>
@@ -108,7 +108,7 @@
                         {{#each col in field.data}}
                             <tr>
                                 {{#if col.inv}}
-                                    <!--<td>{{field.vendorTerm.name}}</td>-->
+                                    <!--<td>{{field.vendor.name}}</td>-->
                                     <td>
                                         {{moFormat col.date 'DD/MM/YYYY'}}
                                     </td>
@@ -125,12 +125,12 @@
                                     </td>
                                 {{else}}
                                     {{#if firstIndex @index col.date field.data}}
-                                        <td><a style="cursor: pointer;" class="displayRp" value="{{col.date}}">Receive Payment</a></td>
+                                        <td><a style="cursor: pointer;" class="displayRp" value="{{col.date}}">PAY BILL</a></td>
                                     {{/if}}
                                 {{/if}}
 
                                 {{#if col.inv}}
-                                    <td>INV</td>
+                                    <td>BILL</td>
                                 {{/if}}
                                 {{#if col.inv}}
                                     {{#each item in col.firstItem}}
@@ -208,6 +208,7 @@
         <th>ID</th>
         <th>Invoice ID</th>
         <th>Invoice Number</th>
+        <th>Description</th>
         <th>Date</th>
         <th class="text-center">Paid</th>
         <th class="text-center">Balance</th>
@@ -218,6 +219,7 @@
                 <td>{{_id}}</td>
                 <td>{{invoiceId}}</td>
                 <td>{{voucherId}}</td>
+                <td>{{des}}</td>
                 <td>{{moFormat date 'DD/MM/YYYY'}}</td>
                 <td class="text-right">{{numFormat paidAmount '0,0.00'}}</td>
                 <td class="text-right">{{numFormat balanceAmount '0,0.00'}}</td>
