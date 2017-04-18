@@ -639,5 +639,5 @@ function excuteEditForm(doc) {
     alertify.invoice(fa('pencil', TAPi18n.__('cement.invoice.title')), renderTemplate(editTmpl, doc)).maximize();
 }
 function dpChange(elem, doc) {
-    elem.data("DateTimePicker").minDate(doc ? doc.invoiceDate : false);
+    elem.data("DateTimePicker").minDate(doc ? moment(doc.invoiceDate).startOf('days').toDate() : false);
 }
