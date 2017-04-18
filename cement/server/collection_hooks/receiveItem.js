@@ -173,7 +173,7 @@ ReceiveItems.after.update(function (userId, doc, fieldNames, modifier, options) 
         doc.total = total;
         //Account Integration
         if (setting && setting.integrate) {
-            let inventoryChartAccount = AccountMapping.findOne({name: 'Inventory'});
+            let inventoryChartAccount = AccountMapping.findOne({name: 'Inventory SO'});
             let lostInventoryChartAccount = AccountMapping.findOne({name: 'Lost Inventory'});
 
             transaction.push({
