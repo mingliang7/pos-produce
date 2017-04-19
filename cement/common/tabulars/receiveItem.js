@@ -21,6 +21,7 @@ tabularOpts.collection = ReceiveItems;
 tabularOpts.columns = [
     {title: '<i class="fa fa-bars"></i>', tmpl: Meteor.isClient && Template.Cement_receiveItemAction},
     {data: "_id", title: "ID"},
+    {data: "voucherId", title: "Voucher"},
     {data: "purchaseOrderId", title: "POID"},
     {
         data: "receiveItemDate",

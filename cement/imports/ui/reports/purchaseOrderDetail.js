@@ -116,6 +116,9 @@ invoiceDataTmpl.helpers({
         }
     },
     concatInvoiceId(val){
+        if(val && val.length <= 8){
+            return val;
+        }
         return val.substr(val.length - 10, val.length - 1);
     },
     company(){
