@@ -132,4 +132,7 @@ Template.Cement_sidebarMenu.helpers({
         let params = `/cement/report/stockBalance?date=${moment().format('YYYY-MM-DD 23:59:59')}&branch=${Session.get('currentBranch')}`;
         return params;
     },
+    stockDetail(){
+        return `/cement/report/stockDetail?date=${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')},${moment().endOf('days').format('YYYY-MM-DD HH:mm:ss')}&branch=${Session.get('currentBranch')}`;
+    }
 });

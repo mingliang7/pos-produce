@@ -95,7 +95,7 @@
                     {{#each invoice in col.invoices}}
                         <tr>
                             {{{reduceField}}}
-                            <td>{{moFormat invoice.enterBillDate 'YYYY-MM-DD'}}</td>
+                            <td>{{moFormat invoice.enterBillDate 'DD/MM/YYYY'}}</td>
                             <td>{{invoice.voucherId}}</td>
                             <td text-align="justify">
                             {{#each item in invoice.items}}

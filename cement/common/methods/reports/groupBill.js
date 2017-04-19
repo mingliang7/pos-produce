@@ -28,14 +28,14 @@ export const groupBillReport = new ValidatedMethod({
             };
             let branch = [];
             let sortObj = {};
-            let sortOrder = params.sortOrder && parseInt(params.sortOrder) || -1;
+            let sortOrder = params.sortOrder && parseInt(params.sortOrder) || 1;
             let user = Meteor.users.findOne(Meteor.userId());
             // console.log(user);
             // let date = _.trim(_.words(params.date, /[^To]+/g));
-            if(params.status){
+            if (params.status) {
                 selector.status = {$in: params.status.split(',')};
             }
-            if(params.vendor && params.vendor != '') {
+            if (params.vendor && params.vendor != '') {
                 selector.vendorOrCustomerId = params.vendor;
             }
             if (params.date) {
@@ -75,9 +75,9 @@ export const groupBillReport = new ValidatedMethod({
             /****** Title *****/
             data.title.company = Company.findOne();
             /****** Content *****/
-            if(params.sortBy) {
+            if (params.sortBy) {
                 sortObj[`invoices.${params.sortBy}`] = sortOrder;
-            }else{
+            } else {
                 sortObj = {_id: sortOrder}
             }
             let groups = GroupBill.aggregate([
@@ -107,7 +107,7 @@ export const groupBillReport = new ValidatedMethod({
                             $last: {
                                 _id: '$invoices._id',
                                 voucherId: '$invoices.voucherId',
-                                invoiceId: '$invoices.invoiceId', 
+                                invoiceId: '$invoices.invoiceId',
                                 enterBillDate: '$invoices.enterBillDate',
                                 total: '$invoices.total'
                             }
@@ -119,7 +119,7 @@ export const groupBillReport = new ValidatedMethod({
                     $project: {
                         _id: 1,
                         vendorOrCustomerId: 1,
-                        startDate: 1, 
+                        startDate: 1,
                         endDate: 1,
                         total: 1,
                         status: 1,
@@ -137,7 +137,7 @@ export const groupBillReport = new ValidatedMethod({
                     $group: {
                         _id: '$_id._id',
                         vendorOrCustomerId: {$last: '$vendorOrCustomerId'},
-                        startDate:{$last: '$startDate'},
+                        startDate: {$last: '$startDate'},
                         endDate: {$last: '$endDate'},
                         total: {$last: '$total'},
                         status: {$last: '$status'},
@@ -162,12 +162,12 @@ export const groupBillReport = new ValidatedMethod({
                             $addToSet: project
                         },
                         invoices: {
-                            $addToSet: '$invoices'
+                            $push: '$invoices'
                         }
                     }
-                }, {
-                    $sort: {_id: 1}
-                }]);
+                },
+                {$sort: {_id: 1}}
+            ]);
             let total = GroupBill.aggregate([
                 {
                     $match: selector
@@ -181,8 +181,6 @@ export const groupBillReport = new ValidatedMethod({
                     }
                 }]);
             if (groups.length > 0) {
-                let sortData = _.sortBy(groups[0].data, '_id');
-                groups[0].data = sortData;
                 data.content = groups;
                 data.footer.total = total[0].total;
             }
