@@ -97,8 +97,8 @@ export const groupBillReportSchema = new SimpleSchema({
             type: 'select',
             options(){
                 return [
-                    {label: 'Asc', value: '-1'},
-                    {label: 'Desc', value: '1'},
+                    {label: 'Asc', value: '1'},
+                    {label: 'Desc', value: '-1'},
                 ]
             }
         }

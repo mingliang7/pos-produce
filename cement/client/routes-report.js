@@ -602,3 +602,17 @@ CementRoutes.route('/report/vendorTermHistory', {
         parent: 'cement.mainReport'
     }
 });
+
+import '../imports/ui/reports/stockDetailReport';
+CementRoutes.route('/report/stockDetail', {
+    name: 'cement.stockDetail',
+    title: 'Stock Detail',
+    action: function (params, queryParams) {
+        Layout.customReportLayout('Cement_stockDetailReport');
+    },
+    breadcrumb: {
+        title: 'Stock Detail',
+        icon: '',
+        parent: 'pos.home'
+    }
+});
