@@ -616,3 +616,18 @@ CementRoutes.route('/report/stockDetail', {
         parent: 'pos.home'
     }
 });
+
+import '../imports/ui/reports/enterBillByItem';
+CementRoutes.route('/report/enterBillByItemReport', {
+    name: 'cement.enterBillByReport',
+    title: 'Enter Bill By Item Report',
+    action: function (params, queryParams) {
+        Layout.customReportLayout('Cement_enterBillByItemReport');
+    },
+    breadcrumb:{
+        // params:['vendorId'],
+        title: 'Enter Bill By Item Report',
+        // icon: 'cart-plus',
+        parent: 'cement.mainReport'
+    }
+});
