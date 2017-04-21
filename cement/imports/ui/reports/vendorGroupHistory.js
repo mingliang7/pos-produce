@@ -104,6 +104,26 @@ invoiceDataTmpl.helpers({
         let doc = Session.get('currentUserStockAndAccountMappingDoc');
         return doc.company;
     },
+    hasFilterDate(date){
+        let paramsFilterDate = FlowRouter.query.get('filterDate');
+        let startDate;
+        let endDate;
+        if(paramsFilterDate){
+            startDate = moment(paramsFilterDate).startOf('months').format('YYYY-MM-DD');
+            endDate = moment(paramsFilterDate).endOf('months').format('YYYY-MM-DD');
+        }
+        let currentViewDate = moment(date);
+        console.log(currentViewDate.isSameOrBefore(endDate))
+        debugger
+        if (paramsFilterDate) {
+            if (currentViewDate.isSameOrAfter(startDate) && currentViewDate.isSameOrBefore(endDate)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        return true;
+    },
 });
 
 
@@ -121,6 +141,9 @@ AutoForm.hooks({
             }
             if (doc.filter) {
                 params.filter = doc.filter.join(',');
+            }
+            if (doc.filterDate) {
+                params.filterDate = moment(doc.filterDate).endOf('days').format('YYYY-MM-DD HH:mm:ss');
             }
             FlowRouter.query.set(params);
             paramsState.set(FlowRouter.query.params());

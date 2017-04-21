@@ -5,6 +5,19 @@ import {SelectOpts} from '../../../../../core/imports/ui/libs/select-opts.js';
 
 
 export const vendorGroupHistorySchema = new SimpleSchema({
+    filterDate: {
+        type: Date,
+        optional: true,
+        autoform: {
+            afFieldInput: {
+                type: "bootstrap-datetimepicker",
+                dateTimePickerOptions: {
+                    format: 'MM/YYYY',
+
+                }
+            }
+        }
+    },
     asDate: {
         type: Date,
         defaultValue: moment().toDate(),

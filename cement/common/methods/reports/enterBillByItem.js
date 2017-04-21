@@ -78,9 +78,6 @@ export const enterBillByItemReport = new ValidatedMethod({
                 {field: '<th>Item</th>'},
                 {field: '<th class="text-center">Qty</th>'},
                 {field: '<th class="text-center">Price</th>'},
-                {field: '<th class="text-center">TSFee</th>'},
-                {field: '<th class="text-center">SubAmount</th>'},
-                {field: '<th class="text-center">TSAMount</th>'},
                 {field: '<th class="text-center">Amount</th>'}];
             data.displayFields = [
                 {field: 'date'},
@@ -91,16 +88,12 @@ export const enterBillByItemReport = new ValidatedMethod({
                 {field: 'itemName'},
                 {field: 'qty'},
                 {field: 'price'},
-                {field: 'tsFee'},
-                {field: 'subAmount'},
-                {field: 'tsFeeAmount'},
                 {field: 'amount'}];
 
             // project['$enterBill'] = 'Invoice';
             /****** Title *****/
             data.title.company = Company.findOne();
             /****** Content *****/
-            console.log(sortObj);
             let enterBills = EnterBills.aggregate([
                 {
                     $match: selector

@@ -182,14 +182,14 @@ invoiceDataTmpl.helpers({
         string += `<td><u>Total:</u></td><td><u>${numeral(total).format('0,0.00')}</u></td>`;
         return string;
     },
-    getTotalFooter(totalSubAmount, totalTsFeeAmount, totalQty, total, n){
+    getTotalFooter(totalQty, total, n){
         let qty = totalQty ? totalQty : '';
         let string = '';
         let fieldLength = this.displayFields.length - n;
         for (let i = 0; i < fieldLength; i++) {
             string += '<td></td>'
         }
-        string += `<td><b>Total:</b></td><td class="text-right"><b>${numeral(qty).format('0,0.00')}</b></td><td colspan="2"></td><td class="text-right"><b>${numeral(totalSubAmount).format('0,0.00')}$</b></td><td class="text-right"><b>${numeral(totalTsFeeAmount).format('0,0.00')}$</b></td><td class="text-right"><b>${numeral(total).format('0,0.00')}$</b></td>`;
+        string += `<td><b>Total:</b></td><td class="text-right"><b>${numeral(qty).format('0,0.00')}</b></td><td colspan="1"></td><td class="text-right"><b>${numeral(total).format('0,0.00')}$</b></td>`;
         return string;
     },
     capitalize(customerName){
@@ -226,9 +226,6 @@ AutoForm.hooks({
             }
             if(doc.itemId){
                 params.itemId = doc.itemId;
-            }
-            if(doc.sortBy){
-                params.sortBy = doc.sortBy;
             }
             FlowRouter.query.set(params);
             paramsState.set(FlowRouter.query.params());

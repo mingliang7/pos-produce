@@ -120,17 +120,5 @@ export const enterBillByItemSchema = new SimpleSchema({
         autoform: {
             type: 'boolean-select'
         }
-    },
-    sortBy: {
-        type: String,
-        autoform: {
-            type: 'select2',
-            options(){
-                return [
-                    {label: 'Date', value: 'date'},
-                    {label: 'Item', value: 'itemName'},
-                ]
-            }
-        }
     }
 });
