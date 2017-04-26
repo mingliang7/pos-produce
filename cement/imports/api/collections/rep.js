@@ -38,7 +38,7 @@ Reps.schema = new SimpleSchema({
             }
         }
     },
-    cementition: {
+    position: {
         type: String,
         autoform: {
             type: "universe-select",
@@ -46,7 +46,7 @@ Reps.schema = new SimpleSchema({
                 uniPlaceholder: 'Select One',
             },
             options: function () {
-                return SelectOpts.cementition();
+                return SelectOpts.position();
             }
         }
     },
@@ -85,7 +85,7 @@ Reps.schema = new SimpleSchema({
         type: String
     }
 });
-
+export const RepsSchema = Reps.schema;
 Meteor.startup(function () {
     Reps.schema.i18n("cement.Reps.schema");
     Reps.attachSchema(Reps.schema);

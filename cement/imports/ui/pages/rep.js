@@ -24,6 +24,7 @@ import '../../../../core/client/components/form-footer.js';
 
 // Collection
 import {Reps} from '../../api/collections/rep.js';
+import {RepsSchema} from '../../api/collections/rep.js';
 
 // Tabular
 import {RepTabular} from '../../../common/tabulars/rep.js';
@@ -47,7 +48,7 @@ indexTmpl.onCreated(function () {
 
     // Reactive table filter
     this.filter = new ReactiveTable.Filter('cement.repByBranchFilter', ['branchId']);
-    this.autorun(()=> {
+    this.autorun(() => {
         this.filter.set(Session.get('currentBranch'));
     });
 });
@@ -102,14 +103,14 @@ newTmpl.helpers({
 
 // Edit
 editTmpl.onCreated(function () {
-    this.autorun(()=> {
+    this.autorun(() => {
         this.subscribe('cement.rep', {_id: this.data._id});
     });
 });
 
 editTmpl.helpers({
-    collection(){
-        return Reps;
+    schema(){
+        return RepsSchema;
     },
     data () {
         let data = Reps.findOne(this._id);
@@ -119,7 +120,7 @@ editTmpl.helpers({
 
 // Show
 showTmpl.onCreated(function () {
-    this.autorun(()=> {
+    this.autorun(() => {
         this.subscribe('cement.rep', {_id: this.data._id});
     });
 });
@@ -136,19 +137,34 @@ showTmpl.helpers({
 });
 
 // Hook
-let hooksObject = {
-    onSuccess (formType, result) {
-        if (formType == 'update') {
-            alertify.rep().close();
-        }
-        displaySuccess();
-    },
-    onError (formType, error) {
-        displayError(error.message);
-    }
-};
 
-AutoForm.addHooks([
-    'Cement_repNew',
-    'Cement_repEdit'
-], hooksObject);
+AutoForm.hooks({
+    Cement_repNew: {
+        onSuccess(formType, result){
+            displaySuccess();
+        },
+        onError (formType, error) {
+            displayError(error.message);
+        }
+    },
+    Cement_repEdit: {
+        onSubmit: function (insertDoc, updateDoc, doc) {
+            let repId = $('#rep-id').val();
+            Meteor.call('updateRep', repId, updateDoc, (err, result) => {
+                displaySuccess();
+                alertify.rep().close();
+            });
+            return false;
+        },
+        onSuccess (formType, result) {
+            if (formType == 'update') {
+                alertify.rep().close();
+            }
+            displaySuccess();
+
+        },
+        onError (formType, error) {
+            displayError(error.message);
+        }
+    }
+});

@@ -19,6 +19,9 @@ Meteor.methods({
             });
         }
         return {repList, termList};
+    },
+    updateRep(_id, obj){
+        Reps.direct.update(_id, obj);
     }
 });
 

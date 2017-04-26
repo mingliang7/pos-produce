@@ -32,7 +32,7 @@
         margin: 0 auto;
     }
     .dropdown.dropdown-lg {
-        cementition: static !important;
+        position: static !important;
     }
     .dropdown.dropdown-lg .dropdown-menu {
         min-width: 500px;

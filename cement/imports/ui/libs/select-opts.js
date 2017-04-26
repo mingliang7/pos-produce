@@ -84,7 +84,7 @@ export const SelectOpts = {
             {label: "Disable", value: "Disable"}
         ];
     },
-    cementition: function () {
+    position: function () {
         return [
             {label: "(Select One)", value: ""},
             {label: "Seller", value: "Seller"},

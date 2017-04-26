@@ -27,7 +27,7 @@
                 <div class="col-md-6">
                     {{> afQuickField name='name'}}
                     {{> afQuickField name='gender'}}
-                    {{> afQuickField name='cementition'}}
+                    {{> afQuickField name='position'}}
                     {{> afQuickField name='salary'}}
                     {{> afQuickField name='status'}}
                 </div>
@@ -48,30 +48,27 @@
 <!--Update-->
 <template name="Cement_repEdit">
     <div class="box-body">
-        {{#if Template.subscriptionsReady}}
-            {{#autoForm collection=collection id="Cement_repEdit" doc=data type="update"}}
-                <div class="row">
-                    <div class="col-md-6">
-                        {{> afQuickField name='name'}}
-                        {{> afQuickField name='gender'}}
-                        {{> afQuickField name='cementition'}}
-                        {{> afQuickField name='salary'}}
-                        {{> afQuickField name='status'}}
-                    </div>
-                    <div class="col-md-6">
-                        {{> afQuickField name='startDate'}}
-                        {{> afQuickField name='telephone'}}
-                        {{> afQuickField name='email'}}
-                        {{> afQuickField name='address' rows=3}}
-                        {{> afQuickField type="hidden" name='branchId' value=currentBranch}}
-                    </div>
+        {{#autoForm schema=schema id="Cement_repEdit" doc=data}}
+            <div class="row">
+                <div class="col-md-6">
+                    <input type="hidden" value="{{_id}}" id="rep-id">
+                    {{> afQuickField name='name'  readonly="true"}}
+                    {{> afQuickField name='gender'}}
+                    {{> afQuickField name='position'}}
+                    {{> afQuickField name='salary'}}
+                    {{> afQuickField name='status'}}
                 </div>
+                <div class="col-md-6">
+                    {{> afQuickField name='startDate'}}
+                    {{> afQuickField name='telephone'}}
+                    {{> afQuickField name='email'}}
+                    <!--{{> afQuickField name='address' rows=3}}-->
+                    {{> afQuickField type="hidden" name='branchId' value=currentBranch}}
+                </div>
+            </div>
 
-                {{> formFooterWithButton}}
-            {{/autoForm}}
-        {{else}}
-            {{> loading}}
-        {{/if}}
+            {{> formFooterWithButton}}
+        {{/autoForm}}
     </div>
 </template>
 
@@ -87,8 +84,8 @@
                     <dd>{{name}}</dd>
                     <dt>{{_ (i18nLabel "gender")}}</dt>
                     <dd>{{gender}}</dd>
-                    <dt>{{_ (i18nLabel "cementition")}}</dt>
-                    <dd>{{cementition}}</dd>
+                    <dt>{{_ (i18nLabel "position")}}</dt>
+                    <dd>{{position}}</dd>
                     <dt>{{_ (i18nLabel "startDate")}}</dt>
                     <dd>{{moFormat startDate "DD/MM/YYYY"}}</dd>
                     <dt>{{_ (i18nLabel "salary")}}</dt>

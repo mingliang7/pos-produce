@@ -23,8 +23,10 @@ tabularOpts.columns = [
     {title: '<i class="fa fa-bars"></i>', tmpl: Meteor.isClient && Template.Cement_repAction},
     {data: "_id", title: "ID"},
     {data: "name", title: "Name"},
+    {data: "position", title: "Position"},
     {data: "gender", title: "Gender"},
     {data: "telephone", title: "Telephone"},
     {data: "email", title: "Email"}
 ];
+tabularOpts.extraFields = ['status', "startDate", "salary"];
 export const RepTabular = new Tabular.Table(tabularOpts);

@@ -47,7 +47,7 @@
     /*background: #e54a1a url(http://keenthemes.com/assets/bootsnipp/toggle-icons.png) no-repeat 6px 10px;*/
     border-radius: 50%;
     margin-right: 10px;
-    cementition: relative;
+    position: relative;
     top: 4px;
 }
 .panel-default .collapsed:before {
