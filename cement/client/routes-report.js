@@ -613,7 +613,7 @@ CementRoutes.route('/report/stockDetail', {
     breadcrumb: {
         title: 'Stock Detail',
         icon: '',
-        parent: 'pos.home'
+        parent: 'cement.home'
     }
 });
 

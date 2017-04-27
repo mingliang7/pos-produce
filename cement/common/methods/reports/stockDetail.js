@@ -144,7 +144,7 @@ export const stockDetailReportMethod = new ValidatedMethod({
                                 $project: projectionField({
                                     description: {$ifNull: ["$invoiceDescription", 'លក់ចេញ(Invoice)']},
                                     number: {$ifNull: ['$invoiceDoc.voucherId', '$invoiceDoc._id']},
-                                    name: '$invoiceDoc._customer.name',
+                                    name: {$ifNull: ['$invoiceDoc._customer.name', "Removed Invoice"]},
                                     rep: '$invoiceDoc._rep.name',
                                     item: '$itemDoc',
                                     opDate: '$invoiceDoc.invoiceDate'
@@ -203,7 +203,7 @@ export const stockDetailReportMethod = new ValidatedMethod({
                                 $project: projectionField({
                                     description: {$ifNull: ["$invoiceDescription", 'Free Item(Invoice)']},
                                     number: {$ifNull: ['$invoiceDoc.voucherId', '$invoiceDoc._id']},
-                                    name: '$invoiceDoc._customer.name',
+                                    name: {$ifNull: ['$invoiceDoc._customer.name', 'Removed Invoice-Free']},
                                     rep: '$invoiceDoc._rep.name',
                                     item: '$itemDoc',
                                     opDate: '$invoiceDoc.invoiceDate'
@@ -261,7 +261,7 @@ export const stockDetailReportMethod = new ValidatedMethod({
                                 $project: projectionField({
                                     description: {$ifNull: ["$billDescription", 'ទិញចូល(Purchase)']},
                                     number: {$ifNull: ['$billDoc.voucherId', '$billDoc._id']},
-                                    name: '$billDoc._vendor.name',
+                                    name: {$ifNull: ['$billDoc._vendor.name', 'Removed Purchase']},
                                     rep: {$ifNull: ["$billDoc._rep.name", ""]},
                                     item: '$itemDoc',
                                     opDate: '$billDoc.enterBillDate'
@@ -320,7 +320,7 @@ export const stockDetailReportMethod = new ValidatedMethod({
                                 $project: projectionField({
                                     description: {$ifNull: ["$billDescription", 'ទិញចូល(Purchase)']},
                                     number: {$ifNull: ['$billDoc.voucherId', '$billDoc._id']},
-                                    name: '$billDoc._vendor.name',
+                                    name: {$ifNull: ['$billDoc._vendor.name', 'Removed Invoice-Bill']},
                                     rep: {$ifNull: ["$billDoc._rep.name", ""]},
                                     item: '$itemDoc',
                                     opDate: '$billDoc.enterBillDate'
@@ -669,7 +669,7 @@ function projectionField({item, description, name, number, rep, opDate}) {
         description: description,
         name: name,
         item: item,
-        opDate: opDate
+        opDate: opDate,
     }
 }
 function groupLast() {

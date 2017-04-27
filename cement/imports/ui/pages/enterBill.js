@@ -100,7 +100,7 @@ indexTmpl.events({
                             'error'
                         );
                     } else {
-                        alertify.enterBill(fa('pencil', TAPi18n.__('pos.enterBill.title')), renderTemplate(editTmpl, data));
+                        alertify.enterBill(fa('pencil', TAPi18n.__('cement.enterBill.title')), renderTemplate(editTmpl, data));
                     }
                 }
             });
@@ -134,7 +134,7 @@ indexTmpl.events({
                     destroyAction(
                         EnterBills,
                         {_id: data._id},
-                        {title: TAPi18n.__('pos.enterBill.title'), itemTitle: data._id}
+                        {title: TAPi18n.__('cement.enterBill.title'), itemTitle: data._id}
                     );
                 }
             }

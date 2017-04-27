@@ -14,7 +14,7 @@ import {correctFieldLabel} from '../../../imports/api/libs/correctFieldLabel';
 import {exchangeCoefficient} from '../../../imports/api/libs/exchangeCoefficient';
 import ReportFn from "../../../imports/api/libs/report";
 export const invoiceByCustomerReport = new ValidatedMethod({
-    name: 'pos.invoiceByCustomerReport',
+    name: 'cement.invoiceByCustomerReport',
     mixins: [CallPromiseMixin],
     validate: null,
     run(params) {

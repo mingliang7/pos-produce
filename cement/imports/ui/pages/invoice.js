@@ -153,7 +153,7 @@ indexTmpl.events({
                     destroyAction(
                         Invoices,
                         {_id: data._id},
-                        {title: TAPi18n.__('pos.invoice.title'), itemTitle: data._id}
+                        {title: TAPi18n.__('cement.invoice.title'), itemTitle: data._id}
                     );
                 }
             }

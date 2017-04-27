@@ -730,7 +730,7 @@ CementRoutes.route('/unitConvert', {
 
 import '../imports/ui/pages/print/printInvoice'
 CementRoutes.route('/print-invoice', {
-    name: 'pos.printInvoice',
+    name: 'cement.printInvoice',
     title: 'Invoice',
     action: function (params,queryParams) {
         BlazeLayout.render('PrintLayout', {printLayout: 'pos_printInvoice'});
