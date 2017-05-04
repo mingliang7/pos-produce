@@ -22,16 +22,16 @@
 <template name="PPOS_stockLocationNew">
     <div class="box-body">
         {{#autoForm collection=collection id="PPOS_stockLocationNew" type="insert"}}
-            <div class="row">
-                <div class="col-md-6">
-                    {{> afQuickField name='name'}}
-                </div>
-                <div class="col-md-6">
-                    {{> afQuickField name='description'}}
-                    {{> afQuickField type="hidden" name='branchId' value=currentBranch}}
-                </div>
+            <div class="col-md-12">
+                {{> afQuickField name='name'}}
             </div>
-
+            <div class="col-md-12">
+                {{> afQuickField name='parent' options=parentsOption}}
+            </div>
+            <div class="col-md-12">
+                {{> afQuickField name='description'}}
+                {{> afQuickField type="hidden" name='branchId' value=currentBranch}}
+            </div>
             {{> formFooterWithButton}}
         {{/autoForm}}
     </div>
@@ -40,23 +40,20 @@
 <!--Update-->
 <template name="PPOS_stockLocationEdit">
     <div class="box-body">
-        {{#if Template.subscriptionsReady}}
             {{#autoForm collection=collection id="PPOS_stockLocationEdit" doc=data type="update"}}
-                <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-12">
                         {{> afQuickField name='name'}}
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-12">
+                        {{> afQuickField name='parent' options=parentsOption}}
+                    </div>
+                    <div class="col-md-12">
                         {{> afQuickField name='description'}}
                         {{> afQuickField type="hidden" name='branchId' value=currentBranch}}
                     </div>
-                </div>
 
                 {{> formFooterWithButton}}
             {{/autoForm}}
-        {{else}}
-            {{> loading}}
-        {{/if}}
     </div>
 </template>
 

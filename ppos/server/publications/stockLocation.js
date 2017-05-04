@@ -12,7 +12,8 @@ Meteor.publish('ppos.stockLocation', function cementStockLocation(selector, opti
         options: {type: Object, blackbox: true}
     }).validate({selector, options});
     if (this.userId) {
-        let data = StockLocations.find(selector, options);
+        let data = StockLocations.find(selector);
+        console.log(data);
         return data;
     }
     return this.ready();

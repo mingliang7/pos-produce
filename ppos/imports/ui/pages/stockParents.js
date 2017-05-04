@@ -127,7 +127,8 @@ newTmpl.helpers({
 newTmpl.events({
     'change [name="parents"]'(event, instance){
         tmpParents.remove({});
-        let currentOption = $('option:selected', event.currentTarget).attr('data-parents');
+        let currentSelected =  $('option:selected', event.currentTarget)
+        let currentOption = currentSelected.attr('data-parents');
         tmpParents.insert({parentId: event.currentTarget.value, parents: currentOption.split(',')});
     }
 });

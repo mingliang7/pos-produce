@@ -26,5 +26,5 @@ tabularOpts.columns = [
     {data: "description", title: "Description"},
    // {data: "description", title: "Description"}
 ];
-//tabularOpts.extraFields=['_parent'];
+tabularOpts.extraFields=['parent'];
 export const StockLocationTabular = new Tabular.Table(tabularOpts);

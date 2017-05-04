@@ -42,7 +42,7 @@ let indexTmpl = Template.PPOS_stockLocation,
 // Index
 indexTmpl.onCreated(function () {
     // Create new  alertify
-    createNewAlertify('stockLocation', {size: 'lg'});
+    createNewAlertify('stockLocation');
     createNewAlertify('stockLocationShow',);
 
     // Reactive table filter
@@ -95,16 +95,38 @@ indexTmpl.events({
         alertify.stockLocationShow(fa('eye', TAPi18n.__('ppos.stockLocation.title')), renderTemplate(showTmpl, this));
     }
 });
-
+//newTmpl created
+newTmpl.onCreated(function () {
+    this.parentsSelectOptions = new ReactiveVar([]);
+    Meteor.call('fetchStockParentsAsSelectOptions', (err, result) => {
+        if (!err) {
+            this.parentsSelectOptions.set(result);
+        }
+    });
+});
 // New
 newTmpl.helpers({
     collection(){
         return StockLocations;
+    },
+    parentsOption(){
+        let instance = Template.instance();
+        let parents = instance.parentsSelectOptions.get();
+        parents.forEach(function (list) {
+            list.label = Spacebars.SafeString(list.label);
+        });
+        return parents;
     }
 });
 
 // Edit
 editTmpl.onCreated(function () {
+    this.parentsSelectOptions = new ReactiveVar([]);
+    Meteor.call('fetchStockParentsAsSelectOptions', (err, result) => {
+        if (!err) {
+            this.parentsSelectOptions.set(result);
+        }
+    });
     this.autorun(()=> {
         this.subscribe('ppos.stockLocation', {_id: this.data._id});
     });
@@ -116,14 +138,23 @@ editTmpl.helpers({
     },
     data () {
         let data = StockLocations.findOne(this._id);
+        debugger
         return data;
+    },
+    parentsOption(){
+        let instance = Template.instance();
+        let parents = instance.parentsSelectOptions.get();
+        parents.forEach(function (list) {
+            list.label = Spacebars.SafeString(list.label);
+        });
+        return parents;
     }
 });
 
 // Show
 showTmpl.onCreated(function () {
     this.autorun(()=> {
-        this.subscribe('ppos.stockLocation', {_id: this.data._id});
+        this.subscribe('ppos.stockLocation', {_id: this.data._id},{});
     });
 });
 
