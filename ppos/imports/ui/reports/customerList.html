@@ -1,0 +1,83 @@
+<template name="PPOS_customerListReport">
+    <div class="panel-group" id="accordion1">
+        <div class="panel panel-default">
+            <div class="panel-group" id="accordion1">
+                <div class="no-print panel-heading">
+                    <h5 class="panel-title">
+                        <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion1"
+                           href="#accordion1_1">ចុចទីនេះដើម្បីបង្ហាញឬលាក់ Form</a>
+                    </h5>
+                </div>
+                <div id="accordion1_1" class="no-print panel-collapse collapse in">
+                    <div class="panel-body">
+                        <div class="container-fluid">
+                            <div class="inbox-head report-header">
+                                {{#autoForm schema=schema id='customerListReport'}}
+                                    <div class="row">
+                                        <div class="col-md-2">
+                                            {{> afQuickField name="branchId" label= 'Branch'}}
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-primary"><i class="fa fa-play" aria-hidden="true"></i> Run
+                                    </button>
+                                    <a class="btn btn-default printReport"><i class="fa fa-print "
+                                                                  aria-hidden="true"></i>
+                                        Print</a>
+                                {{/autoForm}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {{>customerListReportData}}
+            </div>
+        </div>
+    </div>
+</template>
+
+<template name="customerListReportData">
+    <div class="container-fluid" id="to-print">
+        {{#with company}}
+            <div class="col-xs-12">
+                <h5 class="text-center text-blue">{{khName}}</h5>
+            </div>
+        {{/with}}
+        <div class="col-md-12" align="center"><h5 class="text-blue">Customer List</h5></div>
+        <table class="table table-striped ">
+            <thead>
+            <tr>
+                <th>
+                    Cust
+                </th>
+                <th>
+                    Duplicated
+                </th>
+                <th>
+                    Telephone
+                </th>
+                <th>
+                    Address
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            {{#with data}}
+                {{#each col in content}}
+                    {{#each customer in col.customers}}
+                        <tr>
+                            <td>{{customer.name}}</td>
+                            <td>
+                                {{#if col.isDuplicated}}
+                                    <i class="fa fa-check"></i> duplicate
+                                {{/if}}
+                            </td>
+                            <td>{{customer.telephone}}</td>
+                            <td>{{customer.address}}</td>
+                        </tr>
+                    {{/each}}
+                {{/each}}
+            {{/with}}
+            </tbody>
+        </table>
+        {{> ReportSignFooter}}
+    </div>
+</template>

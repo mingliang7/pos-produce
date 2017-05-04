@@ -1,0 +1,698 @@
+<template name="PPOS_sidebarMenu">
+    <li class="{{isActiveRoute name='ppos.home'}}">
+        <a href="{{pathFor 'ppos.home'}}">
+            <i class="fa fa-home"></i> <span>{{_ "ppos.sidebarMenu.home"}}</span>
+        </a>
+    </li>
+    <li class="treeview {{isActiveRoute name='acc.payment'}}">
+        <a href="{{pathFor 'acc.payment'}}">
+            <i class="fa fa-plus"></i>
+            <span>{{_ "acc.sidebarMenu.payment"}}</span>
+        </a>
+    </li>
+    <li class="treeview {{isActiveRoute name='acc.received'}}">
+        <a href="{{pathFor 'acc.received'}}">
+            <i class="fa fa-plus"></i>
+            <span>{{_ "acc.sidebarMenu.received"}}</span>
+        </a>
+    </li>
+    <!--Data-->
+    {{#if isInRole 'data-insert,data-update,data-remove' 'PPOS'}}
+        <li class="treeview active">
+            <a href="#">
+                <i class=""></i>
+                <span>CUSTOMER</span>
+                <i class="fa fa-angle-left pull-right"></i>
+            </a>
+            <ul class="treeview-menu menu-open" style="display: block;">
+                {{#if isInRole 'form-customer' 'PPOS'}}
+                    <li class="{{isActiveRoute name='ppos.customer'}}">
+                        <a href="{{pathFor 'ppos.customer'}}">
+                            <i class="fa fa-male"></i> <span>{{_ "ppos.sidebarMenu.customer"}}</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'form-sale-order' 'PPOS'}}
+
+                    <li class="{{isActiveRoute name='ppos.order'}}">
+                        <a href="{{pathFor 'ppos.order'}}">
+                            <i class="fa fa-shopping-cart"></i> <span>{{_ "ppos.sidebarMenu.order"}}</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'form-invoice' 'PPOS'}}
+                    <li class="{{isActiveRoute name='ppos.invoice'}}">
+                        <a href="{{pathFor 'ppos.invoice'}}">
+                            <i class="fa fa-file-text"></i> <span>{{_ "ppos.sidebarMenu.invoice"}}</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'form-receive-payment' 'PPOS'}}
+                    <li class="{{isActiveRoute name='ppos.receivePayment'}}">
+                        <a href="{{pathFor 'ppos.receivePayment'}}">
+                            <i class="fa fa-money"></i> <span>Receive Payment</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'list-receive-payment-transaction' 'PPOS'}}
+                    <li class="{{isActiveRoute name='ppos.paymentTransactionList'}}">
+                        <a href="{{pathFor 'ppos.paymentTransactionList'}}">
+                            <i class="fa fa-exchange"></i> <span>Payment Transaction</span>
+                        </a>
+                    </li>
+                {{/if}}
+                <!--{{#if isInRole 'form-ts-payment' 'PPOS'}}
+                    <li class="{{isActiveRoute name='ppos.tsPayment'}}">
+                        <a href="{{pathFor 'ppos.tsPayment'}}">
+                            <i class="fa fa-money"></i> <span>TSPayment</span>
+                        </a>
+                    </li>
+                {{/if}}
+                    {{#if isInRole 'list-ts-payment' 'PPOS'}}
+                    <li class="{{isActiveRoute name='ppos.tsPaymentList'}}">
+                        <a href="{{pathFor 'ppos.tsPaymentList'}}">
+                            <i class="fa fa-exchange"></i> <span>TSPayment List</span>
+                        </a>
+                    </li>
+                {{/if}}
+                    {{#if isInRole 'form-tsso-payment' 'PPOS'}}
+                    <li class="{{isActiveRoute name='ppos.tsSoPayment'}}">
+                        <a href="{{pathFor 'ppos.tsSoPayment'}}">
+                            <i class="fa fa-money"></i> <span>TS SO Payment</span>
+                        </a>
+                    </li>
+                {{/if}}
+                    {{#if isInRole 'list-tsso-payment' 'PPOS'}}
+                    <li class="{{isActiveRoute name='ppos.tsSoPaymentList'}}">
+                        <a href="{{pathFor 'ppos.tsSoPaymentList'}}">
+                            <i class="fa fa-exchange"></i> <span>TSSO Payment List</span>
+                        </a>
+                    </li>
+                {{/if}}-->
+                {{#if isInRole 'form-so-receive-payment' 'PPOS'}}
+                    <li class="{{isActiveRoute name='ppos.saleOrderReceivePayment'}}">
+                        <a href="{{pathFor 'ppos.saleOrderReceivePayment'}}">
+                            <i class="fa fa-money"></i> <span>SO Receive Payment</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'list-so-receive-payment-transaction' 'PPOS'}}
+                    <li class="{{isActiveRoute name='ppos.soPaymentTransaction'}}">
+                        <a href="{{pathFor 'ppos.soPaymentTransaction'}}">
+                            <i class="fa fa-exchange"></i> <span>SO Receive Payment List</span>
+                        </a>
+                    </li>
+                {{/if}}
+            </ul>
+        </li>
+        <li class="treeview">
+            <a href="#">
+                <i class=""></i>
+                <span>VENDOR</span>
+                <i class="fa fa-angle-left pull-right"></i>
+            </a>
+            <ul class="treeview-menu" style="display: none;">
+                {{#if isInRole 'form-vendor' 'PPOS'}}
+                    <li class="{{isActiveRoute name='ppos.vendor'}}">
+                        <a href="{{pathFor 'ppos.vendor'}}">
+                            <i class="fa fa-male" aria-hidden="true"></i> <span>Vendor</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'form-purchase-order' 'PPOS'}}
+                    <li class="{{isActiveRoute name='ppos.purchaseOrder'}}">
+                        <a href="{{pathFor 'ppos.purchaseOrder'}}">
+                            <i class="fa fa-file-text" aria-hidden="true"></i>
+                            <span>{{_ "ppos.sidebarMenu.purchaseOrder"}}</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'form-enter-bill' 'PPOS'}}
+                    <li class="{{isActiveRoute name='ppos.enterBill'}}">
+                        <a href="{{pathFor 'ppos.enterBill'}}">
+                            <i class="fa fa-file-text" aria-hidden="true"></i>
+                            <span>{{_ "ppos.sidebarMenu.enterBill"}}</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'list-group-bill' 'PPOS'}}
+                    <li class="{{isActiveRoute name='ppos.groupBillList'}}">
+                        <a href="{{pathFor 'ppos.groupBillList'}}">
+                            <i class="fa fa-list-alt" aria-hidden="true"></i> <span>Group Bill List</span>
+                        </a>
+                    </li>
+                {{/if}}
+                <!--<li class="{{isActiveRoute name='ppos.prepaidOrder'}}">
+				<a href="{{pathFor 'ppos.prepaidOrder'}}">
+					<i class="fa fa-cart-arrow-down" aria-hidden="true"></i> <span>Prepaid Order</span>
+				</a>
+			</li>-->
+                {{#if isInRole 'form-pay-bill' 'PPOS'}}
+                    <li class="{{isActiveRoute name='ppos.payBill'}}">
+                        <a href="{{pathFor 'ppos.payBill'}}">
+                            <i class="fa fa-money"></i> <span>Pay Bill</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'list-pay-bill-transaction' 'PPOS'}}
+                    <li class="{{isActiveRoute name='ppos.payBillTransactionList'}}">
+                        <a href="{{pathFor 'ppos.payBillTransactionList'}}">
+                            <i class="fa fa-exchange"></i> <span>PayBill Transaction</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'form-po-payment' 'PPOS'}}
+                    <li class="{{isActiveRoute name='ppos.purchaseOrderPayment'}}">
+                        <a href="{{pathFor 'ppos.purchaseOrderPayment'}}">
+                            <i class="fa fa-money"></i> <span>PO Payment</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'list-po-payment-transaction' 'PPOS'}}
+                    <li class="{{isActiveRoute name='ppos.purchaseOrderPaymentTransaction'}}">
+                        <a href="{{pathFor 'ppos.purchaseOrderPaymentTransaction'}}">
+                            <i class="fa fa-exchange"></i> <span>PO Payment Transaction</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole  'form-lending-stock' 'PPOS'}}
+                    <li class="{{isActiveRoute name='ppos.lendingStock'}}">
+                        <a href="{{pathFor 'ppos.lendingStock'}}">
+                            <i class="fa fa-share-square-o"></i> <span>{{_ "ppos.sidebarMenu.lendingStock"}}</span>
+                        </a>
+                    </li>
+                {{/if}}
+            </ul>
+        </li>
+        <li class="treeview">
+            <a href="#">
+                <i class="fa fa-database" aria-hidden="true"></i>
+                <span>Data</span>
+                <i class="fa fa-angle-left pull-right"></i>
+            </a>
+            <ul class="treeview-menu" style="display: none;">
+                <li class="{{isActiveRoute name='ppos.transferMoney'}}">
+                    <a href="{{pathFor 'ppos.transferMoney'}}">
+                        <i class="fa fa-money" aria-hidden="true"></i>
+                        <span>Transfer Money</span>
+                    </a>
+                </li>
+                <li class="{{isActiveRoute name='ppos.transferMoneyRequest'}}">
+                    <a href="{{pathFor 'ppos.transferMoneyRequest'}}">
+                        <i class="fa fa-money" aria-hidden="true"></i>
+                        <span>Transfer Money Request</span>
+                    </a>
+                </li>
+                <li class="{{isActiveRoute name='ppos.receiveItem'}}">
+                    <a href="{{pathFor 'ppos.receiveItem'}}">
+                        <i class="fa fa-arrow-circle-o-down" aria-hidden="true"></i>
+                        <span>Receive Item</span>
+                    </a>
+                </li>
+                <li class="{{isActiveRoute name='ppos.stockLocation'}}">
+                    <a href="{{pathFor 'ppos.stockLocation'}}">
+                        <i class="fa fa-tasks" aria-hidden="true"></i>
+                        <span>{{_ "ppos.sidebarMenu.stockLocation"}}</span>
+                    </a>
+                </li>
+                <li class="{{isActiveRoute name='ppos.locationTransfer'}}">
+                    <a href="{{pathFor 'ppos.locationTransfer'}}">
+                        <i class="fa fa-compress" aria-hidden="true"></i>
+                        <span>Location Transfer</span>
+                    </a>
+                </li>
+                <li class="{{isActiveRoute name='ppos.confirmTransferLocation'}}">
+                    <a href="{{pathFor 'ppos.confirmTransferLocation'}}">
+                        <i class="fa fa-circle-o" aria-hidden="true"></i>
+                        <span>Location Transfers Request</span>
+                    </a>
+                </li>
+                <li class="{{isActiveRoute name='ppos.ringPullTransfer'}}">
+                    <a href="{{pathFor 'ppos.ringPullTransfer'}}">
+                        <i class="fa fa-life-ring" aria-hidden="true"></i>
+                        <span>Ring Pull Transfer</span>
+                    </a>
+                </li>
+                <li class="{{isActiveRoute name='ppos.ringPullTransferRequest'}}">
+                    <a href="{{pathFor 'ppos.ringPullTransferRequest'}}">
+                        <i class="fa fa-life-ring" aria-hidden="true"></i>
+                        <span>Ring Pull Transfer Request</span>
+                    </a>
+                </li>
+                <li class="{{isActiveRoute name='ppos.exchangeRingPull'}}">
+                    <a href="{{pathFor 'ppos.exchangeRingPull'}}">
+                        <i class="fa fa-building-o" aria-hidden="true"></i>
+                        <span>Exchange Ring Pull</span>
+                    </a>
+                </li>
+                <li class="{{isActiveRoute name='ppos.companyExchangeRingPull'}}">
+                    <a href="{{pathFor 'ppos.companyExchangeRingPull'}}">
+                        <i class="fa fa-building" aria-hidden="true"></i>
+                        <span>Company Exchange Ring Pull</span>
+                    </a>
+                </li>
+                <li class="{{isActiveRoute name='ppos.exchangeGratis'}}">
+                    <a href="{{pathFor 'ppos.exchangeGratis'}}">
+                        <i class="fa fa-gift" aria-hidden="true"></i>
+                        <span>Exchange Gratis</span>
+                    </a>
+                </li>
+            </ul>
+        </li>
+    {{/if}}
+
+    <!--Report-->
+    {{#if isInRole 'reporter' 'PPOS'}}
+        <li class="treeview">
+            <a href="#">
+                <i class="fa fa-bar-chart" aria-hidden="true"></i>
+                <span>REPORT</span>
+                <i class="fa fa-angle-left pull-right"></i>
+            </a>
+            <ul class="treeview-menu" style="display: none;">
+                <li class="header">
+                    <a href="{{pathFor 'ppos.mainReport'}}">
+                        <i class="fa fa-file-o"></i>
+                        <span>MAIN</span>
+                    </a>
+                </li>
+                <li class="{{isActiveRoute name='acc.cashReport'}}">
+                    <a href="{{pathFor 'acc.cashReport'}}">
+                        <i class="fa fa-angle-right"></i> <span>{{_ "acc.sidebarMenu.cashReport"}}</span>
+                    </a>
+                </li>
+                <li class="treeview">
+                    <a href="#">
+                        <span>Customer</span>
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </a>
+                    <ul class="treeview-menu" style="display: none;">
+                        <li>
+                            <a href="{{customerList}}">
+                                <i class="fa fa-file-o"></i>
+                                <span>Customer List</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{groupInvoice}}">
+                                <i class="fa fa-file-o"></i>
+                                <span>Group Invoice Report</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{groupBalance}}">
+                                <i class="fa fa-file-o"></i>
+                                <span>Group Balance Report</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{customerHistory}}">
+                                <i class="fa fa-file-o"></i>
+                                <span>Customer History</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{customerHistorySO}}">
+                                <i class="fa fa-file-o"></i>
+                                <span>Customer History SO</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{unpaidSoByCustomer}}">
+                                <i class="fa fa-file-o"></i>
+                                <span>Unpaid SO by customer</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{termBalance}}">
+                                <i class="fa fa-file-o"></i>
+                                <span>Unpaid by customer Report</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{unpaidCustomerSummary}}">
+                                <i class="fa fa-file-o"></i>
+                                <span>Unpaid Customer Summary</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{invoiceByCustomer}}">
+                                <i class="fa fa-file-o"></i>
+                                <span>Sale By Customer</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{invoiceEnterBill}}">
+                                <i class="fa fa-file-o"></i>
+                                <span>Sale & EnterBill</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{invoiceByItem}}">
+                                <i class="fa fa-file-o"></i>
+                                <span>Sale By Item</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{invoiceSummary}}">
+                                <i class="fa fa-file-o"></i>
+                                <span>Sale Summary</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{receivePayment}}">
+                                <i class="fa fa-file-o"></i>
+                                <span>Receive Payment</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{saleOrderDetail}}">
+                                <i class="fa fa-file-o"></i>
+                                <span>Sale Order Detail</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{saleOrder}}">
+                                <i class="fa fa-file-o"></i>
+                                <span>Sale Order</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{saleOrderSummary}}">
+                                <i class="fa fa-file-o"></i>
+                                <span>Sale Order Summary</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{stockBalance}}">
+                                <i class="fa fa-file-o"></i>
+                                <span>Stock Balance</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{stockDetail}}">
+                                <i class="fa fa-file-o"></i>
+                                <span>Stock Detail</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="treeview">
+                    <a href="#">
+                        <span>Vendor</span>
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </a>
+                    <ul class="treeview-menu" style="display: none;">
+                        <li>
+                            <a href="{{bill}}">
+                                <i class="fa fa-file-o"></i>
+                                <span>Enter Bill Summary</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{billByItem}}">
+                                <i class="fa fa-file-o"></i>
+                                <span>Enter Bill By Item</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{billByVendor}}">
+                                <i class="fa fa-file-o"></i>
+                                <span>Enter Bill By Vendor</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{groupBill}}">
+                                <i class="fa fa-file-o"></i>
+                                <span>Group Enter Bill</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{payEnterBill}}">
+                                <i class="fa fa-file-o"></i>
+                                <span>Pay Enter Bill</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{vendorTermHistory}}">
+                                <i class="fa fa-file-o"></i>
+                                <span>Vendor Term History</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{payBillHistory}}">
+                                <i class="fa fa-file-o"></i>
+                                <span>Vendor History</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{vendorGroupHistory}}">
+                                <i class="fa fa-file-o"></i>
+                                <span>Vendor Group History</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{prepaidOrder}}">
+                                <i class="fa fa-file-o"></i>
+                                <span>Prepaid Order</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{purchaseOrder}}">
+                                <i class="fa fa-file-o"></i>
+                                <span>Purchase Order</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{purchaseOrderDetail}}">
+                                <i class="fa fa-file-o"></i>
+                                <span>Purchase Order Detail</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="treeview">
+                    <a href="#">
+                        <span>Data</span>
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </a>
+                    <ul class="treeview-menu" style="display: none;">
+                        <li>
+                            <a href="{{companyExchangeRingPull}}">
+                                <i class="fa fa-file-o"></i>
+                                <span>Company Exchange <br>&emsp;&emsp;Ring Pull</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{exchangeGratis}}">
+                                <i class="fa fa-file-o"></i>
+                                <span>Exchange Gratis</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{exchangeRingPull}}">
+                                <i class="fa fa-file-o"></i>
+                                <span>Exchange Ringpull</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{exchangeRingPullStockBalance}}">
+                                <i class="fa fa-file-o"></i>
+                                <span>Exchange Ringpull <br>&emsp;&emsp;Stock Balance</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{lendingStock}}">
+                                <i class="fa fa-file-o"></i>
+                                <span>Lending Stock</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{locationTransfer}}">
+                                <i class="fa fa-file-o"></i>
+                                <span>Location Transfer</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{receiveItemSummary}}">
+                                <i class="fa fa-file-o"></i>
+                                <span>Receive Item Summary</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ringPullTransfer}}">
+                                <i class="fa fa-file-o"></i>
+                                <span>Ring Pull Transfer</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{transferMoney}}">
+                                <i class="fa fa-file-o"></i>
+                                <span>Transfer Money</span>
+                            </a>
+                        </li>
+
+                        <li class="{{isActiveRoute name='acc.cashReport'}}">
+                            <a href="{{pathFor 'acc.cashReport'}}">
+                                <i class="fa fa-angle-right"></i> <span>{{_ "acc.sidebarMenu.cashReport"}}</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+
+        </li>
+    {{/if}}
+
+    <!--Settings-->
+    {{#if isInRole 'setting' 'PPOS'}}
+        <li class="treeview">
+            <a href="#">
+                <i class="fa fa-cogs"></i>
+                <span>SETTING</span>
+                <i class="fa fa-angle-left pull-right"></i>
+            </a>
+            <ul class="treeview-menu" style="display: none;">
+                <li class="{{isActiveRoute name='ppos.stockParents'}}">
+                    <a href="{{pathFor 'ppos.stockParents'}}">
+                        <i class="fa fa-level-down"></i> <span>Stock Parents</span>
+                    </a>
+                </li>
+                {{#if isInRole 'setting-advance-discount' 'PPOS'}}
+                    <li class="{{isActiveRoute name='ppos.advanceDiscount'}}">
+                        <a href="{{pathFor 'ppos.advanceDiscount'}}">
+                            <i class="fa fa-level-down"></i> <span>Advance Discount</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'setting-representative' 'PPOS'}}
+                    <li class="{{isActiveRoute name='ppos.rep'}}">
+                        <a href="{{pathFor 'ppos.rep'}}">
+                            <i class="fa fa-group"></i> <span>Reps</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'setting-exchange' 'PPOS'}}
+                    <li class="{{isActiveRoute name='core.exchange'}}">
+                        <a href="{{pathFor 'core.exchange'}}">
+                            <i class="fa fa-money"></i> <span>{{_ "core.sidebarMenu.exchange"}}</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'setting-category' 'PPOS'}}
+                    <li class="{{isActiveRoute name='ppos.categroy'}}">
+                        <a href="{{pathFor 'ppos.category'}}">
+                            <i class="fa fa-sitemap"></i> <span>{{_ "ppos.sidebarMenu.category"}}</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'setting-unit' 'PPOS'}}
+                    <li class="{{isActiveRoute name='ppos.unit'}}">
+                        <a href="{{pathFor 'ppos.unit'}}">
+                            <i class="fa fa-beer"></i> <span>Unit</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'setting-item' 'PPOS'}}
+                    <li class="{{isActiveRoute name='ppos.item'}}">
+                        <a href="{{pathFor 'ppos.item'}}">
+                            <i class="fa fa-list-ul"></i> <span>{{_ "ppos.sidebarMenu.item"}}</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'setting-truck' 'PPOS'}}
+                    <li class="{{isActiveRoute name='ppos.truck'}}">
+                        <a href="{{pathFor 'ppos.truck'}}">
+                            <i class="fa fa-car"></i> <span>Truck</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'setting-item-price-for-customer' 'PPOS'}}
+                    <li class="{{isActiveRoute name='ppos.itemPriceForCustomer'}}">
+                        <a href="{{pathFor 'ppos.itemPriceForCustomer'}}">
+                            <i class="fa fa-usd"></i> <span>{{_ "ppos.sidebarMenu.itemPriceForCustomer"}}</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'setting-quantity-range-mapping' 'PPOS'}}
+                    <li class="{{isActiveRoute name='ppos.quantityRangeMapping'}}">
+                        <a href="{{pathFor 'ppos.quantityRangeMapping'}}">
+                            <i class="fa fa-usd"></i> <span>Quantity Range Mapping</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'setting-unit-convert' 'PPOS'}}
+                    <li class="{{isActiveRoute name='ppos.unitConvert'}}">
+                        <a href="{{pathFor 'ppos.unitConvert'}}">
+                            <i class="fa fa-exchange" aria-hidden="true"></i>
+                            <span>Unit Convert</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'setting-term' 'PPOS'}}
+                    <li class="{{isActiveRoute name='ppos.term'}}">
+                        <a href="{{pathFor 'ppos.term'}}">
+                            <i class="fa fa-angle-right"></i> <span>Term</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'setting-payment-group' 'PPOS'}}
+                    <li class="{{isActiveRoute name='ppos.paymentGroup'}}">
+                        <a href="{{pathFor 'ppos.paymentGroup'}}">
+                            <i class="fa fa-angle-right"></i> <span>{{_ "ppos.sidebarMenu.paymentGroup"}}</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'setting-credit-validation' 'PPOS'}}
+                    <li class="{{isActiveRoute name='ppos.creditValidation'}}">
+                        <a href="{{pathFor 'ppos.creditValidation'}}">
+                            <i class="fa fa-angle-right"></i> <span>Credit Validation</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'setting-white-list-customer' 'PPOS'}}
+                    <li class="{{isActiveRoute name='ppos.whiteListCustomer'}}">
+                        <a href="{{pathFor 'ppos.whiteListCustomer'}}">
+                            <i class="fa fa-angle-right"></i> <span>White List Customer</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'setting-penalty' 'PPOS'}}
+                    <li class="{{isActiveRoute name='ppos.penalty'}}">
+                        <a href="{{pathFor 'ppos.penalty'}}">
+                            <i class="fa fa-angle-right"></i> <span>Penalty</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'setting-account-integration' 'PPOS'}}
+                    <li class="{{isActiveRoute name='ppos.accountIntegrationSetting'}}">
+                        <a href="{{pathFor 'ppos.accountIntegrationSetting'}}">
+                            <i class="fa fa-angle-right"></i> <span>Account Integrated</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'setting-closing' 'PPOS'}}
+                    <li class="{{isActiveRoute name='ppos.closing'}}">
+                        <a href="{{pathFor 'ppos.closing'}}">
+                            <i class="fa fa-angle-right"></i> <span>Closing</span>
+                        </a>>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'setting-stock-location-mapping' 'PPOS'}}
+                    <li class="{{isActiveRoute name='ppos.stockAndAccountMapping'}}">
+                        <a href="{{pathFor 'ppos.stockAndAccountMapping'}}">
+                            <i class="fa fa-angle-right"></i> <span>Stock Mapping</span>
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if isInRole 'setting-account-mapping' 'PPOS'}}
+                    <li class="{{isActiveRoute name='ppos.accountMapping'}}">
+                        <a href="{{pathFor 'ppos.accountMapping'}}">
+                            <i class="fa fa-angle-right"></i> <span>Account Mapping</span>
+                        </a>
+                    </li>
+                {{/if}}
+            </ul>
+        </li>
+    {{/if}}
+</template>

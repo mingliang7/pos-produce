@@ -11,7 +11,7 @@ module.exports = {
 
  meteor: {
    name: 'Cement',
-   path: '../cement',
+   path: '../ppos',
    servers: {
      one: {}
    },
@@ -21,7 +21,7 @@ module.exports = {
    env: {
      // PORT: 8080,
      ROOT_URL: 'http://128.199.190.236',
-     MONGO_URL: 'mongodb://localhost/cement'
+     MONGO_URL: 'mongodb://localhost/ppos'
    },
    dockerImage: 'abernix/meteord:base',
    deployCheckWaitTime: 120
