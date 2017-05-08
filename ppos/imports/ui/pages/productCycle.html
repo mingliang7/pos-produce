@@ -1,0 +1,157 @@
+<template name="PPOS_productCycle">
+    <div class="box-header with-border">
+        <h3 class="box-title">
+            {{> addNewButton}}
+            {{#each productCycleSetup}}
+                <input class="cycle-setup" type="checkbox" value="{{_id}}">{{name}}
+            {{/each}}
+        </h3>
+    </div>
+    <div class="box-body">
+        {{> tabular table=tabularTable selector=selector class="table table-striped table-bordered table-condensed"}}
+    </div>
+</template>
+
+<template name="PPOS_productCycleNew">
+    <div class="box-body">
+        {{#autoForm collection=collection id="PPOS_productCycleNew" type="insert"}}
+            <div class="row">
+                <div class="col-md-3">
+                    {{> afQuickField name='name'}}
+                </div>
+                <div class="col-md-3">
+                    {{> afQuickField name='cycleType'}}
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <hr>
+                    <h4 class="text-blue"><u>IN</u></h4>
+                </div>
+            </div>
+            {{> PPOS_tmpItemIn}}
+            <div class="row">
+                <div class="col-md-12">
+                    <hr>
+                    <h4 class="text-blue"><u>OUT</u></h4>
+                </div>
+            </div>
+            {{> PPOS_tmpItemOut}}
+            {{> formFooterWithButton}}
+        {{/autoForm}}
+    </div>
+</template>
+
+<template name="PPOS_productCycleEdit">
+    <div class="box-body">
+        {{#autoForm collection=collection doc=doc id="PPOS_productCycleNew" type="update"}}
+            <div class="row">
+                <div class="col-md-3">
+                    {{> afQuickField name='name'}}
+                </div>
+                <div class="col-md-3">
+                    {{> afQuickField name='cycleType'}}
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <hr>
+                    <h4 class="text-blue"><u>IN</u></h4>
+                </div>
+            </div>
+            {{> PPOS_tmpItemIn}}
+            <div class="row">
+                <div class="col-md-12">
+                    <hr>
+                    <h4 class="text-blue"><u>OUT</u></h4>
+                </div>
+            </div>
+            {{> PPOS_tmpItemOut}}
+            {{> formFooterWithButton}}
+        {{/autoForm}}
+    </div>
+</template>
+<template name="PPOS_productCycleAction">
+    {{#columnAction align="right"}}
+        <li><a class="js-update"><i class="fa fa-pencil"></i> {{_ "action.edit"}}</a></li>
+        <li><a class="js-destroy"><i class="fa fa-remove"></i> {{_ "action.delete"}}</a></li>
+        <li><a class="js-display"><i class="fa fa-eye"></i> {{_ "action.show"}}</a></li>
+    {{/columnAction}}
+</template>
+
+
+<template name="PPOS_tmpItemIn">
+    {{#autoForm schema=schema id="PPOS_tmpItemIn"}}
+        <div class="row">
+            <div class="col-md-3">
+                {{>afQuickField name="itemId" label=false}}
+            </div>
+            <div class="col-md-3">
+                {{>afQuickField name="qty" label=false}}
+            </div>
+            <div class="col-sm-1">
+                <button type="button" class="btn btn-primary js-add-item" {{disabledAddItemBtn}}>+</button>
+            </div>
+        </div>
+    {{/autoForm}}
+    <div class="row">
+        <div class="col-md-5">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>ITEM</th>
+                    <th>QTY</th>
+                </tr>
+                </thead>
+                <tbody>
+                {{#each tmpInCollection}}
+                    <tr>
+                        <td>{{itemName}}</td>
+                        <td>{{qty}}</td>
+                        <td><a class="cursor-pointer remove-itemIn" data-itemId="{{_id}}">[x] Remove</a></td>
+                    </tr>
+                {{/each}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</template>
+
+<template name="PPOS_tmpItemOut">
+    {{#autoForm schema=schema id="PPOS_tmpItemOut"}}
+        <div class="row">
+            <div class="col-md-3">
+                {{>afQuickField name="itemId" label=false}}
+            </div>
+            <div class="col-md-3">
+                {{>afQuickField name="qty" label=false}}
+            </div>
+            <div class="col-sm-1">
+                <button type="button" class="btn btn-primary js-add-item" {{disabledAddItemBtn}}>+</button>
+            </div>
+        </div>
+    {{/autoForm}}
+    <div class="row">
+        <div class="col-md-5">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>ITEM</th>
+                    <th>QTY</th>
+                </tr>
+                </thead>
+                <tbody>
+                {{#each tmpOutCollection}}
+                    <tr>
+                        <td>{{itemName}}</td>
+                        <td>{{qty}}</td>
+                        <td><a class="cursor-pointer remove-itemOut" data-itemId="{{_id}}">[x] Remove</a></td>
+                    </tr>
+                {{/each}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</template>

@@ -851,3 +851,31 @@ PPOSRoutes.route('/stockParents', {
         parent: 'ppos.home'
     }
 });
+
+import '../imports/ui/pages/productCycle'
+PPOSRoutes.route('/product-cycle', {
+    name: 'ppos.productCycle',
+    title: 'Product Cycle',
+    action: function (params,queryParams) {
+        Layout.main('PPOS_productCycle');
+    },
+    breadcrumb: {
+        title: 'Product Cycle',
+        icon: '',
+        parent: 'ppos.home'
+    }
+});
+
+import '../imports/ui/pages/productCycleSetup'
+PPOSRoutes.route('/product-cycle-setup', {
+    name: 'ppos.productCycleSetup',
+    title: 'Product Cycle Setup',
+    action: function (params,queryParams) {
+        Layout.main('PPOS_productCycleSetup');
+    },
+    breadcrumb: {
+        title: 'Product Cycle Setup',
+        icon: '',
+        parent: 'ppos.home'
+    }
+});

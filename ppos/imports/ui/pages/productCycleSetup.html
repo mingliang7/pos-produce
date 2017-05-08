@@ -1,0 +1,46 @@
+<template name="PPOS_productCycleSetup">
+    <div class="box-header with-border">
+        <h3 class="box-title">
+            {{> addNewButton}}
+        </h3>
+    </div>
+    <div class="box-body">
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Cycle Order</th>
+                <th>Description</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            {{#each productCyclesSetup}}
+                <tr>
+                    <td>{{name}}</td>
+                    <td>{{cycleOrder}}</td>
+                    <td>{{desc}}</td>
+                    <td><a href="#" class="js-destroy">Remove</a></td>
+                </tr>
+            {{/each}}
+            </tbody>
+        </table>
+    </div>
+</template>
+
+<template name="PPOS_productCycleSetupNew">
+    <div class="box-body">
+        {{#autoForm collection=collection id="PPOS_productCycleSetupNew" type="insert"}}
+                <div class="col-md-12">
+                    {{> afQuickField name='name'}}
+                </div>
+                <div class="col-md-12">
+                    {{> afQuickField name='cycleOrder'}}
+                </div>
+                <div class="col-md-12">
+                    {{> afQuickField name='desc'}}
+                </div>
+            {{> formFooterWithButton}}
+        {{/autoForm}}
+    </div>
+</template>
